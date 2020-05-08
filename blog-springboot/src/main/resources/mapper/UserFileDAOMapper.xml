@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.zzx.dao.UserFileDAO">
+
+    <select id="findByUserId" parameterType="Integer" resultType="UserFile">
+        select id,Name,path,size,type,uploadTime,userId
+        from t_files
+        where userId=#{id}
+    </select>
+
+    <insert id="save" parameterType="UserFile" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO t_files
+        VALUES (#{id},#{Name},#{path},#{size},#{type},#{uploadTime},#{userId});
+    </insert>
+
+    <select id="findById" parameterType="Integer" resultType="UserFile">
+        select id,Name,path,size,type,uploadTime,userId
+        from t_files
+        where id = #{id}
+    </select>
+
+<!--    <update id="update" parameterType="UserFile">-->
+<!--        update t_files set downcounts=#{downcounts} where id=#{id}-->
+<!--    </update>-->
+
+    <delete id="delete" parameterType="Integer">
+        delete from t_files where id=#{id}
+    </delete>
+</mapper>
