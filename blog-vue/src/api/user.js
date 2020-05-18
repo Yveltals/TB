@@ -6,7 +6,6 @@ export default {
     return request({
       url: '/user/login',
       method: 'post',
-      // header: 'Content-Type:application/x-www-form-urlencoded',
       data: qs.stringify({'name': name, 'password': password})
     })
   },
@@ -16,28 +15,32 @@ export default {
         method: 'get',
     })
   },
-  fileDownload(id){
+  fileDownload(id,vm,size){
     return request({
         url: '/file/download',
         method: 'post',
         timeout: 900000,
         data: qs.stringify({'id': id}),
-        responseType: 'blob'
+        responseType: 'blob',
+        headers:{
+          'X-Requested-With': 'XMLHttpRequest'
+        },
+        onDownloadProgress(a) {
+          // console.log(a);
+          var strs = new Array();
+          strs = size.split(" ");// "32.5 Mb"
+          var sizeTotal = parseInt(strs[0])*1024
+          if(strs[1]=="Mb") sizeTotal *= 1024
+          var rate =  (a.loaded / sizeTotal);
+          if (rate < 1) {
+            vm.downloadRate = rate;
+            // console.log(rate)
+            // console.log(a.loaded+'  '+sizeTotal)
+            vm.downloadStyle.width = (rate *100).toFixed(2)+ '%';
+          }
+        }
     })
   },
-  fileUpload(fileobj){
-    let param = new FormData();
-    // 上传文件对象 名称file与后台控制器参数要一致
-    param.append('file',fileobj.file);
-    return request({
-        method: 'post',
-        // 上传地址
-        url: '/goods-service/goods/sku/file',
-        // 定义上传头
-        headers: {'Content-Type':'multipart/form-data'},
-        data: param
-      });
-    },
   fileDelete(id){
     return request({
         url: '/file/delete',
@@ -45,20 +48,10 @@ export default {
         data: qs.stringify({'id': id})
     })
   },
-  fileUpload111(param){
-    return request()({
-        url: '/file/upload',
-        method: 'post',
-        data: param,
-        timeout: 900000,
-        headers: { "Content-Type": "multipart/form-data" }
-    })
-  },
   sendMail(mail) {
     return request({
       url: '/user/sendMail',
       method: 'post',
-      // header: 'Content-Type:application/x-www-form-urlencoded',
       data: qs.stringify({'mail': mail})
     })
   },
@@ -66,7 +59,6 @@ export default {
     return request({
       url: '/user/register',
       method: 'post',
-      // header: 'Content-Type:application/x-www-form-urlencoded',
       data: qs.stringify({
         'name': name, 'password': password,
         'mail': mail, 'mailCode': mailCode,
