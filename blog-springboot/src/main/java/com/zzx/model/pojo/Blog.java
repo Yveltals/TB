@@ -18,6 +18,20 @@ public class Blog implements Serializable {
      * blog(36) => 541312(10)
      */
     private static final long serialVersionUID = 541312L;
+
+    /**
+     * 点赞数
+     */
+    private Integer favorCount;
+
+    public void setFavorCount(Integer favorCount) {
+        this.favorCount = favorCount;
+    }
+
+    public Integer getFavorCount() {
+        return favorCount;
+    }
+
     /**
      * id
      */
@@ -35,6 +49,7 @@ public class Blog implements Serializable {
      * 评论数
      */
     private Integer discussCount;
+
 
     /**
      * 浏览数

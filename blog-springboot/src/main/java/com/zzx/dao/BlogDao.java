@@ -14,6 +14,14 @@ import java.util.Map;
 public interface BlogDao {
 
     /**
+     * 点赞博客
+     */
+    Long thumbUpBlogExist(Integer userId,Integer blogId);
+    Integer thumbUpBlogAll(Integer blogId);
+    void thumbUpBlogAdd(Integer userId,Integer blogId);
+    void thumbUpBlogDelete(Integer userId,Integer blogId);
+
+    /**
      * 保存博客
      *
      * @param blog

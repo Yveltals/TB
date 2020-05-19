@@ -11,9 +11,7 @@
       <div style="text-align: center">
         <p>
           <span class="el-icon-time hidden-xs-only">&nbsp;{{getTime(time)}}</span>
-
           <span class="el-icon-view hidden-xs-only" style="margin-left: 100px">&nbsp;{{blogViews}}</span>
-
           <span class="el-icon-chat-line-square hidden-xs-only" style="margin-left: 100px">&nbsp;{{discussCount}}</span>
           <span class="el-icon-user-solid hidden-xs-only" style="margin-left: 150px">&nbsp;{{userName}}</span>
         </p>
@@ -29,16 +27,7 @@
 
       <mavon-editor v-model="body" id="editor" :toolbarsFlag="false" :subfield="false" defaultOpen="preview"/>
       <!-- 以下是预览模式配置 -->
-      <!--:toolbarsFlag="false"  :subfield="false" defaultOpen="preview"-->
-
-      <div style="margin: 0 auto;width: 20%" class="hidden-xs-only" v-if="userReward!=undefined&&userReward!==null">
-        <br/>
-        <el-popover placement="bottom" width="250px" height="250px" trigger="hover">
-          <img alt="打赏码" :src="userReward" width="250px" height="250px"/>
-          <el-button type="text" slot="reference" icon="el-icon-trophy" round>写的不错，打赏一个</el-button>
-        </el-popover>
-      </div>
-
+      <!--:toolbarsFlag="false"  :subfield="false" defaultOpen="preview"-->      
 
       <el-divider/>
       <div id="discuss" class="hidden-xs-only">
@@ -46,6 +35,8 @@
         <div style="width: 50%;margin-left: 2.5%;padding-top: 2%" v-if="getStoreName()!=''">
           <el-input v-model="discussBody" placeholder="请输入评论内容" style="width: 40%" size="mini"></el-input>
           <el-button type="primary" style="width: 10%" size="mini" @click="sendDiscuss">评论</el-button>
+          <el-button @click="thumbUp()">点赞 {{favor}}</el-button>
+          
         </div>
 
         <!-- 评论部分 -->
@@ -121,6 +112,7 @@
     data() {
       return {
         blogId: -1,//博文id
+        favor: 0,
         title: '',//博文标题
         body: '',//博文内容
         discussCount: 0,//评论数
@@ -152,6 +144,16 @@
       }
     },
     methods: {
+      thumbUp(){
+        blog.thumbUp(this.blogId).then(res => {
+          this.$message({
+            type: 'success',
+            message: res.message
+          });
+          this.loadBlog();
+        })
+      },
+      
       getTime(time) {//将时间戳转化为几分钟前，几小时前的格式
         return date.timeago(time);
       },
@@ -184,6 +186,7 @@
 
         blog.getBlogById(this.blogId, isClick).then(res => {
             this.title = res.data.title;
+            this.favor = res.data.favorCount;
             this.body = res.data.body;
             this.discussCount = res.data.discussCount;
             this.blogViews = res.data.blogViews;

@@ -18,6 +18,27 @@
         <result property="user.reward" column="user_reward"/>
     </resultMap>
 
+    <!-- 点赞 -->
+    <select id="thumbUpBlogExist" parameterType="Integer" resultType="Long">
+        SELECT COUNT(*)
+        FROM favor
+        WHERE user_id=#{userId} and blog_id=#{blogId}
+    </select>
+    <insert id="thumbUpBlogAdd">
+        INSERT INTO favor
+        VALUES (#{userId},#{blogId})
+    </insert>
+    <delete id="thumbUpBlogDelete" parameterType="Integer">
+        DELETE FROM favor
+        WHERE user_id=#{userId} and blog_id=#{blogId}
+    </delete>
+    <select id="thumbUpBlogAll" parameterType="Integer" resultType="Integer">
+        SELECT COUNT(*)
+        FROM favor
+        WHERE blog_id=#{blogId}
+    </select>
+    <!--  -->
+
     <insert id="saveBlog" parameterType="Blog" useGeneratedKeys="true" keyProperty="id" keyColumn="blog_id">
         INSERT INTO blog
         VALUES (null,#{title},#{body},#{discussCount},#{blogViews},#{time},#{state},#{user.id})

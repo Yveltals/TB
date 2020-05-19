@@ -2,6 +2,12 @@ import request from '@/utils/request'
 import qs from 'qs';
 
 export default {
+  thumbUp(id){
+    return request({
+      url: '/blog/thumbUp/'+ id,
+      method: 'post'
+    })
+  },
   getHotBlog() {
     return request({
       url: '/blog/hotBlog',

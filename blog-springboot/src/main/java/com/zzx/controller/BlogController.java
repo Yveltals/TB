@@ -35,6 +35,14 @@ public class BlogController {
     @Autowired
     private FormatUtil formatUtil;
 
+    @RequestMapping("/thumbUp/{blogId}")
+    public Result thumbUp(@PathVariable Integer blogId){
+        String message;
+        if(blogService.thumbUpBlog(blogId)) message="点赞成功";
+        else message="取消点赞";
+        return Result.create(StatusCode.OK, message);
+    }
+
     @ApiOperation(value = "上传图片", notes = "图片")
     @PreAuthorize("hasAuthority('USER')")
     @PostMapping("/uploadImg")

@@ -95,7 +95,7 @@ public class BlogService {
         //获取图片格式/后缀
         String format = formatUtil.getFileFormat(file.getOriginalFilename());
         //获取图片保存路径
-        String savePath = fileUtil.getSavePath();
+        String savePath = fileUtil.getSavePath();//E:/blog/7/7
         //存储已满
         if (!formatUtil.checkStringNull(savePath)) {
             throw new IOException("存储已满 请联系管理员");
@@ -103,9 +103,17 @@ public class BlogService {
         //保存图片
         String fileName = uuidUtil.generateUUID() + format;
         File diskFile = new File(savePath + "/" + fileName);
+        if(!diskFile.getParentFile().exists()){
+            diskFile.getParentFile().mkdirs();
+        }
+        System.out.println("Path finished. Preparing to write....");
+        System.out.println("Path: "+diskFile);
         file.transferTo(diskFile);
+        System.out.println("Write finished");
         //将硬盘路径转换为url，返回
+        //System.out.println(imgUploadConfig.getStaticAccessPath().replaceAll("\\*", "") + fileName);
         return imgUploadConfig.getStaticAccessPath().replaceAll("\\*", "") + fileName;
+
     }
 
     /**
@@ -186,6 +194,10 @@ public class BlogService {
             }
             blog.setTags(tagDao.findTagByBlogId(blogId));
         }
+        /////////////////////////////////////////////////
+        Integer favorCount = blogDao.thumbUpBlogAll(blogId);
+        blog.setFavorCount(favorCount);
+        /////////////////////////////////////////////////
 
         //历史查看过
         if (isHistory) {
@@ -238,6 +250,21 @@ public class BlogService {
     public Long getBlogCountByUser() {
         User user = userDao.findUserByName(jwtTokenUtil.getUsernameFromRequest(request));
         return blogDao.getBlogCountByUserId(user.getId());
+    }
+
+    /**
+     * 点赞
+     * @param blogId
+     */
+    public boolean thumbUpBlog(Integer blogId){
+        User user = userDao.findUserByName(jwtTokenUtil.getUsernameFromRequest(request));
+
+        if(blogDao.thumbUpBlogExist(user.getId(),blogId)==0) {
+            blogDao.thumbUpBlogAdd(user.getId(), blogId);
+            return true;
+        }
+        blogDao.thumbUpBlogDelete(user.getId(),blogId);
+        return false;
     }
 
     /**
