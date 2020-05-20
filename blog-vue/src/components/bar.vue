@@ -5,7 +5,6 @@
         <el-menu :default-active="activeIndex" class="el-menu-demo" :router="true" mode="horizontal"
                  @select="handleSelect">
 
-
           <el-menu-item index="1" route="/">首页</el-menu-item>
           <el-menu-item index="2" style="margin-left: 2%" route="/message">留言板</el-menu-item>
           <el-menu-item index="3" style="margin-left: 2%" route="/announcement">本站公告</el-menu-item>
@@ -13,7 +12,6 @@
 
           <el-menu-item id="space" index="" @click="egg" class="hidden-xs-only"/>
           <!--<el-menu-item/>-->
-
 
           <div style="width: 20%;float: left;margin: 10px 2% 0px -5%" class="hidden-xs-only">
             <el-input placeholder="搜索博客" v-model="searchTxt" suffix-icon="el-icon-search"
@@ -81,6 +79,7 @@
             </el-form>
           </el-dialog>
 
+          <el-avatar :size="50" :src="circleUrl()"></el-avatar>
 
           <el-submenu class="hidden-xs-only" index="4" v-if="this.$store.state.token!==''" :router="true">
             <template slot="title">[&nbsp;&nbsp;{{this.$store.state.name}}&nbsp;&nbsp;]</template>
@@ -112,7 +111,7 @@
               <i class="el-icon-switch-button"/>退出登录
             </el-menu-item>
           </el-submenu>
-
+          
         </el-menu>
       </el-row>
 
@@ -122,7 +121,7 @@
 </template>
 <script>
   import user from '@/api/user'
-
+  import store from '@/store/store'
   import 'element-ui/lib/theme-chalk/display.css';
 
   export default {
@@ -167,8 +166,10 @@
       }
     },
     methods: {
+      circleUrl(){
+        return "http://39.107.228.168/image/"+store.state.name+".jpg"
+      },
       handleSelect(key, keyPath) {
-//        console.log(key, keyPath);
         if (key != null && key !== '')
           this.activeIndex = key
       },
@@ -196,6 +197,7 @@
             message: '登录成功',
             type: 'success'
           });
+          this.$router.go(0)
           this.loginFormVisible = false
         })
       },
@@ -280,14 +282,6 @@
         if (this.searchTxt.length <= 0)
           return;
         this.$router.push({ //路由跳转
-          path: '/searchBlog/' + this.searchTxt
-        })
-        this.searchTxt = '';//清空搜索框
-      },
-      searchSubmitdemo() {
-        if (this.searchTxt.length <= 0)
-          return;
-        this.$router.push({ //路由跳转----->跳到searchBlog.vue
           path: '/searchBlog/' + this.searchTxt
         })
         this.searchTxt = '';//清空搜索框

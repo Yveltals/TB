@@ -2,14 +2,22 @@ package com.zzx.controller;
 
 import java.io.*;
 import java.net.URLEncoder;
+
+import com.zzx.dao.UserDao;
 import com.zzx.model.entity.Result;
 import com.zzx.model.entity.StatusCode;
+import com.zzx.model.pojo.User;
 import com.zzx.model.pojo.UserFile;
 import com.zzx.service.UserFileService;
+import com.zzx.utils.FormatUtil;
+import com.zzx.utils.JwtTokenUtil;
 import io.swagger.annotations.ApiOperation;
+import org.apache.tomcat.util.http.fileupload.IOUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 
@@ -17,9 +25,39 @@ import javax.servlet.http.HttpServletResponse;
 @RestController
 @RequestMapping("/file")
 public class FileController {
-
+    @Autowired
+    private UserDao userDao;
+    @Autowired
+    private FormatUtil formatUtil;
+    @Autowired
+    private HttpServletRequest request;
+    @Autowired
+    private JwtTokenUtil jwtTokenUtil;
     @Autowired
     private UserFileService userFileService;
+
+    @ApiOperation(value = "上传头像", notes = "上传头像")
+    @RequestMapping(value = "/uploadAvatar", method = RequestMethod.POST)
+    @ResponseBody
+    public Result uploadAvatar(@RequestParam("file") MultipartFile file) {
+        try {
+            User user = userDao.findUserByName(jwtTokenUtil.getUsernameFromRequest(request));
+            String path="/home/zero/image/";
+            String format = formatUtil.getFileFormat(file.getOriginalFilename());
+            File file1 = new File(path + user.getName() + format);
+            System.out.println();
+            System.out.println(path + user.getId() + format);
+            System.out.println();
+            if(!file1.getParentFile().exists()){
+                file1.getParentFile().mkdirs();
+            }
+            file.transferTo(file1);
+        }
+        catch (IOException e) {
+            e.printStackTrace();
+        }
+        return Result.create(StatusCode.OK, "上传头像成功",null);
+    }
 
     /**
      * 展示文件
@@ -49,7 +87,7 @@ public class FileController {
             else size = String.format("%.1f",siz/1024)+" kb";
             String typ = file.getContentType();
             String type = typ.substring(typ.lastIndexOf("/")+1);
-            String path="/home/zero/Blog-basic-dev/blog-springboot/file/";
+            String path="/home/zero/file/";
             //写入文件
             InputStream inputStream = file.getInputStream();
             File file1 = new File(path + Name);
@@ -71,14 +109,14 @@ public class FileController {
 
 
 
+
     /**
      * 文件下载
      */
     @RequestMapping("/download")
-    public void download(Integer id,HttpServletResponse response) throws IOException {
+    public Result download(Integer id,HttpServletResponse response) throws IOException {
         response.setCharacterEncoding("UTF-8");
         response.setContentType("application/json");
-        //获取文件信息，更新下载次数
         UserFile userFile = userFileService.findById(id);
         String filename = userFile.getName();
         String FilePath = userFile.getPath();
@@ -93,12 +131,14 @@ public class FileController {
             OutputStream toClient = new BufferedOutputStream(response.getOutputStream());
             response.setContentType("application/octet-stream");
             response.setHeader("Content-Disposition", "attachment;filename=" + URLEncoder.encode(filename, "UTF-8"));
+
             toClient.write(buffer);
             toClient.flush();
             toClient.close();
         } catch (IOException ex) {
             ex.printStackTrace();
         }
+        return Result.create(StatusCode.OK, "下载成功",null);
 
     }
 

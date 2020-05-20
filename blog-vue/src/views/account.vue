@@ -3,6 +3,26 @@
 
     <div id="updatePwd">
       <div>
+        <h3>更换头像</h3>
+        <el-form ref="form" label-width="80px"> 
+          
+          <el-avatar :size="50" :src="avatarUrl"></el-avatar>
+
+          <el-upload
+              class="upload-demo" action="123"
+              :show-file-list="false"
+              :on-change="fileChange"
+              :http-request="SubbmitFile" >
+              <el-button type="primary">点击上传</el-button>
+              <div class="el-upload__tip" slot="tip">只能上传jpg/png文件，且不超过2Mb</div>
+          </el-upload>
+
+        </el-form>
+      </div> 
+    </div>
+
+    <div id="updatePwd">
+      <div>
         <h3>更改密码</h3>
         <el-form ref="form" label-width="80px">
           <el-form-item label="旧密码">
@@ -67,50 +87,18 @@
 
     <el-divider/>
 
-    <div id="updateReward">
-      <div>
-        <h3>更新打赏码</h3>
-        <el-form ref="form" label-width="100px">
-          <el-form-item label="当前打赏码">
-            <el-image v-if="userReward!==''"
-                      style="width: 200px; height: 200px"
-                      :src="userReward"
-                      :fit="'fit'"/>
-            <span v-if="userReward===''">暂无</span>
-          </el-form-item>
-
-          <el-form-item label="更新打赏码">
-            <el-upload
-              class="avatar-uploader"
-              :action="upload"
-              :headers="getToken()"
-              :on-success="handleAvatarSuccess"
-              :show-file-list="false"
-              :before-upload="beforeAvatarUpload">
-              <img v-if="imageUrl" :src="imageUrl" class="avatar">
-              <i v-else class="el-icon-plus avatar-uploader-icon"></i>
-            </el-upload>
-          </el-form-item>
-
-
-        </el-form>
-      </div>
-      <div style="margin-left: 45%">
-        <el-button icon="el-icon-orange" @click="updateReward()">更新</el-button>
-      </div>
-    </div>
-
-
   </el-card>
 </template>
 
 <script>
   import user from '@/api/user'
-
+  import axios from 'axios'
+  import store from '@/store/store'
   export default {
     name: 'account',
     data() {
       return {
+        file: {}, //头像图片
         oldPassword: '',
         newPassword: '',
         confirmPassword: '',
@@ -122,21 +110,47 @@
         updatePwdSendFlag: false,
         updateMailToOldSendFlag: false,
         updateMailToNewSendFlag: false,
-        imageUrl: '',
+        avatarUrl: '',
         userReward: '',
-        upload: '/api/blog/uploadImg'
       }
     },
     created() {
       this.load();
     },
     methods: {
+      SubbmitFile(){
+          let param = new FormData(); 
+          param.append("file", this.file.raw);
+          let config = {
+            headers: { 'Content-Type': 'multipart/form-data' },
+          }
+          config.headers['Authorization'] = store.state.token
+          console.log(param)
+
+          axios.post("/api/file/uploadAvatar/", param, config,{timeout:900000})
+          .then(response => {
+            if (response) { 
+              this.load()
+              this.$router.go(0)
+              this.file={}
+              console.log(response.data);
+            } else {
+              alert(response.data.msg);
+            }
+          })
+          .catch(function (err) {
+            console.log(err);
+          });
+      },
+      fileChange(e,list){
+          this.file=e;
+      },
       load() {
+        this.avatarUrl = "http://39.107.228.168/image/"+store.state.name+".jpg" //头像地址
         user.getUserMail().then(res => {
           this.mail = res.data;
         })
         user.getUserReward().then(res => {
-
           if (res.data === undefined) {
             this.userReward = '';
           } else {
@@ -147,36 +161,6 @@
       getToken() {
         return {'Authorization': this.$store.state.token}
       },
-      updateReward() {
-        if (this.imageUrl === '')
-          return;
-
-        user.updateReward(this.imageUrl).then(res => {
-          this.$message({
-            message: res.message,
-            type: 'success'
-          });
-          this.load();
-        })
-
-
-      },
-      handleAvatarSuccess(res, file) {
-        this.imageUrl = res.data;
-      },
-      beforeAvatarUpload(file) {
-        const isJPG = file.type === 'image/jpeg';
-        const isPNG = file.type === 'image/png';
-        const isLt2M = file.size / 1024 / 1024 < 1;
-        if (!isJPG && !isPNG) {
-          this.$message.error('图片不支持除 jpg/png 以外的格式');
-        }
-        if (!isLt2M) {
-          this.$message.error('打赏码图片大小不能超过 1MB!');
-        }
-        return true;
-      },
-
       updatePwdSendMail() {  //更改密码发送验证码
         this.updatePwdSendFlag = true;
         this.sendMail(this.mail);

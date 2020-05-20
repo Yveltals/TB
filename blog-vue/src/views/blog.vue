@@ -17,7 +17,7 @@
         </p>
         <p>
           <span>
-            <span v-for="tag in catchTagName(tags)">
+            <span v-for="tag in catchTagName(tags)" :key="tag.id">
               <el-tag type="success" style="margin-left: 5px">{{tag}}</el-tag>
             </span>
           </span>
@@ -30,6 +30,24 @@
       <!--:toolbarsFlag="false"  :subfield="false" defaultOpen="preview"-->      
 
       <el-divider/>
+      <div class="hidden-xs-only">
+        <el-row :gutter="10">
+          <el-col :span="2">
+            <el-avatar shape="square" :size="80" :src="avatarURL"></el-avatar>
+          </el-col>
+          <el-col :span="30">
+            本文作者:  {{userName}}
+            <br>
+            关注: 0   粉丝: 0
+            <br>
+            版权声明：本博客所有文章除特别声明外，均采用 BY-NC-SA 许可协议。转载请注明出处！
+            <br>
+            声援博主：如果您觉得文章对您有帮助，可以点赞一下。您的鼓励是博主的最大动力！
+          </el-col>
+        </el-row>
+      </div>
+
+      <el-divider/>
       <div id="discuss" class="hidden-xs-only">
 
         <div style="width: 50%;margin-left: 2.5%;padding-top: 2%" v-if="getStoreName()!=''">
@@ -40,7 +58,7 @@
         </div>
 
         <!-- 评论部分 -->
-        <div v-for="discuss in discussList" id="discussList">
+        <div v-for="discuss in discussList" :key="discuss.id" id="discussList">
           <p style="margin: -5px " @mouseenter="pEnter()" @mouseleave="pLeave()">
             <el-button type="text">{{discuss.user.name}}&nbsp;&nbsp;:</el-button>
             <span style="margin-left: 10px">{{discuss.body}}</span>
@@ -55,8 +73,8 @@
 
           </p>
           <!-- 评论下的回复部分 -->
-          <p v-if="!(typeof(discuss.replyList) == 'undefined') && discuss.replyList.length>0"
-             v-for="reply in discuss.replyList" style="margin: -5px"
+          <!-- <p v-if="!(typeof(discuss.replyList) == 'undefined') && discuss.replyList.length>0" -->
+          <p   v-for="reply in discuss.replyList" style="margin: -5px" :key="reply.id"
              @mouseenter="pEnter()" @mouseleave="pLeave()">
             <span style="margin-left: 5%" class="el-icon-arrow-right"></span>
             <el-button type="text">{{reply.user.name}}&nbsp;&nbsp;:</el-button>
@@ -101,6 +119,7 @@
 </template>
 <script>
   import blog from '@/api/blog'
+  import store from '@/store/store'
   import discuss from '@/api/discuss'
   import reply from '@/api/reply'
   import date from '@/utils/date'
@@ -111,6 +130,7 @@
     name: 'blog',
     data() {
       return {
+        
         blogId: -1,//博文id
         favor: 0,
         title: '',//博文标题
@@ -119,6 +139,7 @@
         blogViews: 0,//浏览数
         time: 0, //发布事件
         userName: '',//博客用户名
+        avatarURL: '', //作者头像
         tags: [],  //博文标签
         userReward: '',//博主打赏码
 
@@ -144,6 +165,9 @@
       }
     },
     methods: {
+      squareUrl(){
+        return "http://39.107.228.168/image/"+this.userName+".jpg" //头像静态地址
+      },
       thumbUp(){
         blog.thumbUp(this.blogId).then(res => {
           this.$message({
@@ -194,6 +218,8 @@
             this.userName = res.data.user.name;
             this.tags = res.data.tags;
             this.userReward = res.data.user.reward;
+
+            this.avatarURL = "http://39.107.228.168/image/"+this.userName+".jpg"
 
             //设置cookies
             // 是否存在history此key
