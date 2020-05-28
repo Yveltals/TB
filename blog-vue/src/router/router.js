@@ -18,6 +18,7 @@ import codeManage from '@/views/codeManage'
 import announcementManage from '@/views/announcementManage'
 import blogManage from '@/views/blogManage'
 import file from '@/views/file'
+import classify from '@/views/classify'
 
 Vue.use(Router)
 
@@ -33,6 +34,11 @@ export default new Router({
       path: '/message',
       name: 'message',
       component: message
+    },
+    {
+      path: '/classify',
+      name: 'classify',
+      component: classify
     },
     {
       path: '/announcement',

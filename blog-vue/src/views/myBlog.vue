@@ -1,30 +1,27 @@
 <template>
-  <div id="myBlog">
-    <el-container>
-      <el-main style="width: 75%">
-        <div>
-          <myBlogList/>
-        </div>
-      </el-main>
-      <el-aside id="aside" style="width: 20%">
-        <div style="margin: 10px">
-          <userNewDiscuss/>
-        </div>
-        <div>
-          <myTag/>
-        </div>
-      </el-aside>
-    </el-container>
+  <div style="min-height: 870px;">
+    <div class="pagebg sorts"></div>
+    <div class="container">
+      <h1 class="t_nav">
+        <span>有些的时候，正是为了爱才悄悄躲开。躲开的是身影，躲不开的却是那份默默的情怀。</span>
+        <a href="/" class="n1">网站首页</a>
+        <a href="javascript:void(0);" class="n2">我的博文</a>
+      </h1>
+
+      <div class="sortBox">
+        <myBlogList/>
+      </div>
+    </div>
   </div>
 </template>
 <script>
 import myBlogList from '@/components/myBlogList'
 import userNewDiscuss from '@/components/userNewDiscuss'
-import myTag from '@/components/myTag'
+import tagCloud from '@/components/tagCloud'
 
 export default {
   name: 'myBlog',
-  components: {myBlogList,userNewDiscuss,myTag}
+  components: {myBlogList,userNewDiscuss,tagCloud}
 }
 </script>
 <style scoped>

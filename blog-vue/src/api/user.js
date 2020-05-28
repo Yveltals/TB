@@ -92,18 +92,18 @@ export default {
       method: 'get',
     })
   },
-  updatePassword(oldPassword, newPassword, mailCode) {
+  updatePassword(oldPassword, newPassword) {
     return request({
       url: '/user/updatePassword',
       method: 'post',
-      data: qs.stringify({'oldPassword': oldPassword, 'newPassword': newPassword, 'code': mailCode})
+      data: qs.stringify({'oldPassword': oldPassword, 'newPassword': newPassword})
     })
   },
-  updateMail(newMail, oldMailCode, newMailCode) {
+  updateMail(newMail, newMailCode) {
     return request({
       url: '/user/updateMail',
       method: 'post',
-      data: qs.stringify({'newMail': newMail, 'oldMailCode': oldMailCode, 'newMailCode': newMailCode})
+      data: qs.stringify({'newMail': newMail, 'newMailCode': newMailCode})
     })
   },
   getUser(page, showCount) { //管理员分页查询用户数据

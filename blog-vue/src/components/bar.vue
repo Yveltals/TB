@@ -1,135 +1,336 @@
 <template>
-  <el-card id="bar">
-    <div>
-      <el-row>
-        <el-menu :default-active="activeIndex" class="el-menu-demo" :router="true" mode="horizontal"
-                 @select="handleSelect">
-
-          <el-menu-item index="1" route="/">首页</el-menu-item>
-          <el-menu-item index="2" style="margin-left: 2%" route="/message">留言板</el-menu-item>
-          <el-menu-item index="3" style="margin-left: 2%" route="/announcement">本站公告</el-menu-item>
-
-
-          <el-menu-item id="space" index="" @click="egg" class="hidden-xs-only"/>
-          <!--<el-menu-item/>-->
-
-          <div style="width: 20%;float: left;margin: 10px 2% 0px -5%" class="hidden-xs-only">
-            <el-input placeholder="搜索博客" v-model="searchTxt" suffix-icon="el-icon-search"
-                      @keyup.enter.native="searchSubmit"/>
+  <div>
+    <!--导航栏-->
+    <header  :class="isVisible?'header-navigation slideDown':'header-navigation slideUp'"  id="header" >
+      <nav>
+        <div class="logo">
+          <router-link to="/">
+            <a href="javascript:void(0);">技术分享博客</a>
+          </router-link>
+        </div>
+        <h2 id="mnavh" @click="openHead" :class="showHead?'open':''">
+          <span class="navicon"></span>
+        </h2>
+        <ul id="starlist" :style="showHead?'display: block':''">
+          <li>
+            <router-link to="/">
+              <a href="javascript:void(0);" >首页</a>
+            </router-link>
+          </li>
+          <li>
+            <router-link to="/classify">
+              <a href="javascript:void(0);" >分类</a>
+            </router-link>
+          </li> 
+          <li>
+            <router-link to="/message">
+              <a href="javascript:void(0);" >留言板</a>
+            </router-link>
+          </li>
+          <li>
+            <router-link to="/announcement">
+              <a href="javascript:void(0);">本站公告</a>
+            </router-link>
+          </li>
+          <li v-if="this.$store.state.token">
+            <router-link to="/myblog">
+              <a href="javascript:void(0);">我的博客</a>
+            </router-link>
+          </li>
+          <li v-if="this.$store.state.token">
+            <router-link to="/file">
+              <a href="javascript:void(0);">文件资源</a>
+            </router-link>
+          </li>
+        </ul>
+        <!--搜索框-->
+        <div class="searchbox">
+          <div id="search_bar" :class="(showSearch || searchTxt.length > 0)?'search_bar search_open':'search_bar'">
+            <input
+              ref="searchInput"
+              class="input"
+              placeholder="想搜点什么呢.."
+              type="text"
+              name="keyboard"
+              v-model="searchTxt"
+              v-on:keyup.enter="searchSubmit"
+            >
           </div>
+          <p class="search_ico" @click="clickSearchIco">
+            <span></span>
+          </p>
+        </div>
+        <!--头像下拉菜单-->
+        <el-dropdown @command="handleCommand" class="userInfoAvatar">
+          <span class="el-dropdown-link" >
+            <img v-if="!this.$store.state.token" src="../../static/images/defaultAvatar.png">
+            <img v-if="this.$store.state.token" :src="circleUrl()">
+          </span>
+          <el-dropdown-menu slot="dropdown">
+            <el-dropdown-item command="login" v-show="!this.$store.state.token">登录</el-dropdown-item>
+            <el-dropdown-item command="register" v-show="!this.$store.state.token">注册</el-dropdown-item>
+            <el-dropdown-item command="writeBlog" v-show="this.$store.state.token">写博客</el-dropdown-item>
+            <el-dropdown-item command="goUserInfo" v-show="this.$store.state.token">个人中心</el-dropdown-item>
+            <el-dropdown-item command="logout" v-show="this.$store.state.token">退出登录</el-dropdown-item>
+          </el-dropdown-menu>
+        </el-dropdown>
+        <!--侧栏抽屉-->
+        <el-drawer  :visible.sync="drawer"  :show-close="true" :with-header="false" size="30%" :append-to-body="true"
+              style="height: 840px; ">
+          <el-tabs type="border-card" tab-position="left" v-model="activeName" @tab-click="handleClick">
+              <!--待完善 个人中心的信息与后端协调-->
+              <el-tab-pane label="个人中心" name="0">
+                <span slot="label"><i class="el-icon-user-solid"></i> 个人中心</span>
+                
+                <el-form label-position="left" :model="userInfo" label-width="100px" ref="userInfo">
+                  <el-form-item label="用户头像" :label-width="labelWidth">
+                    <el-upload
+                      class="avatar-uploader"  action="123"
+                      :show-file-list="false"
+                      :on-change="fileChange"
+                      :http-request="SubbmitFile" >
+                      <img v-if="circleUrl()" :src="circleUrl()" class="avatar">
+                      <i v-else class="el-icon-plus avatar-uploader-icon"></i>
+                    </el-upload>
+                  </el-form-item>
 
-          <el-menu-item class="hidden-xs-only" v-if="this.$store.state.token==''" index=""
-                        @click="loginFormVisible = true">
-            <el-button type="text">登录</el-button>
-          </el-menu-item>
+                  <el-form-item label="性别" :label-width="labelWidth">
+                    <el-radio v-for="gender in genderDictList" :key="gender.uid" v-model="userInfo.gender" :label="gender.dictValue" border size="medium">{{gender.dictLabel}}</el-radio>
+                  </el-form-item>
 
-          <el-menu-item class="hidden-xs-only" v-if="this.$store.state.token==''" index=""
-                        @click="registerFormVisible = true">
-            <el-button type="text">注册</el-button>
-          </el-menu-item>
+                  <el-form-item label="生日" :label-width="labelWidth">
+                    <el-date-picker
+                      v-model="userInfo.birthday"
+                      type="date"
+                      placeholder="选择日期">
+                    </el-date-picker>
+                  </el-form-item>
 
-          <el-dialog title="登录" :visible.sync="loginFormVisible" width="21%">
-            <el-form :model="form">
-              <el-form-item :label-width="formLabelWidth">
-                <el-input v-model="form.loginName" placeholder="用户名" prefixIcon="el-icon-user-solid"/>
-              </el-form-item>
-              <el-form-item :label-width="formLabelWidth">
-                <el-input v-model="form.loginPwd" placeholder="密码" :show-password="form.loginShowPwd"
-                          @keyup.enter.native="userLogin" prefixIcon="el-icon-lock"/>
-              </el-form-item>
-              <el-button @click="userLogin">登录&nbsp;&nbsp;<i class="el-icon-check"></i></el-button>
-              <router-link to="/forgetPwd">
-                <el-button @click="loginFormVisible = false">忘记密码&nbsp;&nbsp;<i class="el-icon-right"></i></el-button>
-              </router-link>
-            </el-form>
-          </el-dialog>
+                  <el-form-item label="邮箱" :label-width="labelWidth" prop="email">
+                    <el-input v-model="userInfo.email" style="width: 100%"></el-input>
+                  </el-form-item>
 
-          <el-dialog title="注册" :visible.sync="registerFormVisible" width="30%">
+                  <el-form-item label="QQ号" :label-width="labelWidth" prop="qqNumber">
+                    <el-input v-model="userInfo.qqNumber" style="width: 100%"></el-input>
+                  </el-form-item>
 
-            <el-form :model="form">
-              <el-form-item :label-width="formLabelWidth">
-                <el-input v-model="form.registerName" placeholder="用户名" prefixIcon="el-icon-user-solid"/>
-              </el-form-item>
-              <el-form-item :label-width="formLabelWidth">
-                <el-input v-model="form.registerPwd" placeholder="密码" :show-password="form.loginShowPwd"
-                          prefixIcon="el-icon-lock"/>
-              </el-form-item>
+                  <el-form-item label="职业" :label-width="labelWidth">
+                    <el-input v-model="userInfo.occupation" style="width: 100%"></el-input>
+                  </el-form-item>
 
-              <el-form-item :label-width="formLabelWidth">
-                <el-input v-model="form.registerConfirmPwd" placeholder="确认密码" :show-password="form.loginShowPwd"
-                          prefixIcon="el-icon-bell"/>
-              </el-form-item>
+                  <el-form-item label="简介" :label-width="labelWidth">
+                    <el-input
+                      type="textarea"
+                      :autosize="{ minRows: 5, maxRows: 10}"
+                      placeholder="请输入内容"
+                      style="width: 100%"
+                      v-model="userInfo.summary">
+                    </el-input>
+                  </el-form-item>
 
+                  <el-form-item>
+                    <el-button type="primary" @click="submitForm('editUser')">保 存</el-button>
+                  </el-form-item>
 
-              <el-form-item :label-width="formLabelWidth">
-                <el-input v-model="form.registerInviteCode" placeholder="邀请码" prefixIcon="el-icon-s-promotion"/>
-              </el-form-item>
-              <el-form-item :label-width="formLabelWidth">
-                <el-input v-model="form.registerMail" placeholder="邮箱" prefixIcon="el-icon-message"/>
-              </el-form-item>
-              <el-form-item :label-width="formLabelWidth">
-                <el-input v-model="form.registerMailCode" placeholder="邮箱验证码" prefixIcon="el-icon-key"/>
-              </el-form-item>
-              <el-button @click="sendMail">
-                发送验证码&nbsp;&nbsp;
-                <i class="el-icon-coffee-cup" v-if="!sendMailFlag"/>
-                <i class="el-icon-loading" v-if="sendMailFlag"/>
-              </el-button>
-              <el-button @click="userRegister">注册&nbsp;&nbsp;<i class="el-icon-check"></i></el-button>
-            </el-form>
-          </el-dialog>
+                </el-form>
+              </el-tab-pane>
+              <el-tab-pane label="修改密码" name="5">
+                <span slot="label"><i class="el-icon-s-tools"></i> 修改密码</span>
+                <el-collapse v-model="activeNames">
+                  <el-collapse-item title="更改密码" name="1">
+                  </el-collapse-item>
+                </el-collapse>
+                <el-form ref="form" label-position="left" :model="userInfo" label-width="100px" >
+                  <el-form-item label="旧密码" :label-width="labelWidth" prop="oldPwd">
+                    <el-input type="password" v-model="oldPassword" style="width: 100%"></el-input>
+                  </el-form-item>
+                  <el-form-item label="新密码" :label-width="labelWidth" prop="newPwd">
+                    <el-input type="password" v-model="newPassword" style="width: 100%"></el-input>
+                  </el-form-item>
+                  <el-form-item label="重复密码" :label-width="labelWidth" prop="newPwd2">
+                    <el-input type="password" v-model="confirmPassword" style="width: 100%"></el-input>
+                  </el-form-item>
+                  <el-form-item>
+                    <el-button type="primary" @click="updatePwd()">提 交</el-button>
+                  </el-form-item>
+                </el-form>
 
-          <el-avatar :size="50" :src="circleUrl()"></el-avatar>
+                <el-collapse v-model="activeNames">
+                  <el-collapse-item title="改绑邮箱" name="1">
+                  </el-collapse-item>
+                </el-collapse>
+                <el-form ref="form" label-position="left" :model="userInfo" label-width="100px" >
+                  <el-form-item label="新邮箱">
+                    <el-input v-model="newMail" placeholder="新邮箱"></el-input>
+                    <el-button type="text" style="width: 85%;" @click="updateMailSendMailToNew()">
+                      发送验证码
+                      <i class="el-icon-loading" v-if="updateMailToNewSendFlag"/>
+                    </el-button>
+                  </el-form-item>
+                  <el-form-item label="新邮箱验证码">
+                    <el-input v-model="newMailCode" placeholder="新邮箱验证码"></el-input>
+                  </el-form-item>
+                  <el-form-item>
+                    <el-button type="primary" @click="updateMail()">改绑邮箱</el-button>
+                  </el-form-item>
+                </el-form>
+              </el-tab-pane>
+              <el-tab-pane label="我的评论" name="1">
+                <span slot="label"><i class="el-icon-s-comment"></i> 我的评论</span>
+                <div style="width: 100%; height: 840px;overflow:auto;">
+                  <el-timeline>
+                    <el-timeline-item v-for="comment in commentList" :key="comment.uid"  placement="top">
+                      <el-card>
+                        <div class="commentList">
+                        <!--待优化 实现头像-->
+                        <!-- <span class="left p1">
+                          <img v-if="comment.user" :src="comment.user.photoUrl ? PICTURE_HOST + comment.user.photoUrl:'https://wpimg.wallstcn.com/f778738c-e4f8-4870-b634-56703b4acafe.gif'" onerror="onerror=null;src='https://wpimg.wallstcn.com/f778738c-e4f8-4870-b634-56703b4acafe.gif'" />
+                          <img v-else src="https://wpimg.wallstcn.com/f778738c-e4f8-4870-b634-56703b4acafe.gif" />
+                        </span> -->
+                          <span class="right p1">
+                          <div class="rightTop">
+                            <el-link class="userName" :underline="false">{{comment.user.nickName}}</el-link>
+                            <el-tag style="cursor: pointer;"  @click.native="goSource(comment)">{{comment.sourceName}}</el-tag>
+                          </div>
 
-          <el-submenu class="hidden-xs-only" index="4" v-if="this.$store.state.token!==''" :router="true">
-            <template slot="title">[&nbsp;&nbsp;{{this.$store.state.name}}&nbsp;&nbsp;]</template>
+                          <div class="rightCenter" v-html="$xss(comment.content, options)"></div>
+                        </span>
+                        </div>
+                      </el-card>
+                    </el-timeline-item>
 
-            <el-menu-item route="/newBlog" index="4-1">&nbsp;&nbsp;&nbsp;
-              <i class="el-icon-edit"></i>
-              写博客
-            </el-menu-item>
-            <el-menu-item route="/myBlog" index="4-3">&nbsp;&nbsp;&nbsp;
-              <i class="el-icon-s-home"></i>
-              我的博客
-            </el-menu-item>
-            <el-menu-item route="/file" index="4-3">&nbsp;&nbsp;&nbsp;
-              <i class="el-icon-s-home"></i>
-              我的资源
-            </el-menu-item>
-            <el-menu-item route="/account" index="4-2">&nbsp;&nbsp;&nbsp;
-              <i class="el-icon-s-tools"></i>
-              账号设置
-            </el-menu-item>
-
-
-            <el-menu-item route="/admins/userManage" index="4-4" v-if="this.$store.state.roles.indexOf('ADMIN') > -1">
-              &nbsp;&nbsp;&nbsp;
-              <i class="el-icon-loading"></i>管理后台
-            </el-menu-item>
-
-            <el-menu-item @click="logout">&nbsp;&nbsp;&nbsp;
-              <i class="el-icon-switch-button"/>退出登录
-            </el-menu-item>
-          </el-submenu>
-          
-        </el-menu>
-      </el-row>
-
+                    <el-timeline-item v-if="commentList.length == 0" placement="top">
+                      <el-card>
+                        <span style="font-size: 16px">空空如也~</span>
+                      </el-card>
+                    </el-timeline-item>
+                  </el-timeline>
+                </div>
+              </el-tab-pane>
+              <el-tab-pane label="我的点赞" name="2">
+                <span slot="label"><i class="el-icon-s-flag"></i> 我的点赞</span>
+                <div style="width: 100%; height: 840px;overflow:auto">
+                  <el-timeline>
+                    <el-timeline-item v-for="praise in praiseList" :key="praise.uid" :timestamp="timeAgo(praise.createTime)" placement="top">
+                      <el-card>
+                        <span>点赞</span><el-tag type="warning" style="cursor: pointer" v-if="praise.blog" @click.native="goToInfo(praise.blog.uid)">{{praise.blog.title}}</el-tag>
+                      </el-card>
+                    </el-timeline-item>
+                    <el-timeline-item v-if="praiseList.length == 0" placement="top">
+                      <el-card>
+                        <span style="font-size: 16px">空空如也~</span>
+                      </el-card>
+                    </el-timeline-item>
+                  </el-timeline>
+                </div>
+              </el-tab-pane>
+              <el-tab-pane label="我的资源" name="3">
+                <span slot="label"><i class="el-icon-upload"></i> 我的资源</span>
+              </el-tab-pane>
+              <el-tab-pane label="我的博客" name="4">
+                <span slot="label"><i class="el-icon-s-unfold"></i> 我的博客</span>
+              </el-tab-pane>
+              <el-tab-pane label="管理后台" name="6">
+                <span slot="label"><i class="el-icon-menu"></i> 管理后台</span>
+              </el-tab-pane>
+          </el-tabs>
+        </el-drawer>
+      </nav>
+    </header>
+    <!--登录注册对话框-->
+    <el-dialog title="登录" :visible.sync="loginFormVisible" width="23%">
+      <el-form :model="form">
+        <el-form-item :label-width="formLabelWidth">
+          <el-input v-model="form.loginName" placeholder="用户名" prefixIcon="el-icon-user-solid"/>
+        </el-form-item>
+        <el-form-item :label-width="formLabelWidth">
+          <el-input v-model="form.loginPwd" placeholder="密码" :show-password="form.loginShowPwd"
+                    @keyup.enter.native="userLogin" prefixIcon="el-icon-lock"/>
+        </el-form-item>
+        <el-button class="loginBtn" type="primary" @click="userLogin">登录&nbsp;&nbsp;<i class="el-icon-check"></i></el-button>
+        <router-link to="/forgetPwd">
+          <el-button class="registerBtn" type="info" @click="loginFormVisible = false">忘记密码&nbsp;&nbsp;<i class="el-icon-right"></i></el-button>
+        </router-link>
+      </el-form>
+    </el-dialog>
+    <el-dialog title="注册" :visible.sync="registerFormVisible" width="23%">
+      <el-form :model="form">
+        <el-form-item :label-width="formLabelWidth">
+          <el-input v-model="form.registerName" placeholder="用户名" prefixIcon="el-icon-user-solid"/>
+        </el-form-item>
+        <el-form-item :label-width="formLabelWidth">
+          <el-input v-model="form.registerPwd" placeholder="密码" :show-password="form.loginShowPwd"
+                    prefixIcon="el-icon-lock"/>
+        </el-form-item>
+        <el-form-item :label-width="formLabelWidth">
+          <el-input v-model="form.registerConfirmPwd" placeholder="确认密码" :show-password="form.loginShowPwd"
+                    prefixIcon="el-icon-bell"/>
+        </el-form-item>
+        <el-form-item :label-width="formLabelWidth">
+          <el-input v-model="form.registerMail" placeholder="邮箱" prefixIcon="el-icon-message"/>
+        </el-form-item>
+        <el-form-item :label-width="formLabelWidth">
+          <el-input v-model="form.registerMailCode" placeholder="邮箱验证码" prefixIcon="el-icon-key"/>
+        </el-form-item>
+        <el-button class="loginBtn" type="primary" @click="userRegister">注册&nbsp;&nbsp;<i class="el-icon-check"></i></el-button>
+        <el-button class="registerBtn" type="info" @click="sendMail">发送验证码&nbsp;&nbsp;
+          <i class="el-icon-coffee-cup" v-if="!sendMailFlag"/>
+          <i class="el-icon-loading" v-if="sendMailFlag"/>
+        </el-button>
+      </el-form>
+    </el-dialog>
+    <!--小火箭-->
+    <div>
+      <a href="javascript:void(0);"  @click="returnTop"  :class="isCdTopVisible?'cd-top cd-is-visible':'cd-top'">Top</a>
     </div>
 
-  </el-card>
+  </div>
 </template>
+
 <script>
   import user from '@/api/user'
   import store from '@/store/store'
-  import 'element-ui/lib/theme-chalk/display.css';
+  import 'element-ui/lib/theme-chalk/display.css'
 
   export default {
     name: 'bar',
     data() {
       return {
+        //修改用户信息相关
+        file: {}, //头像图片
+        oldPassword: '',
+        newPassword: '',
+        confirmPassword: '',
+        updatePwdMailCode: '', // 修改密码验证码
+        mail: '', //用户原邮箱
+        newMail: '',    //新邮箱
+        newMailCode: '',  //新邮箱验证码
+        updatePwdSendFlag: false,
+        updateMailToOldSendFlag: false,
+        updateMailToNewSendFlag: false,
+        //侧栏基础元素
+        activeNames: ['1', '2'], //激活的折叠面板
+        activeName: "0", // 激活的标签
+        yesNoDictList: [], // 是否 字典列表
+        genderDictList: [], //性别 字典列表
+        feedbackDictList: [], // 反馈 字典列表
+        labelWidth: "100px",
+        commentList: [], //我的评论
+        replyList: [], // 我的回复
+        praiseList: [], // 我的点赞
+        userInfo: {},
+        //导航栏基础元素
+        avatarUrl: "",
+        drawer: false,
+        isLogin: false,
+        isVisible: true,//导航栏
+        isCdTopVisible: false,//小火箭
+        showLogin: false,
         searchTxt: '',//搜索框
+        showSearch: false, // 控制搜索框的弹出
+        showHead: false, //控制导航栏的弹出
         activeIndex: '1',//默认选中第一项->首页
+        //登录注册对话框
         loginFormVisible: false,//登录框
         registerFormVisible: false,//注册框
         form: { //表单
@@ -146,6 +347,25 @@
         formLabelWidth: '0px',
         sendMailFlag: false
       }
+    },
+    mounted() {
+      var that = this;
+      var after = 50;
+      window.addEventListener("scroll", function () {
+        let scrollTop = document.documentElement.scrollTop; //当前的的位置
+        if (scrollTop > 300) {
+          that.isCdTopVisible = true;
+        } else {
+          that.isCdTopVisible = false;
+        }
+        if(after <50) after = 50;
+        if (scrollTop > after) {
+          that.isVisible = false;
+        } else {
+          that.isVisible = true;
+        }
+        after = scrollTop;
+      });
     },
     watch: {
       // 监控当前页面path，防止刷新页面显示错误
@@ -166,6 +386,67 @@
       }
     },
     methods: {
+      getLoginState(msg){
+        this.isLogin = msg
+      },
+      // 选择博客/资源标签时直接跳转
+      handleClick(tab, event) {
+        if(tab.name==4) {
+          this.$router.push({ path:'/myBlog'  }) 
+          this.drawer = false;}
+        else if(tab.name==3) {
+          this.$router.push({ path:'/file'  })
+          this.drawer = false;}
+        else if(tab.name==6) {
+        this.$router.push({ path:'/admins'  })
+        this.drawer = false;}
+      },
+      // 点击头像触发的动作
+      handleCommand(command) {
+        switch (command) {
+          case "writeBlog" : {
+            this.$router.push({ path:'/newBlog'  }) 
+            // alert('该功能待完善');
+          };break;
+          case "logout" : {
+            this.logout();
+          };break;
+          case "login" : {
+            this.loginFormVisible = true;
+          };break;
+          case "register" : {
+            this.registerFormVisible = true;
+          };break;
+          case "goUserInfo" : {
+            // 打开抽屉
+            this.drawer = true;
+            // 获取评论列表
+            this.getCommentList();
+            // 获取点赞列表
+            this.getPraiseList()
+            // 获取反馈列表
+            this.getFeedback()
+
+          };break;
+        }
+      },
+      closeLoginBox: function () {
+        this.showLogin = false;
+      },
+      clickSearchIco: function () {
+        if(this.searchTxt != "") {
+          this.search();
+        }
+        this.showSearch = !this.showSearch;
+        //获取焦点
+        this.$refs.searchInput.focus();
+      },
+      openHead: function () {
+        this.showHead = !this.showHead;
+      },
+      returnTop: function () {//回到顶端
+        window.scrollTo(0, 0);
+      },
       circleUrl(){
         return "http://39.107.228.168/image/"+store.state.name+".jpg"
       },
@@ -173,13 +454,57 @@
         if (key != null && key !== '')
           this.activeIndex = key
       },
-      egg() {
-        this.$notify({
-          title: '彩蛋',
-          message: '耐心等待 十分钟后获得一枚邀请码',
-          type: 'success',
-          duration: 120
-        });
+      updatePwd() {
+        if (this.oldPassword.length <= 0) {
+          this.$message({
+            message: '原密码不能为空',
+            type: 'error'
+          });
+          return;
+        }
+        if (this.newPassword != this.confirmPassword) {
+          this.$message({
+            message: '两次输入的密码不一致',
+            type: 'error'
+          });
+          return;
+        }
+        user.updatePassword(this.oldPassword, this.newPassword).then(res => {
+          this.$message({
+            message: '修改成功',
+            type: 'success'
+          });
+          this.drawer=false
+          this.$store.commit('logout')//清除token等信息
+          this.$router.push({path: '/'})
+        })
+      },
+      updateMail() {
+        var reg = new RegExp(/^([a-zA-Z0-9._-])+@([a-zA-Z0-9_-])+(\.[a-zA-Z0-9_-])+/);
+        if (!reg.test(this.newMail)) {//检测字符串是否符合正则表达式
+          this.$message({
+            message: '邮箱格式不正确',
+            type: 'error'
+          });
+          return;
+        }
+        if (this.newMailCode.length <= 0) {//
+          this.$message({
+            message: '请填写验证码',
+            type: 'error'
+          });
+          return;
+        }
+        user.updateMail(this.newMail, this.newMailCode).then(res => {
+          this.$message({
+            message: '改绑成功',
+            type: 'success'
+          });
+          this.drawer=false
+          this.newMail = '';
+          this.newMailCode = '';
+          this.load();
+        })
       },
       userLogin() { //登录方法
         if (this.form.loginName.length <= 0 || this.form.loginPwd.length <= 0) {
@@ -189,7 +514,6 @@
           });
           return;
         }
-
         user.login(this.form.loginName, this.form.loginPwd).then(response => {
           this.form.loginPwd = ''
           this.$store.commit('login', response.data)//存储token
@@ -197,12 +521,14 @@
             message: '登录成功',
             type: 'success'
           });
+          this.isLogin=true
           this.$router.go(0)
           this.loginFormVisible = false
         })
       },
       logout() {  //退出登录
         user.logout().then(res => {
+          this.isLogin=false
           this.$store.commit('logout')//清除token等信息
           this.$message({
             message: '退出成功',
@@ -215,7 +541,6 @@
 
       },
       sendMail() {//发送邮件
-
         var reg = new RegExp(/^([a-zA-Z0-9._-])+@([a-zA-Z0-9_-])+(\.[a-zA-Z0-9_-])+/);
         if (!reg.test(this.form.registerMail)) {//检测字符串是否符合正则表达式
           this.$message({
@@ -238,7 +563,7 @@
       userRegister() {//用户注册
         //判断是否输入字段
         if (this.form.registerName.length <= 0 || this.form.registerPwd.length <= 0 || this.form.registerConfirmPwd.length <= 0 ||
-          this.form.registerMail.length <= 0 || this.form.registerMailCode.length <= 0 || this.form.registerInviteCode.length <= 0) {
+          this.form.registerMail.length <= 0 || this.form.registerMailCode.length <= 0 ) {
           this.$message({
             message: '字段不符合规范',
             type: 'error'
@@ -285,17 +610,145 @@
           path: '/searchBlog/' + this.searchTxt
         })
         this.searchTxt = '';//清空搜索框
-      }
+      },
+      fileChange(e,list){
+          this.file=e;
+      },
+      SubbmitFile(){
+          let param = new FormData(); 
+          param.append("file", this.file.raw);
+          let config = {
+            headers: { 'Content-Type': 'multipart/form-data' },
+          }
+          config.headers['Authorization'] = store.state.token
+          console.log(param)
+          axios.post("/api/file/uploadAvatar/", param, config,{timeout:900000})
+          .then(response => {
+            if (response) { 
+              this.load()
+              this.$router.go(0)
+              this.file={}
+              console.log(response.data);
+            } else {
+              alert(response.data.msg);
+            }
+          })
+          .catch(function (err) {
+            console.log(err);
+          });
+      },
     }
   }
 </script>
+
 <style>
-  #bar {
-    margin-top: -50px;
-    margin-bottom: 0px;
+ .userInfoAvatar {
+    width: 35px;
+    height: 35px;
+    position: absolute;
+    right: -77px;
+    top: 15px;
   }
 
-  #space {
-    margin: 0 21% 0 20%;
+  .userInfoAvatar img {
+    width: 35px;
+    height: 35px;
+    border-radius: 50%;
+  }
+  .searchbox {
+      position: absolute;
+      right: 40px;
+      top: 0
+    }
+  .loginBtn {
+    width: 40%;
+  }
+  .registerBtn {
+    width: 40%;
+  }
+  .avatar-uploader .el-upload {
+    border: 1px dashed #d9d9d9;
+    border-radius: 6px;
+    margin: 0, 0, 0, 10px;
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+  }
+  .avatar-uploader .el-upload:hover {
+    border-color: #409eff;
+  }
+  .avatar-uploader-icon {
+    font-size: 28px;
+    color: #8c939d;
+    width: 100px;
+    height: 100px;
+    line-height: 100px;
+    text-align: center;
+  }
+  .imgBody {
+    width: 100px;
+    height: 100px;
+    border: solid 2px #ffffff;
+    float: left;
+    position: relative;
+  }
+  .imgBody img {
+    width: 100px;
+    height: 100px;
+  }
+  .uploadImgBody {
+    margin-left: 5px;
+    width: 100px;
+    height: 100px;
+    border: dashed 1px #c0c0c0;
+    float: left;
+    position: relative;
+  }
+  .uploadImgBody :hover {
+    border: dashed 1px #00ccff;
+  }
+  .inputClass {
+    position: absolute;
+  }
+  .commentList {
+    width: 100%;
+    margin: 0 auto;
+  }
+  .commentList .p1 {
+    float: left;
+  }
+  .commentList .left {
+    display: inline-block;
+    width: 10%;
+    height: 100%;
+  }
+  .commentList .left img {
+    margin: 0 auto;
+    width: 100%;
+    border-radius: 50%;
+  }
+  .commentList .right {
+    display: inline-block;
+    width: 85%;
+    margin-left: 5px;
+  }
+  .commentList .rightTop {
+    height: 30px;
+  }
+  .commentList .rightTop .userName {
+    color: #303133;
+    margin-left: 10px;
+    font-size: 16px;
+    font-weight: bold;
+  }
+  .commentList .rightTop .timeAgo {
+    color: #909399;
+    margin-left: 10px;
+    font-size: 15px;
+  }
+  .commentList .rightCenter {
+    margin-left: 20px;
+    line-height: 30px;
+    height: 60px;
   }
 </style>

@@ -8,6 +8,12 @@ export default {
       method: 'get'
     })
   },
+  getTagAll() {
+    return request({
+      url: '/tag/all',
+      method: 'get'
+    })
+  },
   addTag(tagName) {
     return request({
       url: '/tag',

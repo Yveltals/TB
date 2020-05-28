@@ -3,7 +3,6 @@ package com.zzx.dao;
 
 import com.zzx.model.pojo.Tag;
 import org.apache.ibatis.annotations.Mapper;
-import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -68,4 +67,10 @@ public interface TagDao {
      * @return
      */
     Tag findTagByTagName(String tagName);
+
+    /**
+     * 查询全部标签
+     * @return
+     */
+    List<Tag> findTagAll();
 }

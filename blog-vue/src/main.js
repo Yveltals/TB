@@ -13,8 +13,12 @@ import 'mavon-editor/dist/css/index.css'
 
 import router from './router/router'
 
-Vue.config.productionTip = false
+//引入全局css
+import "@/assets/iconfont/iconfont.css";
+import '../static/css/ckeditor.css';
+import '../static/css/index.css';
 
+Vue.config.productionTip = false
 Vue.use(VueCookies)
 Vue.use(ElementUI)
 Vue.use(mavonEditor)

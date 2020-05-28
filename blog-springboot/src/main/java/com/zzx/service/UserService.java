@@ -7,7 +7,6 @@ import com.zzx.config.RabbitMQConfig;
 import com.zzx.dao.CodeDao;
 import com.zzx.dao.RoleDao;
 import com.zzx.dao.UserDao;
-import com.zzx.model.pojo.Code;
 import com.zzx.model.pojo.Role;
 import com.zzx.model.pojo.User;
 import com.zzx.utils.DateUtil;
@@ -122,14 +121,6 @@ public class UserService implements UserDetailsService {
             throw new RuntimeException("验证码错误");
         }
 
-        //有效
-        //查询邀请码是否有效
-        Code code = codeDao.findCodeById(inviteCode);
-
-        if (code == null || code.getState() != 0) {
-            //无效 throw 异常
-            throw new RuntimeException("邀请码无效");
-        }
         //有效 保存用户
         final String username = userToAdd.getName();
         if (userDao.findUserByName(username) != null) {
@@ -152,10 +143,6 @@ public class UserService implements UserDetailsService {
         for (Role role : roles) {
             roleDao.saveUserRoles(userToAdd.getId(), role.getId());
         }
-        // 更新邀请码状态
-        code.setUser(userToAdd);
-        code.setState(1);
-        codeDao.updateCode(code);
     }
 
 
@@ -263,10 +250,9 @@ public class UserService implements UserDetailsService {
      *
      * @param oldPassword 旧密码
      * @param newPassword 新密码
-     * @param code        邮箱验证码
      */
     @Transactional(rollbackFor = Exception.class)
-    public void updateUserPassword(String oldPassword, String newPassword, String code) {
+    public void updateUserPassword(String oldPassword, String newPassword) {
         //校验原密码
         String name = jwtTokenUtil.getUsernameFromRequest(request);
         User user = new User();
@@ -275,11 +261,6 @@ public class UserService implements UserDetailsService {
         user = userDao.findUserByName(user.getName()); //
         if (!encoder.matches(oldPassword, user.getPassword())) {
             throw new RuntimeException("密码错误");
-        }
-
-        //校验邮箱验证码
-        if (!checkMailCode(user.getMail(), code)) {
-            throw new RuntimeException("验证码无效");
         }
         //更新密码
         user.setPassword(encoder.encode(newPassword));
@@ -291,35 +272,23 @@ public class UserService implements UserDetailsService {
      * 更新用户邮箱
      *
      * @param newMail     新邮箱
-     * @param oldMailCode 旧邮箱验证码
      * @param newMailCode 新邮箱验证码
      */
     @Transactional(rollbackFor = Exception.class)
-    public void updateUserMail(String newMail, String oldMailCode, String newMailCode) {
+    public void updateUserMail(String newMail, String newMailCode) {
 
         //获取向旧邮箱发出的验证码
         String userName = jwtTokenUtil.getUsernameFromRequest(request);
         User user = userDao.findUserByName(userName);
-
-        //与用户输入的旧邮箱验证码进行匹配
-        if (!checkMailCode(user.getMail(), oldMailCode)) {
-            throw new RuntimeException("旧邮箱无效验证码");
-        }
-
         //检查新邮箱是否已存在
         if (userDao.findUserByMail(newMail) != null) {
             throw new RuntimeException("此邮箱已使用");
         }
-
-
         //校验新邮箱验证码
-        if (!checkMailCode(newMail, newMailCode)) {
+        if (!checkMailCode(newMail,newMailCode)) {
             throw new RuntimeException("新邮箱无效验证码");
         }
-
-
         user.setMail(newMail);
-        //更新用户邮箱信息
         userDao.updateUser(user);
 
     }

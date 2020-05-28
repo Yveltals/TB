@@ -1,47 +1,56 @@
 <template>
-  <el-card id="message" v-loading="loading">
-
-    <div v-if="loading" style="margin: 35% 0"></div>
-    <div v-for="message in messageList" style="text-align: left;padding-left: 2%">
-      <p style="color:#409EFF" class="el-icon-paperclip">&nbsp;{{message.name}}</p>
-      <p style="color: #303133">
-        {{message.body}}
-      </p>
-      <p style="color: #C0C4CC;font-size:12px">
-        {{getTime(message.time)}}
-      </p>
-
-      <el-divider content-position="right">
-        <el-link :underline="false" class="el-icon-delete" v-if="getStoreRoles().indexOf('ADMIN') > -1"
-                 @click="deleteMessage(message.id)"/>
-      </el-divider>
+  <div style="min-height: 870px;" class="page">
+    <div class="pagebg clock"></div>
+    
+    <div class="container">
+      <h1 class="t_nav">
+        <span>每个人都有自己故事，只是演绎的方式不同。</span>
+        <a href="/" class="n1">网站首页</a>
+        <a href="/" class="n2">留言</a>
+      </h1>
+      <!--发评论-->
+      <div class="commentBox">
+          <span class="right">
+            <textarea id="textpanel" class="textArea" placeholder="既然来了，那就留下些什么吧~" v-model="messageBody" @input="vaildCount"></textarea>
+          </span>
+        </div>
+        <div class="bottom">
+          <el-button class="submit p2" type="primary"  @click="sendMessage">发送评论</el-button>
+          <el-button class="cancel p2" type="info" @click="handleCancle">取消评论</el-button>
+          <div class="emoji-panel-btn p2">
+            <img src="../assets/face.png" />
+          </div>
+          <span class="allow p2">还能输入{{count}}个字符</span>
+        </div>
+      <!--评论列表-->
+      <div class="message_infos">
+        <div v-for="message in messageList" :key="message.id">
+          <div class="commentList">
+            <span class="left p1">
+              <!-- <img v-if="message.user" :src="message.user.photoUrl ? PICTURE_HOST + message.user.photoUrl:'https://wpimg.wallstcn.com/f778738c-e4f8-4870-b634-56703b4acafe.gif'" onerror="onerror=null;src='https://wpimg.wallstcn.com/f778738c-e4f8-4870-b634-56703b4acafe.gif'" /> -->
+              <img src="https://wpimg.wallstcn.com/f778738c-e4f8-4870-b634-56703b4acafe.gif" />
+            </span>
+            <span class="right p1">
+              <div class="rightTop" v-if="message.name">
+                <el-link class="userName" :underline="false">{{message.name}}</el-link>
+                <span class="timeAgo" >{{getTime(message.time)}}</span>
+              </div>
+              <div class="rightCenter">{{message.body}}</div>
+              <div class="rightBottom">
+                  <el-divider content-position="right">
+                  <el-link :underline="false" class="el-icon-delete" v-if="getStoreRoles().indexOf('ADMIN') > -1"
+                      @click="deleteMessage(message.id)"/>
+                  </el-divider>
+              </div>
+            </span>
+            <!-- <el-link :underline="false" class="el-icon-delete" v-if="getStoreRoles().indexOf('ADMIN') > -1"
+                 @click="deleteMessage(message.id)"/> -->
+          </div>
+        </div>
+        <div class="noComment" v-if="messageList.length ==0">还没有评论，快来抢沙发吧！</div>
+      </div>
     </div>
-
-
-    <div style="padding-bottom: 4%">
-      <el-pagination
-        :pager-count="5"
-        :page-size="pageSize"
-        background
-        layout="prev, pager, next"
-        :total="total"
-        @current-change="currentChange"
-        :current-page="currentPage"
-        @prev-click="currentPage=currentPage-1"
-        @next-click="currentPage=currentPage+1"
-        :hide-on-single-page="true">
-      </el-pagination>
-    </div>
-
-    <div style="width: 60%;margin-left: -9%;padding-top: 2%" class="hidden-xs-only">
-      <el-row>
-        <el-input v-model="messageBody" placeholder="请输入留言内容" style="width: 40%" size="small"/>
-        <el-button type="primary" style="width: 15%" size="small" @click="sendMessage">
-          留言
-        </el-button>
-      </el-row>
-    </div>
-  </el-card>
+  </div>
 </template>
 <script>
 import message from '@/api/message'
@@ -52,19 +61,31 @@ export default {
   name: 'message',
   data() {
     return {
+      count:1024, //留言最多字数
       total: 0,        //数据总数
       messageList: [],   //当前页数据
       pageSize: 5,    //每页显示数量
       currentPage: 1,   //当前页数
       messageBody: '',
-      loading: true //是否加载中
+      loading: true, //是否加载中
     }
   },
   created () {
     this.loadMessage();
-
   },
   methods: {
+    vaildCount: function() {
+      var count = 1024 - this.messageBody.length;
+      if(count <= 0) {
+        this.count = 0
+      } else {
+        this.count = count;
+      }
+    },
+    handleCancle() {
+      this.messageBody = '';
+      this.count = 1024;
+    },
     loadMessage () {
       message.getMessage(this.currentPage, this.pageSize).then(res => {
         this.total = res.data.total
@@ -121,5 +142,133 @@ export default {
 <style scoped>
   #message {
     margin: 10px 5% 0 5%;
+  }
+    .commentStyle {
+    display: block;
+    margin-top: 10px;
+    margin-left: 10px;
+    border-left: 1px dashed SlateGray;
+  }
+  .comment {
+    display: none;
+  }
+  .commentList {
+    width: 100%;
+    margin: 0 auto;
+  }
+  .commentList .p1 {
+    float: left;
+  }
+  .commentList .left {
+    display: inline-block;
+    width: 5%;
+    height: 100%;
+  }
+  .commentList .left img {
+    margin: 0 auto;
+    width: 100%;
+    border-radius: 50%;
+  }
+  .commentList .right {
+    display: inline-block;
+    width: 93%;
+    margin-left: 5px;
+  }
+  .commentList .rightTop {
+    text-align: left;
+    margin-left: 5px;
+    height: 30px;
+    margin-top: 2px;
+  }
+  .commentList .rightTop .userName {
+    text-align: left;
+    color: #303133;
+    margin-left: 10px;
+    font-size: 16px;
+    font-weight: bold;
+  }
+  .commentList .rightTop .timeAgo {
+    text-align: left;
+    color: #909399;
+    margin-left: 10px;
+    font-size: 15px;
+  }
+  .commentList .rightCenter {
+    text-align: left;
+    margin-left: 20px;
+    height: 50px;
+    margin-top: 15px;
+  }
+  .commentList .rightBottom {
+    margin-left: 10px;
+    height: 30px;
+  }
+  .commentBox {
+    min-width: 700px;
+    width: 100%;
+    height: 100px;
+    margin: 0 auto;
+  }
+  .commentBox .left {
+    display: inline-block;
+    width: 4%;
+    height: 100%;
+    padding-top: 3px;
+  }
+  .commentBox .left img {
+    cursor: pointer;
+    margin: 0 auto;
+    width: 90%;
+    border-radius: 50%;
+  }
+  .commentBox .right {
+    display: inline-block;
+    margin: 5px 2px 0 0;
+    width: 95%;
+    height: 100%;
+  }
+  textarea::-webkit-input-placeholder {
+    color: #909399;
+  }
+  .commentBox .right textarea {
+    color: #606266;
+    padding:10px 5px 5px 10px;
+    resize: none;
+    width: 95%;
+    height: 100%;
+  }
+  .bottom {
+    position: relative;
+    min-width: 690px;
+    width: 98%;
+    height: 60px;
+    line-height: 40px;
+    margin-top: 20px;
+  }
+  .bottom .p2 {
+    float: right;
+    margin-top: 5px;
+    margin-right: 10px;
+  }
+    .emoji-panel-btn img{
+    height: 35px;
+    width: 35px;
+  }
+  .emoji-panel-btn:hover {
+    cursor: pointer;
+    opacity: 0.8;
+  }
+  .emoji-item-common {
+    display: inline-block;
+  }
+  .emoji-item-common:hover {
+     cursor: pointer;
+   }
+  .emoji-size-small {
+    zoom: 0.3;
+  }
+  .emoji-size-large {
+    zoom: 0.5;
+    margin: 4px;
   }
 </style>

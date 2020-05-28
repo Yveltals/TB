@@ -71,12 +71,7 @@ public class JwtTokenFilter extends OncePerRequestFilter {
         response.setHeader("Access-Control-Allow-Methods","POST,GET,OPTIONS,PUT,DELETE,PATCH,HEAD");
         response.setHeader("Access-Control-Allow-Max-Age","3600");
         response.setHeader("Access-Control-Allow-Headers","*");
-//
-//        if("OPTIONS".equals(request.getMethod())){
-//            response.setStatus(HttpStatus.NO_CONTENT.value());
-//            System.out.println("OPTIONS 处理，直接返回");
-//            return;
-//        }
+
         //缓存时间 2s 会影响swagger-ui的使用，建议开发时调整JwtTokenFilter.LIMIT_REQUEST_FREQUENCY_COUNT的值
         // 127.0.0.1_/blog/hotBlog
         if (redisTemplate.hasKey(redisKey)) {

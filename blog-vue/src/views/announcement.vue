@@ -1,44 +1,53 @@
 <template>
-  <el-card id="announcement" v-loading="loading">
-    <br/>
-    <div v-if="loading" style="margin: 35% 0"></div>
-    <div v-for="announcement in announcementList"
-         style="text-align: left;padding-left: 2%;">
-      <div class="top" :class="(announcement.top==1)?'normal':'subscript'" v-if="announcement.top==0">
-        置顶
+  <div style="min-height: 870px;">
+    <div class="pagebg ab"></div>
+
+    <div class="container">
+      <h1 class="t_nav">
+        <span>每个人都有自己故事，只是演绎的方式不同。</span>
+        <a href="/" class="n1">网站首页</a>
+        <a href="/" class="n2">公告</a>
+      </h1>
+
+       <el-card id="announcement" v-loading="loading">
+      <br/>
+      <div v-if="loading" style="margin: 35% 0"></div>
+      <div v-for="announcement in announcementList" :key="announcement.id"
+          style="text-align: left;padding-left: 2%;">
+        <div class="top" :class="(announcement.top==1)?'normal':'subscript'" v-if="announcement.top==0">
+          置顶
+        </div>
+
+        <p style="color:#409EFF; font-size:20px;" class="el-icon-data-board">&nbsp;{{announcement.title}}</p>
+        <br><br>
+        <div style="color: #303133;font-size:17px;" :id="announcement.id" v-html="announcement.body"/>
+        <p style="color: #C0C4CC;font-size:12px">
+          {{getTime(announcement.time)}}
+        </p>
+        <el-divider/>
       </div>
-
-      <p style="color:#409EFF" class="el-icon-data-board">
-        &nbsp;{{announcement.title}}
-      </p>
-      <div style="color: #303133" :id="announcement.id" v-html="announcement.body"/>
-      <p style="color: #C0C4CC;font-size:12px">
-        {{getTime(announcement.time)}}
-      </p>
-      <el-divider/>
+      <div style="padding-bottom: 4%">
+        <el-pagination
+          :page-size="pageSize"
+          background
+          layout="prev, pager, next"
+          :total="total"
+          @current-change="currentChange"
+          :current-page="currentPage"
+          @prev-click="currentPage=currentPage-1"
+          @next-click="currentPage=currentPage+1"
+          :hide-on-single-page="true">
+        </el-pagination>
+      </div>
+      </el-card>
+      
     </div>
-
-
-    <div style="padding-bottom: 4%">
-      <el-pagination
-        :page-size="pageSize"
-        background
-        layout="prev, pager, next"
-        :total="total"
-        @current-change="currentChange"
-        :current-page="currentPage"
-        @prev-click="currentPage=currentPage-1"
-        @next-click="currentPage=currentPage+1"
-        :hide-on-single-page="true">
-      </el-pagination>
-    </div>
-
-  </el-card>
+  </div>
 </template>
+
 <script>
   import announcement from '@/api/announcement'
   import date from '@/utils/date'
-
   export default {
     name: 'announcement',
     data() {
@@ -47,7 +56,12 @@
         announcementList: [],   //当前页数据防止空页面的突兀
         pageSize: 5,    //每页显示数量
         currentPage: 1,   //当前页数
-        loading: true //是否加载中
+        loading: true, //是否加载中
+        hotTagData: [
+          {uid:1,content:"OS"},{uid:2,content:"Java"},
+          {uid:8,content:"多线程"},{uid:5,content:"汇编语言"},
+          {uid:9,content:"c++"},{uid:6,content:"数据库"},{uid:4,content:"数据结构"}
+        ] 
       }
     },
     created () {

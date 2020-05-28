@@ -127,14 +127,6 @@ public class BlogService {
     public void saveBlog(String blogTitle, String blogBody, Integer[] tagIds) throws JsonProcessingException {
         User user = userDao.findUserByName(jwtTokenUtil.getUsernameFromRequest(request));
 
-        for (Integer tagId : tagIds) {
-            // 通过标签id检查标签是否属于该用户
-            if (!tagDao.findTagById(tagId).getUser().getId().equals(user.getId())) {
-                throw new RuntimeException();
-            }
-        }
-
-
         Blog blog = new Blog();
         //博文用户
         blog.setUser(user);
@@ -278,6 +270,34 @@ public class BlogService {
     }
 
     /**
+     * test主页博文查询
+     * @param page
+     * @param showCount
+     * @return
+     * @throws IOException
+     */
+    public List<Blog> findHomeBlog(Integer page, Integer showCount) throws IOException {
+        // mysql 分页中的开始位置
+        int start = (page - 1) * showCount;
+        List<Blog> blogsFromMysql = blogDao.findHomeBlog(start, RedisConfig.REDIS_NEW_BLOG_COUNT);
+        for (Blog blog : blogsFromMysql) {
+            blog.setTags(tagDao.findTagByBlogId(blog.getId()));
+        }
+        List<Blog> blogs = new LinkedList<>();
+        // 开始位置大于缓存数量 即查询范围不在缓存内 查询mysql 且不设置缓存
+        blogs.addAll(blogDao.findHomeBlog(start, showCount));
+        for (Blog blog : blogs) {
+            blog.setTags(tagDao.findTagByBlogId(blog.getId()));
+        }
+        for (Blog blog : blogs) {
+            String body = blog.getBody();
+            if (body.length() > BlogService.MAX_BODY_CHAR_COUNT) {
+                blog.setBody(body.substring(0, BlogService.MAX_BODY_CHAR_COUNT));
+            }
+        }
+        return blogs;
+    }
+    /**
      * 查询主页博客
      * 正常状态
      *
@@ -285,7 +305,7 @@ public class BlogService {
      * @param showCount 显示条数
      * @return
      */
-    public List<Blog> findHomeBlog(Integer page, Integer showCount) throws IOException {
+    public List<Blog> findHomeBlogbak(Integer page, Integer showCount) throws IOException {
 
         // mysql 分页中的开始位置
         int start = (page - 1) * showCount;
@@ -306,21 +326,17 @@ public class BlogService {
 
         // 返回的blog列表
         List<Blog> blogs = new LinkedList<>();
-
         // /1/5     limit 1,5 1+5=6
         // /5/5     limit 5,5 5+5=10
         //          limit 10,10 10+10=20
         //          limit 6,5 6+5=11
-
         if (start >= RedisConfig.REDIS_NEW_BLOG_COUNT) {
             // 开始位置大于缓存数量 即查询范围不在缓存内 查询mysql 且不设置缓存
             blogs.addAll(blogDao.findHomeBlog(start, showCount));
             for (Blog blog : blogs) {
 
                 blog.setTags(tagDao.findTagByBlogId(blog.getId()));
-
             }
-
         } else if (start + showCount > RedisConfig.REDIS_NEW_BLOG_COUNT) {
             // 查询范围部分在缓存内
             List<String> redisBlogIds = redisTemplate.opsForList().range(RedisConfig.REDIS_NEW_BLOG, start, RedisConfig.REDIS_NEW_BLOG_COUNT - 1);
@@ -341,7 +357,6 @@ public class BlogService {
             }
 
         }
-
         // 截取前150个字符 减少网络io
         for (Blog blog : blogs) {
             String body = blog.getBody();
@@ -350,10 +365,7 @@ public class BlogService {
                 blog.setBody(body.substring(0, BlogService.MAX_BODY_CHAR_COUNT));
             }
         }
-
         return blogs;
-
-
     }
 
     /**
@@ -364,14 +376,10 @@ public class BlogService {
      */
     public List<Blog> findHotBlog() throws IOException {
         // 查询redis 热门博客id set
-
         if (redisTemplate.hasKey(RedisConfig.REDIS_HOT_BLOG)) {
-
             // 有缓存
-            List<Blog> blogList = new ArrayList<>(6);
-
+            List<Blog> blogList = new ArrayList<>(4);
             List<String> blogIdList = redisTemplate.opsForList().range(RedisConfig.REDIS_HOT_BLOG, 0, RedisConfig.REDIS_HOT_BLOG_COUNT);
-
             for (String blogId : blogIdList) {
                 //根据缓存获取 blog
                 String blogJson = redisTemplate.opsForValue().get(RedisConfig.REDIS_BLOG_PREFIX + blogId);
@@ -379,13 +387,11 @@ public class BlogService {
                 Blog blog = objectMapper.readValue(blogJson, Blog.class);
                 blogList.add(blog);
             }
-
-
             return blogList;
         } else {
             // redis中没有缓存 查询 mysql
             // 通过定时任务进行热门博客列表更新
-            return blogDao.findHotBlog(6);
+            return blogDao.findHotBlog(4);
         }
 
 

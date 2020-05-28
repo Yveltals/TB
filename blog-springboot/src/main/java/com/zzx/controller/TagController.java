@@ -105,4 +105,17 @@ public class TagController {
         return Result.create(StatusCode.OK, "查询成功", tagService.findTagByUserId());
     }
 
+    /**
+     * 所有标签
+     *
+     * @return
+     */
+    @ApiOperation(value = "获取所有标签")
+    @GetMapping("/all")
+    public Result findTagAll() {
+
+        return Result.create(StatusCode.OK, "查询成功", tagService.findTagAll());
+    }
+
+
 }

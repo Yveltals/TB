@@ -61,7 +61,7 @@
 
       </el-table>
     </div>
-    <div style="padding-bottom: 4%">
+    <div style="padding-bottom: 4%;">
       <el-pagination
         :page-size="pageSize"
         background

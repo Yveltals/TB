@@ -5,26 +5,21 @@ import com.zzx.config.MailConfig;
 import com.zzx.model.entity.PageResult;
 import com.zzx.model.entity.Result;
 import com.zzx.model.entity.StatusCode;
-
 import com.zzx.model.pojo.User;
 import com.zzx.service.LoginService;
 import com.zzx.service.RoleService;
 import com.zzx.service.UserService;
 import com.zzx.utils.DateUtil;
 import com.zzx.utils.FormatUtil;
-import io.swagger.annotations.*;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
-
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.access.prepost.PreAuthorize;
-
-
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.annotation.*;
 
-
 import java.util.Map;
-import java.util.concurrent.TimeUnit;
 
 
 @Api(tags = "用户api", description = "用户api", basePath = "/user")
@@ -135,8 +130,8 @@ public class UserController {
                 user.getName(),
                 mailCode,
                 user.getPassword(),
-                user.getMail(),
-                inviteCode)) {
+                user.getMail()
+                )) {
             return Result.create(StatusCode.ERROR, "注册失败，字段不完整");
         }
         try {
@@ -206,23 +201,6 @@ public class UserController {
     }
 
     /**
-     * 更新用户打赏码
-     *
-     * @return
-     */
-    @ApiOperation(value = "更新用户打赏码", notes = "更新用户打赏码")
-    @PreAuthorize("hasAuthority('USER')")
-    @PutMapping("/updateReward")
-    public Result updateReward(String imgPath) {
-        if (!formatUtil.checkStringNull(imgPath)) {
-            return Result.create(StatusCode.ERROR, "格式错误");
-        }
-        userService.updateUserReward(imgPath);
-        return Result.create(StatusCode.OK, "更新成功");
-    }
-
-
-    /**
      * 获取用户绑定的邮箱
      *
      * @return
@@ -235,34 +213,18 @@ public class UserController {
     }
 
     /**
-     * 获取用户的打赏码
-     *
-     * @return
-     */
-    @ApiOperation(value = "获取用户的打赏码", notes = "获取用户的打赏码")
-    @PreAuthorize("hasAuthority('USER')")
-    @GetMapping("/getReward")
-    public Result getUserReward() {
-        return Result.create(StatusCode.OK, "查询成功", userService.findUserReward());
-    }
-
-    /**
      * 修改密码
      *
      * @param oldPassword 旧密码
      * @param newPassword 新密码
-     * @param code        邮箱验证码
      * @return
      */
     @ApiOperation(value = "用户修改密码", notes = "旧密码+新密码+验证码")
     @PreAuthorize("hasAuthority('USER')")
     @PostMapping("/updatePassword")
-    public Result updatePassword(String oldPassword, String newPassword, String code) {
-        if (!formatUtil.checkStringNull(oldPassword, newPassword, code)) {
-            return Result.create(StatusCode.ERROR, "参数错误");
-        }
+    public Result updatePassword(String oldPassword, String newPassword) {
         try {
-            userService.updateUserPassword(oldPassword, newPassword, code);
+            userService.updateUserPassword(oldPassword, newPassword);
             return Result.create(StatusCode.OK, "修改密码成功");
         } catch (RuntimeException e) {
             return Result.create(StatusCode.ERROR, e.getMessage());
@@ -274,15 +236,14 @@ public class UserController {
      * 改绑邮箱
      *
      * @param newMail     新邮箱
-     * @param oldMailCode 旧邮箱验证码
      * @param newMailCode 新邮箱验证码
      * @return
      */
-    @ApiOperation(value = "改绑邮箱", notes = "新邮箱+旧邮箱验证码+新邮箱验证码")
+    @ApiOperation(value = "改绑邮箱", notes = "新邮箱+新邮箱验证码")
     @PreAuthorize("hasAuthority('USER')")
     @PostMapping("/updateMail")
-    public Result updateMail(String newMail, String oldMailCode, String newMailCode) {
-        if (!formatUtil.checkStringNull(newMail, oldMailCode, newMailCode)) {
+    public Result updateMail(String newMail, String newMailCode) {
+        if (!formatUtil.checkStringNull(newMail,newMailCode)) {
             return Result.create(StatusCode.ERROR, "参数错误");
         }
         //检查邮箱格式
@@ -290,7 +251,7 @@ public class UserController {
             return Result.create(StatusCode.ERROR, "参数错误");
         }
         try {
-            userService.updateUserMail(newMail, oldMailCode, newMailCode);
+            userService.updateUserMail(newMail, newMailCode);
             return Result.create(StatusCode.OK, "改绑成功");
         } catch (RuntimeException e) {
             return Result.create(StatusCode.ERROR, e.getMessage());

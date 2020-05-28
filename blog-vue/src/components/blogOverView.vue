@@ -13,22 +13,45 @@
     </div>
 
     <div @mouseenter="pEnter()" @mouseleave="pLeave()">
-      <el-link :underline="false" @click="router(id)">
-        <h3 id="title">{{title}}</h3>
-      </el-link>
+      <h3 class="blogtitle">
+        <a href="javascript:void(0);" @click="router(id)">{{title}}</a>
+      </h3>
     </div>
-    <div id="body" @mouseenter="pEnter()" @mouseleave="pLeave()" >
-      {{bodyTran(body)}}
-    </div>
-    <div @mouseenter="pEnter()" @mouseleave="pLeave()">
-      <p style="overflow: hidden;text-overflow:ellipsis; white-space: nowrap;">
+    <p class="blogtext">{{bodyTran(body)}}</p>
+    <div class="bloginfo" @mouseenter="pEnter()" @mouseleave="pLeave()">
+      <ul>
+        <li>
+          <span class="iconfont">&#xe606;</span>
+          {{time}}
+        </li>
+        <li>
+          <span class="iconfont">&#xe8c7;</span>
+          <span>{{blogViews}}</span>
+        </li>
+        <li>
+          <span class="iconfont">&#xe663;</span>
+          {{discussCount}}
+        </li>
+        <li>
+          <span class="iconfont">&#xe60f;</span>
+          <a href="javascript:void(0);" >{{name}}</a>
+        </li>
+        <li>
+          <span>
+          <span v-for="tag in tags" :key="tag.id">
+            <el-tag size="small" type="primary" style="margin-left: 5px">{{tag}}</el-tag>
+          </span>
+        </span>
+        </li>
+      </ul>
+      <!-- <p style="overflow: hidden;text-overflow:ellipsis; white-space: nowrap;">
         <span class="el-icon-time hidden-xs-only" style="width: 20%" >&nbsp;{{time}}</span>
 
         <span class="el-icon-view hidden-xs-only" style="width: 15%">&nbsp;{{blogViews}}</span>
 
         <span class="el-icon-chat-line-square hidden-xs-only" style="width: 10%">&nbsp;{{discussCount}}</span>
 
-        <span class="el-icon-user-solid hidden-xs-only" style="width: 10%;text-align: center;">
+        <span class="author" >
           &nbsp;{{name}}
         </span>
 
@@ -38,7 +61,7 @@
           </span>
         </span>
 
-      </p>
+      </p> -->
     </div>
   </el-card>
 </template>
@@ -102,10 +125,8 @@
           }
         }).catch(() => {
         });
-
       },
       bodyTran(body) { //将数据库中带标签的博文转换为纯文本
-
         var dd = body.replace(new RegExp('#', 'g'), "");
         dd = dd.replace(new RegExp('!\\[.*\\]\\(.*\\)', 'g'), "[图片]");
         dd = dd.replace(new RegExp('\\[.*\\]\\(.*\\)', 'g'), "[链接]");
@@ -118,12 +139,18 @@
         this.$router.push({ //路由跳转
           path: '/editBlog/' + id
         })
-      }
-
+      },
     }
   }
 </script>
 <style scoped>
+.blogtext { 
+  color: #566573; overflow: hidden; 
+  display: -webkit-box; -webkit-line-clamp: 3; 
+  text-align:left;font-size: 14px; margin-top: 20px ;
+  text-overflow: ellipsis; -webkit-box-orient: vertical; 
+  }
+
   #blogOverView {
     text-align: left;
     /*-moz-box-shadow: 0px 6px 0px #333333;*/

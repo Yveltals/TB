@@ -107,7 +107,7 @@
       }
     },
     created() {
-      tag.getTag().then(res => {
+      tag.getTagAll().then(res => {
         this.tags = res.data;
       })
 

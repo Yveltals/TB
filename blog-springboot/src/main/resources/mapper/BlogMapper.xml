@@ -88,7 +88,7 @@
         FROM blog b LEFT JOIN user u on b.user_id = u.user_id
         WHERE blog_state = 1
         ORDER BY blog_blogViews DESC,blog_discussCount DESC
-        LIMIT 0,#{value}
+        LIMIT 0,4
     </select>
 
     <select id="searchBlogTag" resultMap="Blog">

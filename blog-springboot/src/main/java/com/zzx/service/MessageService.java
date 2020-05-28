@@ -57,9 +57,9 @@ public class MessageService {
             name = requestUtil.getIpAddress(request);
         }
         //查询此ip/name 是否留言过
-        if (messageDao.findMessageByName(name) != null) {
-            throw new RuntimeException("你已留过言");
-        }
+//        if (messageDao.findMessageByName(name) != null) {
+//            throw new RuntimeException("你已留过言");
+//        }
 
         Message message = new Message();
         message.setName(name);

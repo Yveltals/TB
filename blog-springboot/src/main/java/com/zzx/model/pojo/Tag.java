@@ -1,6 +1,5 @@
 package com.zzx.model.pojo;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
 import lombok.ToString;
 
@@ -21,9 +20,6 @@ public class Tag implements Serializable {
     private Integer id;//id
     private String name;//标签名
 
-    @JsonIgnore
-    private User user;//用户
-
     public Integer getId() {
         return id;
     }
@@ -38,13 +34,5 @@ public class Tag implements Serializable {
 
     public void setName(String name) {
         this.name = name;
-    }
-
-    public User getUser() {
-        return user;
-    }
-
-    public void setUser(User user) {
-        this.user = user;
     }
 }

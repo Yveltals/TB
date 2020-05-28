@@ -5,7 +5,7 @@
       <span style="color:#67C23A" class="el-icon-chat-line-square">最新评论</span>
     </p>
     <hr/>
-    <div v-for="discuss in discussList">
+    <div v-for="discuss in discussList" :key="discuss.id">
       <el-link type="info" :underline="false" style="margin: 5px 0" @click="router(discuss.blog.id)">
         {{discuss.user.name}}&nbsp;:&nbsp;{{discuss.body}}《{{discuss.blog.title}}》
       </el-link>

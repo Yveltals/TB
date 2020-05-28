@@ -165,7 +165,6 @@ public class BlogController {
     @ApiOperation(value = "首页热门博文", notes = "首页热门博文")
     @GetMapping("/hotBlog")
     public Result hotBlog() {
-
         try {
             return Result.create(StatusCode.OK, "查询成功", blogService.findHotBlog());
         } catch (IOException e) {
@@ -275,7 +274,6 @@ public class BlogController {
         if (!formatUtil.checkPositive(blogId)) {
             return Result.create(StatusCode.ERROR, "参数错误");
         }
-
         try {
             blogService.deleteBlog(blogId);
             return Result.create(StatusCode.OK, "删除成功");

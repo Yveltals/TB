@@ -1,52 +1,53 @@
 <template>
-  <el-card id="hotBlog">
-    <!--<hr />-->
-    <p>
-      <span style="color:#67C23A" class="el-icon-document">热门文章</span>
-    </p>
-    <hr />
-    <div v-for="blog in hotBlog">
-      <el-link type="info" style="margin: 5px 0" :underline="false"  @click="router(blog.id)">
-        《{{blog.title}}》&nbsp;浏览数:&nbsp;{{blog.blogViews}}
-      </el-link>
+    <div class="tuijian" v-if="hotBlog.length > 0">
+      <h2 class="hometitle">点击排行</h2>
+      <ul class="tjpic" v-if="hotBlog[0]">
+        <i><img style="cursor:pointer" :src="imageUrlFirst" @click="router(hotBlog[0].id)"></i>
+        <p style="text-align: left;"><a href="javascript:void(0);" @click="router(hotBlog[0].id)">{{hotBlog[0].title}}</a></p>
+      </ul>
+      <ul class="sidenews">
+        <li v-for="item in hotBlog"  :key="item.id">
+          <i><img style="cursor:pointer"   :src="imageUrlOther" @click="router(item.id)"></i>
+          <p style="text-align: left;"><a href="javascript:void(0);" @click="router(item.id)">{{item.title}}</a></p>
+          <span style="text-align: left;">{{getTime(item.time)}}</span>
+        </li>
+      </ul>
     </div>
-    <br/>
-  </el-card>
 </template>
 
 <script>
-  import blog from '@/api/blog'
-
-  export default {
-    name: 'hotBlog',
-    data() {
-      return {
-        hotBlog: []
-      }
-    },
-    created() {
-      blog.getHotBlog().then(responese => {
+import blog from '@/api/blog'
+import date from '@/utils/date'
+export default {
+  name: "hotBlog",
+  data() {
+    return {
+      imageUrlFirst: "http://demopicture.moguit.cn//blog/admin/jpg/2020/4/15/1586946598186.jpg",
+      imageUrlOther: "http://demopicture.moguit.cn//blog/admin/jpg/2020/4/15/1586946618433.jpg",
+      hotBlog: [], //热门博客列表
+    };
+  },
+  created() {
+    blog.getHotBlog().then(responese => {
         this.hotBlog = responese.data;
+        this.hotBlog[0].photoList = ""
+        // console.log(this.hotBlog)
       });
-    },
-    methods: {
+  },
+  methods: {
       router(id) {
         scrollTo(0, 0);
         this.$router.push({ //路由跳转
           path: '/blog/'+id
         })
-      }
-    }
-
+      },
+      getTime(time) {//将时间戳转化为几分钟前，几小时前
+        return date.timeago(time);
+      },
   }
+};
 </script>
-<style scoped>
-  #hotBlog {
-    /*-moz-box-shadow: 0px 6px 0px #333333;*/
-    /*-webkit-box-shadow: 0px 6px 0px #333333;*/
-    /*box-shadow: 0px 3px 10px #333333;*/
-    text-align: center;
 
-    margin: 20px 0;
-  }
+<style>
+
 </style>

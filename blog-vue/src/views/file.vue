@@ -1,96 +1,73 @@
 <template>
-  <el-card id="file">
-    <div id="updatePwd">
-    <el-container>
-        <el-header>
-            <h2>--文件列表--</h2>
-        </el-header>
-
-        <el-divider/>
-        
-        <el-container>
-            <el-aside style="width: 30%">
-                <br>
-                <br>
-                <el-upload
-                    class="upload-demo"
-                    drag
-                    action="123"
-                    :show-file-list="false"
-                    :on-change="fileChange"
-                    :http-request="SubbmitFile"
-                    >
-                    <i class="el-icon-upload"></i>
-                    <div class="el-upload__text">将文件拖到此处，或<em>点击上传</em></div>
-                    <div class="el-upload__tip" slot="tip">上传文件不超过50Mb</div>
-                </el-upload>
-                <br><br>
-                
-                <!-- <p>上传进度：</p> -->
-                <div v-if="upShow==true" class="progress-wrapper">
-                  <div class="progress-progress" :style="uploadStyle"></div>
-                  <div class="progress-rate">{{(uploadRate*100).toFixed(2)}}%</div>
-                </div>
-                <br><br>
-                <!-- <p>下载进度：</p> -->
-                <div v-if="downShow==true" class="progress-wrapper">
-                  <div class="progress-progress" :style="downloadStyle"></div>
-                  <div class="progress-rate">{{(downloadRate*100).toFixed(2)}}%</div>
-                </div>
-                
-            </el-aside>
-            <el-main style="width: 60%">
-                <el-table :data="files" style="width: 100%">
-                    <!-- <el-table-column label="ID" width="100">
-                    <template slot-scope="scope">
-                        <span style="margin-left: 10px">{{ scope.row.id }}</span>
-                    </template>
-                    </el-table-column> -->
-
-                    <el-table-column label="文件名" width="200">
-                    <template slot-scope="scope">
-                        <span style="margin-left: 10px">{{ scope.row.name }}</span>
-                    </template>
-                    </el-table-column>
-
-                    <el-table-column label="类型" width="120">
-                    <template slot-scope="scope">
-                        <div slot="reference" class="name-wrapper">
-                            <el-tag size="medium">{{ scope.row.type }}</el-tag>
-                        </div>
-                    </template>
-                    </el-table-column>
-
-                    <el-table-column label="大小" width="120">
-                    <template slot-scope="scope">
-                        <span style="margin-left: 10px">{{ scope.row.size }}</span>
-                    </template>
-                    </el-table-column>
-
-                    <el-table-column label="上传时间" width="200">
-                    <template slot-scope="scope">
-                        <i class="el-icon-time"></i>
-                        <span style="margin-left: 10px">{{ scope.row.uploadTime }}</span>
-                    </template>
-                    </el-table-column>
-
-                    <el-table-column label="操作">
-                    <template slot-scope="scope">
-                    <!-- <a href="localhost:1024/home/zero/alive.jpg" download="alive.jpg">点击显示名</a> -->
-                    <!-- <a href="/blog-springboot-1.0/rain.jpg" download="">下载</a> -->
-
-                        <el-button size="mini" type="success" plain
-                            @click="DownloadFile(scope.row.id,scope.row.name,scope.row.size)">下载</el-button>
-                        <el-button size="mini" type="danger" plain
-                            @click="DeleteFile(scope.row.id)">删除</el-button>
-                    </template>
-                    </el-table-column>
-                </el-table>
-            </el-main>
-        </el-container>
-    </el-container>
+<div style="min-height: 870px;">
+  <div class="pagebg timer"></div>
+  <!-- <article> -->
+    <div style="width: 78%" class="container">
+    <h1 class="t_nav">
+      <a href="/" class="n1">网站首页</a>
+      <a href="javascript:void(0);" @click="back()" class="n2">文件资源</a>
+    </h1>
+    <div class="infosbox">
+      <el-table :data="files" style="width: 100%">
+        <el-table-column label="文件名" width="200">
+        <template slot-scope="scope">
+            <span style="margin-left: 10px">{{ scope.row.name }}</span>
+        </template>
+        </el-table-column>
+        <el-table-column label="类型" width="120">
+        <template slot-scope="scope">
+            <div slot="reference" class="name-wrapper">
+                <el-tag size="medium">{{ scope.row.type }}</el-tag>
+            </div>
+        </template>
+        </el-table-column>
+        <el-table-column label="大小" width="120">
+        <template slot-scope="scope">
+            <span style="margin-left: 10px">{{ scope.row.size }}</span>
+        </template>
+        </el-table-column>
+        <el-table-column label="上传时间" width="200">
+        <template slot-scope="scope">
+            <i class="el-icon-time"></i>
+            <span style="margin-left: 10px">{{ scope.row.uploadTime }}</span>
+        </template>
+        </el-table-column>
+        <el-table-column label="操作">
+        <template slot-scope="scope">
+            <el-button size="mini" type="success" plain
+                @click="DownloadFile(scope.row.id,scope.row.name,scope.row.size)">下载</el-button>
+            <el-button size="mini" type="danger" plain
+                @click="DeleteFile(scope.row.id)">删除</el-button>
+        </template>
+        </el-table-column>
+      </el-table>
     </div>
-  </el-card>
+    <div style="width: 32%;overflow: hidden; float: right">
+      <el-upload
+          drag    action="123"
+          :show-file-list="false"
+          :on-change="fileChange"
+          :http-request="SubbmitFile"
+          >
+          <i class="el-icon-upload"></i>
+          <div class="el-upload__text">将文件拖到此处，或<em>点击上传</em></div>
+          <div class="el-upload__tip" slot="tip">上传文件不超过50Mb</div>
+      </el-upload>
+      <br>
+      <!-- <p>上传进度：</p> -->
+      <div v-if="upShow==true" class="progress-wrapper">
+        <div class="progress-progress" :style="uploadStyle"></div>
+        <div class="progress-rate">{{(uploadRate*100).toFixed(2)}}%</div>
+      </div>
+      <br><br>
+      <!-- <p>下载进度：</p> -->
+      <div v-if="downShow==true" class="progress-wrapper">
+        <div class="progress-progress" :style="downloadStyle"></div>
+        <div class="progress-rate">{{(downloadRate*100).toFixed(2)}}%</div>
+      </div>
+    </div>
+  </div>
+</div>
 </template>
 
 <script>
@@ -229,8 +206,14 @@
 </script>
 
 <style scoped>
-.input-zone { width: 500px; color: blue; font-size: 14px; position: relative; }
-.input-zone input[type='file'] { opacity: 0; width: 100%; height: 100%; position: absolute; left: 0; top: 0; z-index: 2; }
+.upload {
+    border: 1px dashed #d9d9d9;
+    border-radius: 6px;
+    margin: 0, 0, 0, 10px;
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+  }
 .progress-wrapper { position: relative; height: 50px; border-radius: 5px; background-color: lightgrey; }
 .progress-wrapper .progress-progress { position: absolute; left: 0; top: 0; height: 100%; width: 0%; border-radius: 5px; background-color: darkturquoise; z-index: 1; }
 .progress-wrapper .progress-rate { position: relative; text-align: center; font-size: 14px; line-height: 50px; }

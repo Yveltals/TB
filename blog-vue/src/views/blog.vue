@@ -1,133 +1,162 @@
 <template>
-  <div>
-    <el-card id="blog">
-      <el-link :underline="false" @click="back()"><i class="el-icon-back">Back</i></el-link>
-      <!--为了blogId值改变事件会被watch到-->
-      <p style="display: none">{{blogId = this.$route.params.blogId}}</p>
+  <article>
+    <h1 class="t_nav">
+      <a href="/" class="n1">网站首页</a>
+      <a href="javascript:void(0);" @click="back()" class="n2">Back</a>
+    </h1>
+    <!--博文内容区域-->
+    <div class="infosbox">
+      <div class="newsview">
+        <p style="display: none">{{blogId = this.$route.params.blogId}}</p>
 
-      <div id="title">
-        <h2 style="text-align: center">{{title}}</h2>
-      </div>
-      <div style="text-align: center">
-        <p>
-          <span class="el-icon-time hidden-xs-only">&nbsp;{{getTime(time)}}</span>
-          <span class="el-icon-view hidden-xs-only" style="margin-left: 100px">&nbsp;{{blogViews}}</span>
-          <span class="el-icon-chat-line-square hidden-xs-only" style="margin-left: 100px">&nbsp;{{discussCount}}</span>
-          <span class="el-icon-user-solid hidden-xs-only" style="margin-left: 150px">&nbsp;{{userName}}</span>
-        </p>
-        <p>
-          <span>
-            <span v-for="tag in catchTagName(tags)" :key="tag.id">
-              <el-tag type="success" style="margin-left: 5px">{{tag}}</el-tag>
-            </span>
-          </span>
-        </p>
-      </div>
+        <h1 >{{title}}</h1>
+        <div style="text-align: left" class="bloginfo">
+          <ul>
+            <li class="author">
+              <span class="iconfont">&#xe60f;</span>
+              <a href="javascript:void(0);">{{userName}}</a>
+            </li>
+            <li class="lmname">
+              <span class="iconfont">&#xe603;</span>
+              <a>慢生活</a>
+            </li>
+            <li class="createTime">
+              <span class="iconfont">&#xe606;</span>
+              {{getTime(time)}}
+            </li>
+            <li class="view">
+              <span class="iconfont">&#xe8c7;</span>
+              {{blogViews}}
+            </li>
+            <li>
+              <span class="iconfont">&#58991;</span>
+              {{discussCount}}
+            </li>
+            <li >
+              <span class="iconfont">&#xe663;</span>
+              {{favor}}
+            </li>
+          </ul>
+        </div>
+        <div style="text-align: left" class="tags">
+          <a v-for="tag in catchTagName(tags)" :key="tag.id" href="javascript:void(0);" target="_blank">{{tag}}</a>
+        </div>
+        <div style="text-align: left" class="news_about">
+          <strong>版权</strong>
+          本文为博客原创文章，转载无需和我联系，但请注明来自博客 http://www.123456.cn 
+        </div>
+        
+        <mavon-editor v-model="body" id="editor" :toolbarsFlag="false" :subfield="false" defaultOpen="preview"/>
 
+        <el-divider/>
+        <div class="hidden-xs-only">
+          <el-row :gutter="10">
+            <el-col :span="2">
+              <el-avatar shape="square" :size="80" :src="avatarURL"></el-avatar>
+            </el-col>
+            <el-col :span="30">
+              本文作者:  {{userName}}
+              <br>
+              关注: 0   粉丝: 0
+              <br>
+              版权声明：本博客所有文章除特别声明外，均采用 BY-NC-SA 许可协议。转载请注明出处！
+              <br>
+              声援博主：如果您觉得文章对您有帮助，可以点赞一下。您的鼓励是博主的最大动力！
+            </el-col>
+          </el-row>
+        </div>
+        <el-divider/>
+        
+        <div id="discuss" class="hidden-xs-only">
 
-      <mavon-editor v-model="body" id="editor" :toolbarsFlag="false" :subfield="false" defaultOpen="preview"/>
-      <!-- 以下是预览模式配置 -->
-      <!--:toolbarsFlag="false"  :subfield="false" defaultOpen="preview"-->      
+          <!--点赞部分-->
+          <div style="width: 50%;margin-left: 2.5%;padding-top: 2%" v-if="getStoreName()!=''">
+            <el-input v-model="discussBody" placeholder="请输入评论内容" style="width: 40%" size="mini"></el-input>
+            <el-button type="primary" style="width: 10%" size="mini" @click="sendDiscuss">评论</el-button>
+            <el-button @click="thumbUp()">点赞 {{favor}}</el-button>
+          </div>
+          <!-- 评论部分 -->
+          <div v-for="discuss in discussList" :key="discuss.id" id="discussList">
+            <p style="margin: -5px " @mouseenter="pEnter()" @mouseleave="pLeave()">
+              <el-button type="text">{{discuss.user.name}}&nbsp;&nbsp;:</el-button>
+              <span style="margin-left: 10px">{{discuss.body}}</span>
+              <span style="color: #909399;margin-left: 50px" class="el-icon-time">{{getTime(discuss.time)}}</span>
+              <el-button type="text" style="margin-left: 5%"
+                        v-if="(discuss.user.name==getStoreName()||(getStoreRoles().indexOf('ADMIN') > -1))&&replyFlag"
+                        @click="deleteDiscuss(discuss.id)">删除
+              </el-button>
+              <el-button type="text" style="margin-left: 1%" @click="sendReply(discuss.id,null)"
+                        v-if="getStoreName()!=''&&replyFlag">回复
+              </el-button>
+            </p>
+            <!-- 评论下的回复部分 -->
+            <!-- <p v-if="!(typeof(discuss.replyList) == 'undefined') && discuss.replyList.length>0" -->
+            <p   v-for="reply in discuss.replyList" style="margin: -5px" :key="reply.id"
+              @mouseenter="pEnter()" @mouseleave="pLeave()">
+              <span style="margin-left: 5%" class="el-icon-arrow-right"></span>
+              <el-button type="text">{{reply.user.name}}&nbsp;&nbsp;:</el-button>
 
-      <el-divider/>
-      <div class="hidden-xs-only">
-        <el-row :gutter="10">
-          <el-col :span="2">
-            <el-avatar shape="square" :size="80" :src="avatarURL"></el-avatar>
-          </el-col>
-          <el-col :span="30">
-            本文作者:  {{userName}}
-            <br>
-            关注: 0   粉丝: 0
-            <br>
-            版权声明：本博客所有文章除特别声明外，均采用 BY-NC-SA 许可协议。转载请注明出处！
-            <br>
-            声援博主：如果您觉得文章对您有帮助，可以点赞一下。您的鼓励是博主的最大动力！
-          </el-col>
-        </el-row>
-      </div>
+              <span v-if="reply.reply !== null">回复:</span>
+              <el-button type="text" v-if="!(typeof(reply.reply) == 'undefined') && reply.reply !== null">
+                {{reply.reply.user.name}}
+              </el-button>
 
-      <el-divider/>
-      <div id="discuss" class="hidden-xs-only">
+              <span style="margin-left: 10px">{{reply.body}}</span>
+              <span style="color: #909399;margin-left: 50px" class="el-icon-time">{{getTime(reply.time)}}</span>
 
-        <div style="width: 50%;margin-left: 2.5%;padding-top: 2%" v-if="getStoreName()!=''">
-          <el-input v-model="discussBody" placeholder="请输入评论内容" style="width: 40%" size="mini"></el-input>
-          <el-button type="primary" style="width: 10%" size="mini" @click="sendDiscuss">评论</el-button>
-          <el-button @click="thumbUp()">点赞 {{favor}}</el-button>
-          
+              <el-button type="text" style="margin-left: 5%"
+                        v-if="(reply.user.name==getStoreName()||(getStoreRoles().indexOf('ADMIN') > -1))&&replyFlag"
+                        @click="deleteReply(reply.id)">删除
+              </el-button>
+              <el-button type="text" style="margin-left: 1%" @click="sendReply(discuss.id,reply.id)"
+                        v-if="getStoreName()!=''&&replyFlag">回复
+              </el-button>
+            </p>
+          </div>
+
+          <div style="padding-bottom: 4%">
+            <el-pagination
+              :page-size="pageSize"
+              background
+              layout="prev, pager, next"
+              :total="total"
+              @current-change="currentChange"
+              :current-page="currentPage"
+              @prev-click="currentPage=currentPage-1"
+              @next-click="currentPage=currentPage+1"
+              :hide-on-single-page="true">
+            </el-pagination>
+          </div>
+
         </div>
 
-        <!-- 评论部分 -->
-        <div v-for="discuss in discussList" :key="discuss.id" id="discussList">
-          <p style="margin: -5px " @mouseenter="pEnter()" @mouseleave="pLeave()">
-            <el-button type="text">{{discuss.user.name}}&nbsp;&nbsp;:</el-button>
-            <span style="margin-left: 10px">{{discuss.body}}</span>
-            <span style="color: #909399;margin-left: 50px" class="el-icon-time">{{getTime(discuss.time)}}</span>
-            <el-button type="text" style="margin-left: 5%"
-                       v-if="(discuss.user.name==getStoreName()||(getStoreRoles().indexOf('ADMIN') > -1))&&replyFlag"
-                       @click="deleteDiscuss(discuss.id)">删除
-            </el-button>
-            <el-button type="text" style="margin-left: 1%" @click="sendReply(discuss.id,null)"
-                       v-if="getStoreName()!=''&&replyFlag">回复
-            </el-button>
-
-          </p>
-          <!-- 评论下的回复部分 -->
-          <!-- <p v-if="!(typeof(discuss.replyList) == 'undefined') && discuss.replyList.length>0" -->
-          <p   v-for="reply in discuss.replyList" style="margin: -5px" :key="reply.id"
-             @mouseenter="pEnter()" @mouseleave="pLeave()">
-            <span style="margin-left: 5%" class="el-icon-arrow-right"></span>
-            <el-button type="text">{{reply.user.name}}&nbsp;&nbsp;:</el-button>
-
-            <span v-if="reply.reply !== null">回复:</span>
-            <el-button type="text" v-if="!(typeof(reply.reply) == 'undefined') && reply.reply !== null">
-              {{reply.reply.user.name}}
-            </el-button>
-
-            <span style="margin-left: 10px">{{reply.body}}</span>
-            <span style="color: #909399;margin-left: 50px" class="el-icon-time">{{getTime(reply.time)}}</span>
-
-            <el-button type="text" style="margin-left: 5%"
-                       v-if="(reply.user.name==getStoreName()||(getStoreRoles().indexOf('ADMIN') > -1))&&replyFlag"
-                       @click="deleteReply(reply.id)">删除
-            </el-button>
-            <el-button type="text" style="margin-left: 1%" @click="sendReply(discuss.id,reply.id)"
-                       v-if="getStoreName()!=''&&replyFlag">回复
-            </el-button>
-          </p>
-        </div>
-
-        <div style="padding-bottom: 4%">
-          <el-pagination
-            :page-size="pageSize"
-            background
-            layout="prev, pager, next"
-            :total="total"
-            @current-change="currentChange"
-            :current-page="currentPage"
-            @prev-click="currentPage=currentPage-1"
-            @next-click="currentPage=currentPage+1"
-            :hide-on-single-page="true">
-          </el-pagination>
-        </div>
-
       </div>
-
-    </el-card>
-
-  </div>
+    </div>
+    <!--博文右侧栏区域-->
+    <div class="sidebar">
+      <tagCloud></tagCloud>
+      <hotBlog></hotBlog>
+      <recommendSide></recommendSide>
+      <sideLink></sideLink>
+    </div>
+  </article>
 </template>
+
 <script>
   import blog from '@/api/blog'
   import store from '@/store/store'
   import discuss from '@/api/discuss'
   import reply from '@/api/reply'
   import date from '@/utils/date'
-
+  import tagCloud from '@/components/tagCloud'
+  import sideLink from '@/components/sideLink'
+  import hotBlog from '@/components/hotBlog'
+  import recommendSide from '@/components/recommendSide'
   import 'element-ui/lib/theme-chalk/display.css';
 
   export default {
     name: 'blog',
+    components: {tagCloud,sideLink,hotBlog,recommendSide},
     data() {
       return {
         
@@ -292,7 +321,6 @@
           });
           return;
         }
-
         discuss.sendDiscuss(this.blogId, this.discussBody).then(res => {
           this.$message({
             type: 'success',
@@ -369,14 +397,8 @@
   }
 </script>
 <style scoped>
-  #blog {
-    margin: 20px 5% 0 5%;
-    padding: 20px;
-    text-align: left;
-  }
 
   #editor {
-    margin: 2% 2%;
     height: 100%;
   }
 

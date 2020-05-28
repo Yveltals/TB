@@ -37,17 +37,12 @@ public class TagService {
      * @param tagName
      */
     public void saveTag(String tagName) {
-        String username = jwtTokenUtil.getUsernameFromRequest(request);
-        User user = userDao.findUserByName(username);
-
-
         if (tagDao.findTagByTagName(tagName) != null) //mysql where tag_name 忽略大小写
         {
             throw new RuntimeException("标签重复");
         }
 
         Tag tag = new Tag();
-        tag.setUser(user);
         tag.setName(tagName);
         tagDao.saveTag(tag);
     }
@@ -60,11 +55,6 @@ public class TagService {
     @Transactional(rollbackFor = Exception.class)
     public void deleteTagById(Integer tagId) {
         String username = jwtTokenUtil.getUsernameFromRequest(request);
-        User user = userDao.findUserByName(username);
-        Tag tag = tagDao.findTagById(tagId);
-        if (!user.getId().equals(tag.getUser().getId())) {
-            throw new RuntimeException("无权删除此标签");
-        }
 
         //查询此标签下是否有博文
         if (blogDao.findBlogCountByTagId(tagId) > 0) {
@@ -84,9 +74,6 @@ public class TagService {
         String username = jwtTokenUtil.getUsernameFromRequest(request);
         User user = userDao.findUserByName(username);
         Tag tag = tagDao.findTagById(tagId);
-        if (!user.getId().equals(tag.getUser().getId())) {
-            throw new RuntimeException("无权修改此标签");
-        }
         tag.setName(tagName);
         tagDao.updateTagName(tag);
     }
@@ -98,5 +85,11 @@ public class TagService {
         String username = jwtTokenUtil.getUsernameFromRequest(request);
         User user = userDao.findUserByName(username);
         return tagDao.findTagByUserId(user.getId());
+    }
+    /**
+     * 查询所有标签
+     */
+    public List<Tag> findTagAll() {
+        return tagDao.findTagAll();
     }
 }

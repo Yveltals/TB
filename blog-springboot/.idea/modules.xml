@@ -3,6 +3,7 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/blog-springboot.iml" filepath="$PROJECT_DIR$/blog-springboot.iml" />
+      <module fileurl="file://$USER_HOME$/Demo/calender/calender.iml" filepath="$USER_HOME$/Demo/calender/calender.iml" />
     </modules>
   </component>
 </project>
