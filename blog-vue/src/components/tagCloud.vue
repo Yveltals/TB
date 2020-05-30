@@ -2,7 +2,7 @@
   <div class="cloud" v-if="hotTagData.length > 0">
     <h2 class="hometitle">分类板块</h2>
     <ul>
-      <a v-for="item in hotTagData" :key="item.id" href="javascript:void(0);" >{{item.name}}</a>
+      <a v-for="item in hotTagData" :key="item.id" @click="router(item.name)" href="javascript:void(0);" >{{item.name}}</a>
     </ul>
   </div>
 </template>
@@ -24,6 +24,9 @@ export default {
   },
   methods: {
     //跳转到搜索详情页
+    router(tagName){
+      this.$router.push({ name:'classify',params:{tag:tagName}})
+    }
   }
 };
 </script>

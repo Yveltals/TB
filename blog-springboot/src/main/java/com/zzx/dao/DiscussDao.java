@@ -3,7 +3,6 @@ package com.zzx.dao;
 import com.zzx.model.pojo.Discuss;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
-import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -68,4 +67,5 @@ public interface DiscussDao {
      * @return
      */
     List<Discuss> findUserNewDiscuss(@Param("userId") Integer userId,@Param("count") Integer count);
+//    List<Discuss> findUserNewDiscuss(Integer userId, Integer count);
 }

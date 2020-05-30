@@ -39,14 +39,62 @@ public class User implements Serializable {
     @ApiModelProperty(value = "用户状态", dataType = "Integer")
     private Integer state;
 
-    @ApiModelProperty(value = "打赏码路径", dataType = "String")
-    private String reward;
+    @ApiModelProperty(value = "性别", dataType = "String")
+    private String gender;
+    @ApiModelProperty(value = "生日", dataType = "Date")
+    private String birth;
+    @ApiModelProperty(value = "qq", dataType = "String")
+    private String qq;
+    @ApiModelProperty(value = "工作", dataType = "String")
+    private String job;
+    @ApiModelProperty(value = "简介", dataType = "String")
+    private String summary;
 
     @ApiModelProperty(hidden = true)
     @JsonIgnore
     private List<Role> roles;
 
     private Login login;
+
+    public String getGender() {
+        return gender;
+    }
+
+    public void setGender(String gender) {
+        this.gender = gender;
+    }
+
+    public String getBirth() {
+        return birth;
+    }
+
+    public void setBirth(String birth) {
+        this.birth = birth;
+    }
+
+    public String getQq() {
+        return qq;
+    }
+
+    public void setQq(String qq) {
+        this.qq = qq;
+    }
+
+    public String getJob() {
+        return job;
+    }
+
+    public void setJob(String job) {
+        this.job = job;
+    }
+
+    public String getSummary() {
+        return summary;
+    }
+
+    public void setSummary(String summary) {
+        this.summary = summary;
+    }
 
     public Integer getId() {
         return id;
@@ -86,14 +134,6 @@ public class User implements Serializable {
 
     public void setState(Integer state) {
         this.state = state;
-    }
-
-    public String getReward() {
-        return reward;
-    }
-
-    public void setReward(String reward) {
-        this.reward = reward;
     }
 
     public List<Role> getRoles() {

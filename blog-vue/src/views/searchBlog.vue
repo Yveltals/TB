@@ -1,5 +1,5 @@
 <template>
-  <div id="searchBlogList" v-loading="loading">
+  <div style="min-height: 870px;" id="searchBlogList" v-loading="loading">
     <p style="display: none">{{searchTxt = this.$route.params.searchTxt}}</p>
     <el-card shadow="hover" v-if="blogList.length<=0" style="margin: 20% auto">暂无符合条件的内容</el-card>
     <div>
@@ -39,8 +39,8 @@ export default {
   data () {
     return {
       searchTxt: '',
-      total: 0,        //数据总数
       blogList: [],   //当前页数据
+      total: 0,        //数据总数
       pageSize: 5,    //每页显示数量
       currentPage: 1,   //当前页数
       loading: true
@@ -57,10 +57,6 @@ export default {
         this.total = responese.data.total;
         this.blogList = responese.data.rows;
         this.loading = false;
-
-        // console.log("--------------received data--------------");
-        // console.log(responese.data);
-        // console.log("--------------received data--------------");
       },
       );
     },

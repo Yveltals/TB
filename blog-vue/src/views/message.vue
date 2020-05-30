@@ -27,8 +27,8 @@
         <div v-for="message in messageList" :key="message.id">
           <div class="commentList">
             <span class="left p1">
-              <!-- <img v-if="message.user" :src="message.user.photoUrl ? PICTURE_HOST + message.user.photoUrl:'https://wpimg.wallstcn.com/f778738c-e4f8-4870-b634-56703b4acafe.gif'" onerror="onerror=null;src='https://wpimg.wallstcn.com/f778738c-e4f8-4870-b634-56703b4acafe.gif'" /> -->
-              <img src="https://wpimg.wallstcn.com/f778738c-e4f8-4870-b634-56703b4acafe.gif" />
+              <img :src="avatarUrl(message.name)"  style="width:50px; height:50px"
+                onerror="javascript:this.src='https://wpimg.wallstcn.com/f778738c-e4f8-4870-b634-56703b4acafe.gif'" />
             </span>
             <span class="right p1">
               <div class="rightTop" v-if="message.name">
@@ -43,8 +43,6 @@
                   </el-divider>
               </div>
             </span>
-            <!-- <el-link :underline="false" class="el-icon-delete" v-if="getStoreRoles().indexOf('ADMIN') > -1"
-                 @click="deleteMessage(message.id)"/> -->
           </div>
         </div>
         <div class="noComment" v-if="messageList.length ==0">还没有评论，快来抢沙发吧！</div>
@@ -55,6 +53,7 @@
 <script>
 import message from '@/api/message'
 import date from '@/utils/date'
+import axios from 'axios'
 import 'element-ui/lib/theme-chalk/display.css';
 
 export default {
@@ -74,6 +73,9 @@ export default {
     this.loadMessage();
   },
   methods: {
+    avatarUrl(name){
+      return  'http://39.107.228.168/image/'+name+'.jpg'
+    },
     vaildCount: function() {
       var count = 1024 - this.messageBody.length;
       if(count <= 0) {

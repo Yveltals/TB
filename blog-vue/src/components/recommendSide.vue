@@ -30,7 +30,7 @@ export default {
     blog.getHotBlog().then(responese => {
         this.thirdData = responese.data;
         this.item = responese.data[0];
-        console.log(this.thirdData[0].title)
+        // console.log(this.thirdData[0].title)
     });
   },
   methods: {

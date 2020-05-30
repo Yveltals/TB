@@ -64,7 +64,8 @@
         <el-dropdown @command="handleCommand" class="userInfoAvatar">
           <span class="el-dropdown-link" >
             <img v-if="!this.$store.state.token" src="../../static/images/defaultAvatar.png">
-            <img v-if="this.$store.state.token" :src="circleUrl()">
+            <img v-if="this.$store.state.token" :src="circleUrl()" 
+                onerror="javascript:this.src='https://wpimg.wallstcn.com/f778738c-e4f8-4870-b634-56703b4acafe.gif'">
           </span>
           <el-dropdown-menu slot="dropdown">
             <el-dropdown-item command="login" v-show="!this.$store.state.token">登录</el-dropdown-item>
@@ -93,31 +94,25 @@
                       <i v-else class="el-icon-plus avatar-uploader-icon"></i>
                     </el-upload>
                   </el-form-item>
-
                   <el-form-item label="性别" :label-width="labelWidth">
-                    <el-radio v-for="gender in genderDictList" :key="gender.uid" v-model="userInfo.gender" :label="gender.dictValue" border size="medium">{{gender.dictLabel}}</el-radio>
+                    <el-radio v-model="userInfo.gender" label="男" border size="medium">男</el-radio>
+                    <el-radio v-model="userInfo.gender" label="女" border size="medium">女</el-radio>
                   </el-form-item>
-
                   <el-form-item label="生日" :label-width="labelWidth">
                     <el-date-picker
-                      v-model="userInfo.birthday"
-                      type="date"
-                      placeholder="选择日期">
+                      v-model="userInfo.birth" value-format="yyyy-MM-dd"
+                      type="date" placeholder="选择日期">
                     </el-date-picker>
                   </el-form-item>
-
                   <el-form-item label="邮箱" :label-width="labelWidth" prop="email">
-                    <el-input v-model="userInfo.email" style="width: 100%"></el-input>
+                    <div style="width: 100%">{{userInfo.email}}</div>
                   </el-form-item>
-
                   <el-form-item label="QQ号" :label-width="labelWidth" prop="qqNumber">
-                    <el-input v-model="userInfo.qqNumber" style="width: 100%"></el-input>
+                    <el-input v-model="userInfo.qq" style="width: 100%"></el-input>
                   </el-form-item>
-
                   <el-form-item label="职业" :label-width="labelWidth">
-                    <el-input v-model="userInfo.occupation" style="width: 100%"></el-input>
+                    <el-input v-model="userInfo.job" style="width: 100%"></el-input>
                   </el-form-item>
-
                   <el-form-item label="简介" :label-width="labelWidth">
                     <el-input
                       type="textarea"
@@ -129,12 +124,12 @@
                   </el-form-item>
 
                   <el-form-item>
-                    <el-button type="primary" @click="submitForm('editUser')">保 存</el-button>
+                    <el-button type="primary" @click="submitForm()">保 存</el-button>
                   </el-form-item>
 
                 </el-form>
               </el-tab-pane>
-              <el-tab-pane label="修改密码" name="5">
+              <el-tab-pane label="密码邮箱" name="5">
                 <span slot="label"><i class="el-icon-s-tools"></i> 修改密码</span>
                 <el-collapse v-model="activeNames">
                   <el-collapse-item title="更改密码" name="1">
@@ -179,21 +174,18 @@
                 <span slot="label"><i class="el-icon-s-comment"></i> 我的评论</span>
                 <div style="width: 100%; height: 840px;overflow:auto;">
                   <el-timeline>
-                    <el-timeline-item v-for="comment in commentList" :key="comment.uid"  placement="top">
+                    <el-timeline-item v-for="comment in commentList" :key="comment.id"  placement="top">
                       <el-card>
                         <div class="commentList">
-                        <!--待优化 实现头像-->
-                        <!-- <span class="left p1">
-                          <img v-if="comment.user" :src="comment.user.photoUrl ? PICTURE_HOST + comment.user.photoUrl:'https://wpimg.wallstcn.com/f778738c-e4f8-4870-b634-56703b4acafe.gif'" onerror="onerror=null;src='https://wpimg.wallstcn.com/f778738c-e4f8-4870-b634-56703b4acafe.gif'" />
-                          <img v-else src="https://wpimg.wallstcn.com/f778738c-e4f8-4870-b634-56703b4acafe.gif" />
-                        </span> -->
+                        <span class="left p1">
+                          <img style="height:30px;width:30px" :src="circleUrl()" />
+                        </span>
                           <span class="right p1">
                           <div class="rightTop">
-                            <el-link class="userName" :underline="false">{{comment.user.nickName}}</el-link>
-                            <el-tag style="cursor: pointer;"  @click.native="goSource(comment)">{{comment.sourceName}}</el-tag>
+                            <el-link class="userName" :underline="false">{{comment.user.name}}</el-link>
+                            <el-tag style="cursor: pointer;"  @click.native="router(comment.blog.id)">{{comment.blog.title}}</el-tag>
                           </div>
-
-                          <div class="rightCenter" v-html="$xss(comment.content, options)"></div>
+                          <div class="rightCenter">{{comment.body}}</div>
                         </span>
                         </div>
                       </el-card>
@@ -211,9 +203,9 @@
                 <span slot="label"><i class="el-icon-s-flag"></i> 我的点赞</span>
                 <div style="width: 100%; height: 840px;overflow:auto">
                   <el-timeline>
-                    <el-timeline-item v-for="praise in praiseList" :key="praise.uid" :timestamp="timeAgo(praise.createTime)" placement="top">
+                    <el-timeline-item v-for="praise in praiseList" :key="praise.id" :timestamp="getTime(praise.blogTime)" placement="top">
                       <el-card>
-                        <span>点赞</span><el-tag type="warning" style="cursor: pointer" v-if="praise.blog" @click.native="goToInfo(praise.blog.uid)">{{praise.blog.title}}</el-tag>
+                        <span>点赞</span><el-tag type="warning" style="margin-left:15px;cursor: pointer"  @click.native="router(praise.blogId)">{{praise.blogTitle}}</el-tag>
                       </el-card>
                     </el-timeline-item>
                     <el-timeline-item v-if="praiseList.length == 0" placement="top">
@@ -288,8 +280,11 @@
 </template>
 
 <script>
+  import date from '@/utils/date'
   import user from '@/api/user'
   import store from '@/store/store'
+  import discuss from '@/api/discuss'
+  import blog from '@/api/blog'
   import 'element-ui/lib/theme-chalk/display.css'
 
   export default {
@@ -318,7 +313,14 @@
         commentList: [], //我的评论
         replyList: [], // 我的回复
         praiseList: [], // 我的点赞
-        userInfo: {},
+        userInfo: {
+          gender: '',
+          birth: '',
+          email: '',
+          qq: '',
+          job:'',
+          summary:''
+        },
         //导航栏基础元素
         avatarUrl: "",
         drawer: false,
@@ -385,7 +387,51 @@
         }
       }
     },
+    created(){
+      this.getUserInfo()
+    },
     methods: {
+      getUserInfo(){ //用户信息
+        user.getUserInfo().then(response=>{
+          var a = response.data
+          this.userInfo.gender = a.gender
+          this.userInfo.birth = a.birth
+          this.userInfo.email = a.mail
+          this.userInfo.qq = a.qq
+          this.userInfo.job = a.job
+          this.userInfo.summary = a.summary
+        })
+      },
+      submitForm() { //修改用户信息
+        var a = this.userInfo
+        user.editUser(a.gender,a.birth,a.qq,a.job,a.summary).
+        then(response => {
+          if(response.code == 200) {
+            this.$message({
+              type: "success",
+              message: '更新成功'
+            })
+          } else {
+            this.$message({
+              type: "error",
+              message: '更新失败'
+            })
+          }
+        });
+      },
+      getCommentList(){
+        discuss.getDiscussByUserId().then(response=>{
+          this.commentList = response.data
+        })
+      },
+      getFavorList(){
+        user.getFavor().then(response=>{
+          this.praiseList = response.data
+        })
+      },
+      getTime(time) {//将时间戳转化为几分钟前，几小时前
+        return date.timeago(time);
+      },  
       getLoginState(msg){
         this.isLogin = msg
       },
@@ -423,9 +469,7 @@
             // 获取评论列表
             this.getCommentList();
             // 获取点赞列表
-            this.getPraiseList()
-            // 获取反馈列表
-            this.getFeedback()
+            this.getFavorList()
 
           };break;
         }
@@ -637,6 +681,13 @@
             console.log(err);
           });
       },
+      router(id){
+        scrollTo(0, 0);
+        this.$router.push({ //路由跳转
+          path: '/blog/'+id
+        })
+        this.drawer = false;
+      }
     }
   }
 </script>

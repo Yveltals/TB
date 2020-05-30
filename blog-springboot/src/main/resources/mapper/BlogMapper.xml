@@ -15,7 +15,6 @@
         <result property="state" column="blog_state"/>
         <result property="user.id" column="user_id"/>
         <result property="user.name" column="user_name"/>
-        <result property="user.reward" column="user_reward"/>
     </resultMap>
 
     <!-- 点赞 -->
@@ -25,7 +24,7 @@
         WHERE user_id=#{userId} and blog_id=#{blogId}
     </select>
     <insert id="thumbUpBlogAdd">
-        INSERT INTO favor
+        INSERT INTO favor(user_id, blog_id)
         VALUES (#{userId},#{blogId})
     </insert>
     <delete id="thumbUpBlogDelete" parameterType="Integer">
@@ -50,7 +49,7 @@
     </insert>
 
     <select id="findBlogById" parameterType="Integer" resultMap="Blog">
-        SELECT blog_id,blog_title,blog_body,blog_discussCount,blog_blogViews,blog_time,blog_state,b.user_id,u.user_name,u.user_reward
+        SELECT blog_id,blog_title,blog_body,blog_discussCount,blog_blogViews,blog_time,blog_state,b.user_id,u.user_name
         FROM blog b LEFT JOIN user u on b.user_id = u.user_id
         WHERE blog_id = #{value} AND b.blog_state = 1
     </select>
@@ -76,7 +75,7 @@
     </select>
 
     <select id="findHomeBlog" resultMap="Blog">
-        SELECT blog_id,blog_title, blog_body,blog_discussCount,blog_blogViews,blog_time,blog_state,b.user_id,u.user_name,u.user_reward
+        SELECT blog_id,blog_title,blog_discussCount,blog_blogViews,blog_time,blog_state,b.user_id,u.user_name
         FROM blog b LEFT JOIN user u on b.user_id = u.user_id
         WHERE b.blog_state = 1
         ORDER BY blog_time DESC
@@ -84,7 +83,8 @@
     </select>
 
     <select id="findHotBlog" parameterType="Integer" resultMap="Blog">
-        SELECT blog_id,blog_title, blog_body,blog_discussCount,blog_blogViews,blog_time,blog_state,b.user_id,u.user_name,u.user_reward
+#         SELECT blog_id,blog_title, blog_body,blog_discussCount,blog_blogViews,blog_time,blog_state,b.user_id,u.user_name,u.user_reward
+        SELECT blog_id,blog_title,blog_discussCount,blog_blogViews,blog_time,blog_state,b.user_id,u.user_name
         FROM blog b LEFT JOIN user u on b.user_id = u.user_id
         WHERE blog_state = 1
         ORDER BY blog_blogViews DESC,blog_discussCount DESC
@@ -183,6 +183,11 @@
     <select id="findBlogCountByTagId" parameterType="Integer" resultType="Integer">
         SELECT COUNT(1) from blog_tag bt LEFT JOIN blog b on bt.blog_id = b.blog_id
         WHERE tag_id = #{value} AND b.blog_state = 1
+    </select>
+
+    <select id="findBlogCountByTagName" parameterType="String" resultType="Integer">
+        SELECT COUNT(*) from blog_tag bt LEFT JOIN tag t on bt.tag_id = t.tag_id
+        WHERE tag_name = #{searchText}
     </select>
 
 </mapper>

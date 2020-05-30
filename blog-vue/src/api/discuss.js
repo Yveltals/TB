@@ -8,6 +8,12 @@ export default {
       method: 'get'
     })
   },
+  getDiscussByUserId() {
+    return request({
+      url: '/discuss/userNewDiscuss/',
+      method: 'get'
+    })
+  },
   getDiscussByBlogId(blogId, page, showCount) {
     return request({
       url: '/discuss/' + blogId + '/' + page + '/' + showCount,

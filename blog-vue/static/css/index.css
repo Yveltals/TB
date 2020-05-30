@@ -109,11 +109,6 @@ footer a { color: #a5a4a4 }
 .bloginfo ul li a { color: #748594; }
 .bloginfo ul li a:hover { color: #000 }
 /*设置图标*/
-/*.bloginfo .author { background: url(../images/auicon.jpg) no-repeat 0 0 }*/
-/*.bloginfo .lmname { background: url(../images/auicon.jpg) no-repeat top -23px left; }*/
-/*.bloginfo .timer { background: url(../images/auicon.jpg) no-repeat top -44px left; }*/
-/*.bloginfo .view { background: url(../images/auicon.jpg) no-repeat top -64px left; }*/
-/*.bloginfo .like { background: url(../images/auicon.jpg) no-repeat top -85px left; }*/
 
 /*bplist*/
 .bplist { width: 100%; overflow: hidden; display: block; margin-bottom: 20px }

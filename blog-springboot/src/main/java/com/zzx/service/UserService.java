@@ -115,18 +115,15 @@ public class UserService implements UserDetailsService {
     @Transactional(rollbackFor = Exception.class)
     public void register(User userToAdd, String mailCode, String inviteCode) throws RuntimeException {
 
-
         //验证码无效 throw 异常
         if (!checkMailCode(userToAdd.getMail(), mailCode)) {
             throw new RuntimeException("验证码错误");
         }
-
         //有效 保存用户
         final String username = userToAdd.getName();
         if (userDao.findUserByName(username) != null) {
             throw new RuntimeException("用户名已存在");
         }
-
         if (userDao.findUserByMail(userToAdd.getMail()) != null) {
             throw new RuntimeException("邮箱已使用");
         }
@@ -243,6 +240,24 @@ public class UserService implements UserDetailsService {
         for (Role role : roles) {
             roleDao.saveUserRoles(user.getId(), role.getId());
         }
+    }
+    /**
+     * 更新用户信息
+     */
+    public void updateUserInfo(String gender, String birth,String qq, String job, String summary) {
+        User user = userDao.findUserByName(jwtTokenUtil.getUsernameFromRequest(request));
+        if(gender!=null) user.setGender(gender);
+        if(birth!=null) user.setBirth(birth);
+        if(qq!=null) user.setQq(qq);
+        if(job!=null) user.setJob(job);
+        if(summary!=null) user.setSummary(summary);
+        userDao.updateUser(user);
+    }
+    /**
+     * 获取用户信息
+     */
+    public User getUserInfo(){
+        return userDao.findUserByName(jwtTokenUtil.getUsernameFromRequest(request));
     }
 
     /**
@@ -429,21 +444,6 @@ public class UserService implements UserDetailsService {
         return userDao.findUserByName(name);
     }
 
-    public String findUserReward() {
-        User user = userDao.findUserByName(jwtTokenUtil.getUsernameFromRequest(request));
-        return user.getReward();
-    }
-
-    /**
-     * 更改用户打赏码
-     *
-     * @param imgPath
-     */
-    public void updateUserReward(String imgPath) {
-        User user = userDao.findUserByName(jwtTokenUtil.getUsernameFromRequest(request));
-        user.setReward(imgPath);
-        userDao.updateUser(user);
-    }
 
     /**
      * 退出登录
@@ -553,4 +553,7 @@ public class UserService implements UserDetailsService {
     public void setRabbitTemplate(RabbitTemplate rabbitTemplate) {
         this.rabbitTemplate = rabbitTemplate;
     }
+
+
+
 }

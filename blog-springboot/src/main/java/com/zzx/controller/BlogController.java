@@ -221,9 +221,20 @@ public class BlogController {
         }
         PageResult<Blog> pageResult = new PageResult<>(blogService.getSearchBlogCount(search),
                 blogService.searchBlogTag(search, page, showCount));
+
         return Result.create(StatusCode.OK, "查询成功", pageResult);
     }
 
+    /**
+     * 查询该标签博客数目
+     * @param search
+     * @return
+     */
+    @GetMapping("/searchBlogTag/{search}")
+    public Result BlogTagCount(@PathVariable String search){
+        Integer total = blogService.searchBlogTagCount(search);
+        return Result.create(StatusCode.OK,"查询成功",total);
+    }
 
 
     /**

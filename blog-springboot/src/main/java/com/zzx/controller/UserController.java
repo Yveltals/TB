@@ -142,6 +142,21 @@ public class UserController {
         }
     }
 
+    @PostMapping("/edituser")
+    public Result updateUser(String gender,String birth,String qq,String job,String summary){
+        try {
+            userService.updateUserInfo(gender,birth,qq,job,summary);
+            return Result.create(StatusCode.OK, "更新成功");
+        } catch (RuntimeException e) {
+            return Result.create(StatusCode.ERROR, "更新失败，" + e.getMessage());
+        }
+    }
+
+    @GetMapping("/getUser")
+    public Result getUserInfo(){
+        User user = userService.getUserInfo();
+        return Result.create(StatusCode.OK, "获取成功",user);
+    }
 
     /**
      * 用户封禁或解禁

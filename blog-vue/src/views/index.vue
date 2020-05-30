@@ -129,7 +129,7 @@ export default {
     sideBlogList() {
       blog.getHotBlog().then(response => {
       if(response.code == 200) {
-          console.log(response.data)
+          // console.log(response.data)
         this.secondData.push (response.data[0]);
         this.secondData.push (response.data[1]);
       }});

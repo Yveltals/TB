@@ -9,6 +9,12 @@ export default {
       data: qs.stringify({'name': name, 'password': password})
     })
   },
+  getFavor(){
+    return request({
+      url: '/favor/user',
+      method: 'get',
+  })
+  },
   getFile(){
     return request({
         url: '/file/showAll',
@@ -26,7 +32,6 @@ export default {
           'X-Requested-With': 'XMLHttpRequest'
         },
         onDownloadProgress(a) {
-          // console.log(a);
           var strs = new Array();
           strs = size.split(" ");// "32.5 Mb"
           var sizeTotal = parseInt(strs[0])*1024
@@ -34,8 +39,6 @@ export default {
           var rate =  (a.loaded / sizeTotal);
           if (rate < 1) {
             vm.downloadRate = rate;
-            // console.log(rate)
-            // console.log(a.loaded+'  '+sizeTotal)
             vm.downloadStyle.width = (rate *100).toFixed(2)+ '%';
           }
         }
@@ -55,15 +58,30 @@ export default {
       data: qs.stringify({'mail': mail})
     })
   },
-  register(name, password, mail, mailCode, inviteCode) {
+  register(name, password, mail, mailCode) {
     return request({
       url: '/user/register',
       method: 'post',
       data: qs.stringify({
         'name': name, 'password': password,
-        'mail': mail, 'mailCode': mailCode,
-        'inviteCode': inviteCode
+        'mail': mail, 'mailCode': mailCode
       })
+    })
+  },
+  editUser(gen,bir,qq,job,summary){
+    return request({
+      url:'/user/edituser',
+      method:'post',
+      data: qs.stringify({
+        'gender': gen,'birth':bir,
+        'qq':qq,'job':job,'summary':summary
+      })
+    })
+  },
+  getUserInfo(){
+    return request({
+      url:'user/getUser',
+      method:'get'
     })
   },
   forgetPassword(userName, mailCode, newPassword) {
@@ -76,19 +94,6 @@ export default {
   getUserMail() {
     return request({
       url: '/user/mail',
-      method: 'get',
-    })
-  },
-  updateReward(filePath) {
-    return request({
-      url: '/user/updateReward',
-      method: 'put',
-      data: qs.stringify({'imgPath': filePath})
-    })
-  },
-  getUserReward() {
-    return request({
-      url: '/user/getReward',
       method: 'get',
     })
   },

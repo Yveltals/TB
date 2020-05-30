@@ -9,7 +9,7 @@
       <div class="newsview">
         <p style="display: none">{{blogId = this.$route.params.blogId}}</p>
 
-        <h1 >{{title}}</h1>
+        <h1 style="text-align: left">{{title}}</h1>
         <div style="text-align: left" class="bloginfo">
           <ul>
             <li class="author">
@@ -46,38 +46,37 @@
           本文为博客原创文章，转载无需和我联系，但请注明来自博客 http://www.123456.cn 
         </div>
         
-        <mavon-editor v-model="body" id="editor" :toolbarsFlag="false" :subfield="false" defaultOpen="preview"/>
+        <mavon-editor  :boxShadow="false" codeStyle="atom-one-light"
+            v-model="body" id="editor" :toolbarsFlag="false" :subfield="false" defaultOpen="preview"/>
 
-        <el-divider/>
-        <div class="hidden-xs-only">
-          <el-row :gutter="10">
-            <el-col :span="2">
-              <el-avatar shape="square" :size="80" :src="avatarURL"></el-avatar>
-            </el-col>
-            <el-col :span="30">
+        <div class="clearfix" >
+          <el-divider/>
+          <div style="float:left; width:100px;clear:both">
+            <el-avatar shape="square" :size="80" :src="avatarURL"></el-avatar>
+          </div>
+          <div style="margin-left:10px; text-align:left;width:70%;float:left; ">
               本文作者:  {{userName}}
               <br>
-              关注: 0   粉丝: 0
+              关注：0&nbsp;&nbsp;&nbsp;&nbsp;粉丝：0
               <br>
-              版权声明：本博客所有文章除特别声明外，均采用 BY-NC-SA 许可协议。转载请注明出处！
+              简介：不要轻易放弃。学习成长的路上，我们长路漫漫，只因学无止境。
               <br>
               声援博主：如果您觉得文章对您有帮助，可以点赞一下。您的鼓励是博主的最大动力！
-            </el-col>
-          </el-row>
+          </div>          
         </div>
-        <el-divider/>
         
-        <div id="discuss" class="hidden-xs-only">
-
-          <!--点赞部分-->
-          <div style="width: 50%;margin-left: 2.5%;padding-top: 2%" v-if="getStoreName()!=''">
-            <el-input v-model="discussBody" placeholder="请输入评论内容" style="width: 40%" size="mini"></el-input>
-            <el-button type="primary" style="width: 10%" size="mini" @click="sendDiscuss">评论</el-button>
-            <el-button @click="thumbUp()">点赞 {{favor}}</el-button>
-          </div>
+        <el-divider/>
+        <div  class="commentBox">
           <!-- 评论部分 -->
-          <div v-for="discuss in discussList" :key="discuss.id" id="discussList">
-            <p style="margin: -5px " @mouseenter="pEnter()" @mouseleave="pLeave()">
+          <div style="text-align:left;width: 100%;padding-top: 2%" v-if="getStoreName()!=''">
+              <!-- <el-divider/> -->
+              <el-input v-model="discussBody" placeholder="请输入评论内容" style="width: 50%" size="mini"></el-input>
+              <el-button type="primary" style="margin-left:10px;width: 10%" size="mini" @click="sendDiscuss">评论</el-button>
+              <el-button style="margin-left:10px;width: 10%" size="mini" @click="thumbUp()">点赞 {{favor}}</el-button>
+          </div>
+
+          <div v-for="discuss in discussList" :key="discuss.id" id="discussList" style="text-align:left;">
+            <p @mouseenter="pEnter()" @mouseleave="pLeave()">
               <el-button type="text">{{discuss.user.name}}&nbsp;&nbsp;:</el-button>
               <span style="margin-left: 10px">{{discuss.body}}</span>
               <span style="color: #909399;margin-left: 50px" class="el-icon-time">{{getTime(discuss.time)}}</span>
@@ -90,7 +89,6 @@
               </el-button>
             </p>
             <!-- 评论下的回复部分 -->
-            <!-- <p v-if="!(typeof(discuss.replyList) == 'undefined') && discuss.replyList.length>0" -->
             <p   v-for="reply in discuss.replyList" style="margin: -5px" :key="reply.id"
               @mouseenter="pEnter()" @mouseleave="pLeave()">
               <span style="margin-left: 5%" class="el-icon-arrow-right"></span>
@@ -130,6 +128,7 @@
 
         </div>
 
+
       </div>
     </div>
     <!--博文右侧栏区域-->
@@ -159,7 +158,6 @@
     components: {tagCloud,sideLink,hotBlog,recommendSide},
     data() {
       return {
-        
         blogId: -1,//博文id
         favor: 0,
         title: '',//博文标题
@@ -170,7 +168,6 @@
         userName: '',//博客用户名
         avatarURL: '', //作者头像
         tags: [],  //博文标签
-        userReward: '',//博主打赏码
 
         total: 0,        //数据总数
         discussList: [],   //当前页数据
@@ -206,7 +203,6 @@
           this.loadBlog();
         })
       },
-      
       getTime(time) {//将时间戳转化为几分钟前，几小时前的格式
         return date.timeago(time);
       },
@@ -225,17 +221,12 @@
         var cookies = this.$cookies.get('history');
         var isClick = null;
         //存在此cookies key
-        if (this.$cookies.isKey('history')) {
+        if (this.$cookies.isKey('history'))
           //此cookies key 对应的 value 中有此 博客id
-          if (cookies.indexOf(this.blogId) > -1) {
-            //已点击查看
+          if (cookies.indexOf(this.blogId) > -1)  //已点击查看
             isClick = true;
-          } else {
-            isClick = false;
-          }
-        } else {
-          isClick = false;
-        }
+          else  isClick = false;
+        else isClick = false;
 
         blog.getBlogById(this.blogId, isClick).then(res => {
             this.title = res.data.title;
@@ -246,7 +237,6 @@
             this.time = res.data.time;
             this.userName = res.data.user.name;
             this.tags = res.data.tags;
-            this.userReward = res.data.user.reward;
 
             this.avatarURL = "http://39.107.228.168/image/"+this.userName+".jpg"
 
@@ -397,7 +387,16 @@
   }
 </script>
 <style scoped>
-
+.clearfix{ *zoom:1; }
+.clearfix:after{
+content:"";
+display: block;
+clear:both;
+}
+.commentBox {
+     /* border: 1px solid rgb(153, 150, 150); padding: 10px;  */
+     margin: 20px auto 15px auto; line-height: 23px; 
+  }
   #editor {
     height: 100%;
   }

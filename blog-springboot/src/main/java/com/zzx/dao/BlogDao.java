@@ -179,4 +179,6 @@ public interface BlogDao {
      * @param blog
      */
     void updateBlog(Blog blog);
+
+    Integer findBlogCountByTagName(String searchText);
 }

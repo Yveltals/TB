@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.zzx.dao.FavorDao">
+
+    <resultMap id="Favor" type="Favor">
+        <id property="id" column="favor_id"/>
+        <result property="userId" column="user_id"/>
+        <result property="blogId" column="blog_id"/>
+        <result property="blogTitle" column="blog_title"/>
+        <result property="blogTime" column="blog_time"/>
+    </resultMap>
+
+<!--    <select id="getFavor" parameterType="Integer" resultType="Favor">-->
+<!--        SELECT f.favor_id,f.user_id,b.blog_title,b.blog_time-->
+<!--        FROM favor f LEFT JOIN blog b on f.blog_id = b.blog_id-->
+<!--        SELECT f.favor_id,f.user_id-->
+<!--        FROM favor f-->
+<!--        WHERE f.user_id = #{userId}-->
+<!--    </select>-->
+
+    <select id="getFavor" parameterType="Integer" resultType="Integer">
+        SELECT b.blog_id
+        FROM favor f LEFT JOIN blog b on f.blog_id = b.blog_id
+        WHERE f.user_id = #{userId}
+    </select>
+
+
+</mapper>

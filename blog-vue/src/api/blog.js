@@ -97,5 +97,11 @@ export default {
       url: '/blog/searchBlogTag/' + page + '/' + showCount + '?search=' + searchTxt,
       method: 'get'
     })
+  },
+  userSearchBlogTagCnt(searchTxt){
+    return request({
+      url: '/blog/searchBlogTag/'+searchTxt,
+      method: 'get'
+    })
   }
 }

@@ -1,44 +1,43 @@
 <template>
 <div style="min-height: 870px;">
   <div class="pagebg timer"></div>
-  <!-- <article> -->
-    <div style="width: 78%" class="container">
+    <div style="width: 80%" class="container">
     <h1 class="t_nav">
       <a href="/" class="n1">网站首页</a>
       <a href="javascript:void(0);" @click="back()" class="n2">文件资源</a>
     </h1>
     <div class="infosbox">
-      <el-table :data="files" style="width: 100%">
+      <el-table :data="files" >
         <el-table-column label="文件名" width="200">
-        <template slot-scope="scope">
-            <span style="margin-left: 10px">{{ scope.row.name }}</span>
-        </template>
+          <template slot-scope="scope">
+              <span style="margin-left: 10px">{{ scope.row.name }}</span>
+          </template>
         </el-table-column>
         <el-table-column label="类型" width="120">
-        <template slot-scope="scope">
-            <div slot="reference" class="name-wrapper">
-                <el-tag size="medium">{{ scope.row.type }}</el-tag>
-            </div>
-        </template>
+          <template slot-scope="scope">
+              <div slot="reference" class="name-wrapper">
+                  <el-tag size="medium">{{ scope.row.type }}</el-tag>
+              </div>
+          </template>
         </el-table-column>
         <el-table-column label="大小" width="120">
-        <template slot-scope="scope">
-            <span style="margin-left: 10px">{{ scope.row.size }}</span>
-        </template>
+          <template slot-scope="scope">
+              <span style="margin-left: 10px">{{ scope.row.size }}</span>
+          </template>
         </el-table-column>
         <el-table-column label="上传时间" width="200">
-        <template slot-scope="scope">
-            <i class="el-icon-time"></i>
-            <span style="margin-left: 10px">{{ scope.row.uploadTime }}</span>
-        </template>
+          <template slot-scope="scope">
+              <i class="el-icon-time"></i>
+              <span style="margin-left: 10px">{{ scope.row.uploadTime }}</span>
+          </template>
         </el-table-column>
-        <el-table-column label="操作">
-        <template slot-scope="scope">
-            <el-button size="mini" type="success" plain
-                @click="DownloadFile(scope.row.id,scope.row.name,scope.row.size)">下载</el-button>
-            <el-button size="mini" type="danger" plain
-                @click="DeleteFile(scope.row.id)">删除</el-button>
-        </template>
+        <el-table-column label="操作" width="160">
+          <template slot-scope="scope">
+              <el-button size="mini" type="success" plain
+                  @click="DownloadFile(scope.row.id,scope.row.name,scope.row.size)">下载</el-button>
+              <el-button size="mini" type="danger" plain
+                  @click="DeleteFile(scope.row.id)">删除</el-button>
+          </template>
         </el-table-column>
       </el-table>
     </div>

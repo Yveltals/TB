@@ -23,7 +23,10 @@ import org.springframework.web.multipart.MultipartFile;
 import javax.servlet.http.HttpServletRequest;
 import java.io.File;
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
 
 @Service
 public class BlogService {
@@ -172,24 +175,27 @@ public class BlogService {
      * @return
      */
     public Blog findBlogById(Integer blogId, boolean isHistory) throws IOException {
-
         // 查询缓存
         String blogJson = redisTemplate.opsForValue().get(RedisConfig.REDIS_BLOG_PREFIX + blogId);
         Blog blog = null;
-        if (null != blogJson) {
-            // 有缓存
-            blog = objectMapper.readValue(blogJson, Blog.class);
-        } else {
-            blog = blogDao.findBlogById(blogId);
-            if (blog == null) {
-                throw new RuntimeException("博客不存在");
-            }
-            blog.setTags(tagDao.findTagByBlogId(blogId));
+        blog = blogDao.findBlogById(blogId);
+        if (blog == null) {
+            throw new RuntimeException("博客不存在");
         }
-        /////////////////////////////////////////////////
+        blog.setTags(tagDao.findTagByBlogId(blogId));
+    //        if (null != blogJson) {
+    //            // 有缓存
+    //            blog = objectMapper.readValue(blogJson, Blog.class);
+    //        } else {
+    //            blog = blogDao.findBlogById(blogId);
+    //            if (blog == null) {
+    //                throw new RuntimeException("博客不存在");
+    //            }
+    //            blog.setTags(tagDao.findTagByBlogId(blogId));
+    //        }
+        //点赞信息
         Integer favorCount = blogDao.thumbUpBlogAll(blogId);
         blog.setFavorCount(favorCount);
-        /////////////////////////////////////////////////
 
         //历史查看过
         if (isHistory) {
@@ -289,12 +295,6 @@ public class BlogService {
         for (Blog blog : blogs) {
             blog.setTags(tagDao.findTagByBlogId(blog.getId()));
         }
-        for (Blog blog : blogs) {
-            String body = blog.getBody();
-            if (body.length() > BlogService.MAX_BODY_CHAR_COUNT) {
-                blog.setBody(body.substring(0, BlogService.MAX_BODY_CHAR_COUNT));
-            }
-        }
         return blogs;
     }
     /**
@@ -390,8 +390,12 @@ public class BlogService {
             return blogList;
         } else {
             // redis中没有缓存 查询 mysql
-            // 通过定时任务进行热门博客列表更新
-            return blogDao.findHotBlog(4);
+            // 通过定时任务进行热门博客列表更新\
+            List<Blog> blogs = blogDao.findHotBlog(4);
+            for (Blog blog : blogs) {
+                blog.setTags(tagDao.findTagByBlogId(blog.getId()));
+            }
+            return blogs;
         }
 
 
@@ -420,6 +424,12 @@ public class BlogService {
             blog.setTags(tagDao.findTagByBlogId(blog.getId()));
         }
         return blogs;
+    }
+    /**
+     * 某标签博文总数
+     */
+    public Integer searchBlogTagCount(String searchText){
+        return blogDao.findBlogCountByTagName(searchText);
     }
 
 

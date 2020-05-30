@@ -88,4 +88,11 @@ public interface UserDao {
      * @param user
      */
     void updateUser(User user);
+
+    /**
+     * 根据用户id获取点赞列表
+     * @param userId
+     * @return
+     */
+    String[] getFavor(Integer userId);
 }

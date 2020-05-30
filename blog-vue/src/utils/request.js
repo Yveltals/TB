@@ -61,24 +61,24 @@ service.interceptors.response.use(
       }
       // 403:Token过期 或 权限不足(恶意访问/被封禁) ;
       if (res.code === 403) {
-        // store.commit('logout');
-        // MessageBox.confirm('你已被登出，点击确定返回首页', '状态异常', {
-        //   confirmButtonText: '确 定',
-        //   cancelButtonText: '确 定',
-        //   type: 'warning'
-        // }).then(() => {
-        //   // window.location.href = '#/'
-        //   router.push({ //路由跳转
-        //     path: '/'
-        //   })
-        //   location.reload()
-        // }).catch(() => {
+        store.commit('logout');
+        MessageBox.confirm('你已被登出，点击确定返回首页', '状态异常', {
+          confirmButtonText: '确 定',
+          cancelButtonText: '确 定',
+          type: 'warning'
+        }).then(() => {
+          // window.location.href = '#/'
+          router.push({ //路由跳转
+            path: '/'
+          })
+          location.reload()
+        }).catch(() => {
 
-        //   router.push({ //路由跳转
-        //     path: '/'
-        //   })
-        //   location.reload()
-        // })
+          router.push({ //路由跳转
+            path: '/'
+          })
+          location.reload()
+        })
       }
       return Promise.reject('error')
     } else {

@@ -23,11 +23,11 @@
           </div>
         </div>
 
-        <div class="article">
-          <div class="block" v-infinite-scroll="load">
+        <div class="sortBoxarticle">
+          <div class="block">
             <el-timeline>
               <el-timeline-item
-                v-for="item in itemByDate"
+                v-for="item in blogByDate"
                 :key="item.id"
                 style="text-align: left"
                 :timestamp="getTime(item.time)"
@@ -46,7 +46,21 @@
             </el-timeline>
           </div>
         </div>
+
+        <div class="bottomPagination">
+          <el-pagination
+            :page-size="pageSize"
+            background
+            layout="prev, pager, next"
+            :total="total"
+            @current-change="currentChange"
+            :current-page="currentPage"
+            @prev-click="currentPage=currentPage-1"
+            @next-click="currentPage=currentPage+1">
+          </el-pagination>
+        </div>
       </div>
+
     </div>
   </div>
 </template>
@@ -59,64 +73,61 @@ export default {
   name: 'classify',
   data() {
     return {
+      firstTagName:'',
+      curTagName: '',
       selectBlogUid: "",
       reverse: false,
       activities: [],
-      itemByDate: [],
-      articleByDate: {},
-      count: 0,
+      blogByDate: [],
+      total: 0,  
       currentPage: 1,
-      pageSize: 10
+      pageSize: 4
     };
   },
   created() {
-    var that = this;
-    tag.getTagAll().then(res=>{
-      console.log(res.data)
-      if(res.code==200){
-        var activities  =res.data;
-        var result = [];
-        for (var a = 0; a < activities.length; a++) {
-          var dataForDate = {
-            name: activities[a].name,
-            id: activities[a].id
-          };
-          result.push(dataForDate);
-        }
-        this.activities = result;
-        this.getBlogList(activities[0].name);
-      }
-    })
+    this.getTagList()
+  },
+  mounted(){
+    this.curTagName = this.$route.params.tag
+    this.getBlogList(this.curTagName)
   },
   methods: {
-    getBlogList(TagName) {
-      // this.selectBlogUid = Tagid;
-      blog.userSearchBlogTag(TagName, 1, 6).then(res=>{//暂时...
+    getTagList(){
+      tag.getTagAll().then(res=>{
         if(res.code==200){
-          console.info('-----')
-          console.log(res.data)
-          this.itemByDate = res.data.rows;
+          var activities  =res.data;
+          var result = [];
+          for (var a = 0; a < activities.length; a++) {
+            var dataForDate = {
+              name: activities[a].name,
+              id: activities[a].id
+            };
+            result.push(dataForDate);
+          }
+          this.activities = result;
+          if(this.curTagName==null){
+            this.getBlogList(activities[0].name);
+            this.curTagName = activities[0].name
+          }
         }
       })
     },
-    load() {
-      var params = new URLSearchParams();
-      if (
-        this.selectBlogUid == null ||
-        this.selectBlogUid == "" ||
-        this.selectBlogUid == undefined
-      ) {
-        return;
-      }
-      params.append("Tagid", this.selectBlogUid);
-      params.append("currentPage", this.currentPage + 1);
-      getArticleByBlogSortUid(params).then(response => {
-        if (response.code == "success") {
-          this.itemByDate = this.itemByDate.concat(response.data.records);
-          this.currentPage = response.data.current;
-          this.pageSize = response.data.size;
+    getBlogList(TagName) {
+      this.curTagName =TagName
+      blog.userSearchBlogTag(TagName, this.currentPage,this.pageSize).then(res=>{//暂时...
+        if(res.code==200){
+          this.blogByDate = res.data.rows;
         }
-      });
+      })
+      blog.userSearchBlogTagCnt(TagName).then(response=>{
+        if(response.code==200){
+          this.total = response.data;
+        }
+      })
+    },
+    currentChange(currentPage) { //页码更改事件处理
+      this.currentPage = currentPage;
+      this.getBlogList(this.curTagName);
     },
     //跳转到搜索详情页
     router(id) {
@@ -137,7 +148,6 @@ export default {
 .sortBox {
   color: #555;
 }
-
 .sortBoxSpan {
   cursor: pointer;
 }
@@ -147,7 +157,24 @@ export default {
 .sortBoxSpanSelect {
   color: #409eff;
 }
-
+.bottomPagination{
+  margin-left: 20px;
+  float: center;
+  width: 78%;
+  height: 70px;
+  overflow: scroll;
+  overflow-x: hidden;
+  overflow-y: auto;
+}
+.sortBoxarticle {
+    margin-left: 20px;
+    float: left;
+    width: 78%;
+    height: 700px;
+    overflow: scroll;
+    overflow-x: hidden;
+    overflow-y: auto;
+}
 .itemTitle {
   cursor: pointer;
 }

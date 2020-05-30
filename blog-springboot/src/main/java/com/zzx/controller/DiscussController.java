@@ -95,7 +95,6 @@ public class DiscussController {
     }
 
     @ApiOperation(value = "获取用户发布的所有博文下的评论", notes = "获取用户发布的所有博文下的评论")
-    @PreAuthorize("hasAuthority('USER')")
     @GetMapping("/userNewDiscuss")
     public Result userNewDiscuss() {
         return Result.create(StatusCode.OK, "查询成功", discussService.findUserNewDiscuss());
