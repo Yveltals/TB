@@ -10,11 +10,16 @@
         <result property="title" column="blog_title"/>
         <result property="body" column="blog_body"/>
         <result property="discussCount" column="blog_discussCount"/>
+        <result property="favorCount" column="blog_favorCount"/>
         <result property="blogViews" column="blog_blogViews"/>
         <result property="time" column="blog_time"/>
         <result property="state" column="blog_state"/>
+        <result property="top" column="blog_top"/>
         <result property="user.id" column="user_id"/>
         <result property="user.name" column="user_name"/>
+        <result property="user.avatar" column="user_avatar"/>
+        <result property="user.job" column="user_job"/>
+        <result property="user.summary" column="user_summary"/>
     </resultMap>
 
     <!-- 点赞 -->
@@ -40,7 +45,7 @@
 
     <insert id="saveBlog" parameterType="Blog" useGeneratedKeys="true" keyProperty="id" keyColumn="blog_id">
         INSERT INTO blog
-        VALUES (null,#{title},#{body},#{discussCount},#{blogViews},#{time},#{state},#{user.id})
+        VALUES (null,#{title},#{body},#{discussCount},#{favorCount},#{blogViews},#{time},#{state},#{top},#{user.id})
     </insert>
 
     <insert id="saveBlogTag">
@@ -48,14 +53,25 @@
         VALUES (#{blogId},#{tagId})
     </insert>
 
+    <delete id="deleteBlog" parameterType="Integer">
+        DELETE FROM blog
+        WHERE blog_id = #{value}
+    </delete>
+
     <select id="findBlogById" parameterType="Integer" resultMap="Blog">
-        SELECT blog_id,blog_title,blog_body,blog_discussCount,blog_blogViews,blog_time,blog_state,b.user_id,u.user_name
+        SELECT blog_id,blog_title,blog_body,blog_discussCount,blog_blogViews,blog_time,blog_state,b.user_id,u.user_name,u.user_avatar,u.user_job,u.user_summary
         FROM blog b LEFT JOIN user u on b.user_id = u.user_id
         WHERE blog_id = #{value} AND b.blog_state = 1
     </select>
 
+    <select id="findBlogAllById" parameterType="Integer" resultMap="Blog">
+        SELECT blog_id,blog_title,blog_body,blog_discussCount,blog_blogViews,blog_time,blog_state,b.user_id,u.user_name,u.user_avatar,u.user_job,u.user_summary
+        FROM blog b LEFT JOIN user u on b.user_id = u.user_id
+        WHERE blog_id = #{value}
+    </select>
+
     <select id="findBlogByUserId" resultMap="Blog">
-        SELECT blog_id,blog_title,LEFT (blog_body,150) AS blog_body,blog_discussCount,blog_blogViews,blog_time,blog_state,b.user_id,u.user_name
+        SELECT blog_id,blog_title,LEFT (blog_body,150) AS blog_body,blog_discussCount,blog_favorCount,blog_blogViews,blog_time,blog_state,b.user_id,u.user_name
         FROM blog b LEFT JOIN user u on b.user_id = u.user_id
         WHERE u.user_id = #{id} AND b.blog_state = 1
         ORDER BY blog_time DESC
@@ -73,22 +89,40 @@
         FROM blog
         WHERE blog_state = 1
     </select>
-
+<!--index page-->
+<!--blogHome by time-->
     <select id="findHomeBlog" resultMap="Blog">
-        SELECT blog_id,blog_title,blog_discussCount,blog_blogViews,blog_time,blog_state,b.user_id,u.user_name
+        SELECT blog_id,blog_title,blog_discussCount,blog_favorCount,blog_blogViews,blog_time,blog_state,b.user_id,u.user_name
         FROM blog b LEFT JOIN user u on b.user_id = u.user_id
         WHERE b.blog_state = 1
         ORDER BY blog_time DESC
         LIMIT #{start},#{showCount}
     </select>
-
+<!--recommendFirst by favor-->
+    <select id="findBlogOrderFavor" resultMap="Blog">
+        SELECT blog_id,blog_title,blog_discussCount,blog_favorCount,blog_blogViews,blog_time,blog_state,b.user_id,u.user_name
+        FROM blog b LEFT JOIN user u on b.user_id = u.user_id
+        WHERE b.blog_state = 1
+        ORDER BY blog_favorCount DESC
+        LIMIT #{start},#{showCount}
+    </select>
+<!--hotBlog by views-->
     <select id="findHotBlog" parameterType="Integer" resultMap="Blog">
-#         SELECT blog_id,blog_title, blog_body,blog_discussCount,blog_blogViews,blog_time,blog_state,b.user_id,u.user_name,u.user_reward
-        SELECT blog_id,blog_title,blog_discussCount,blog_blogViews,blog_time,blog_state,b.user_id,u.user_name
+        SELECT blog_id,blog_title,blog_discussCount,blog_favorCount,blog_blogViews,blog_time,blog_state,b.user_id,u.user_name
         FROM blog b LEFT JOIN user u on b.user_id = u.user_id
         WHERE blog_state = 1
         ORDER BY blog_blogViews DESC,blog_discussCount DESC
         LIMIT 0,4
+    </select>
+<!--recommendSecond by is_top-->
+    <select id="findTopBlog" resultMap="Blog">
+        SELECT blog_id,blog_title,blog_discussCount,blog_favorCount,blog_blogViews,blog_time,blog_state,b.user_id,u.user_name
+        FROM blog b LEFT JOIN user u on b.user_id = u.user_id
+        WHERE b.blog_state = 1 and b.blog_top = 1
+    </select>
+
+    <select id="getBlogIdList" resultType="Integer">
+        SELECT blog_id from blog
     </select>
 
     <select id="searchBlogTag" resultMap="Blog">
@@ -100,7 +134,7 @@
     </select>
 
     <select id="searchBlog" resultMap="Blog">
-        SELECT blog_id,blog_title,LEFT (blog_body,150) AS blog_body,blog_discussCount,blog_blogViews,blog_time,blog_state,b.user_id,u.user_name
+        SELECT blog_id,blog_title,LEFT (blog_body,150) AS blog_body,blog_discussCount,blog_favorCount,blog_blogViews,blog_time,blog_state,b.user_id,u.user_name
         FROM blog b LEFT JOIN user u on b.user_id = u.user_id
         WHERE ( b.blog_title LIKE '%${searchText}%' OR b.blog_body LIKE '%${searchText}%') AND b.blog_state = 1
         ORDER BY blog_time DESC
@@ -114,7 +148,7 @@
     </select>
 
     <select id="findAllblog" resultMap="Blog">
-        SELECT blog_id,blog_title,LEFT (blog_body,150) AS blog_body,blog_discussCount,blog_blogViews,blog_time,blog_state,b.user_id,u.user_name
+        SELECT blog_id,blog_title,LEFT (blog_body,150) AS blog_body,blog_discussCount,blog_favorCount,blog_blogViews,blog_time,blog_state,blog_top,b.user_id,u.user_name
         FROM blog b LEFT JOIN user u on b.user_id = u.user_id
         ORDER BY blog_state DESC,blog_time DESC
         LIMIT #{start},#{showCount}
@@ -125,6 +159,10 @@
         FROM blog
     </select>
 
+    <update id="setFavorCount" parameterType="Integer">
+        update blog set blog_favorCount=#{favorCnt}
+        where blog_id=#{blogId}
+    </update>
 
     <update id="updateBlog" parameterType="Blog">
         UPDATE blog
@@ -132,11 +170,9 @@
             <if test="title!=null">
                 blog_title = #{title},
             </if>
-
             <if test="body!=null">
                 blog_body = #{body},
             </if>
-
             <if test="discussCount!=null">
                 blog_discussCount = #{discussCount},
             </if>
@@ -144,13 +180,14 @@
             <if test="blogViews!=null">
                 blog_blogViews = #{blogViews},
             </if>
-
             <if test="time!=null">
                 blog_time = #{time},
             </if>
-
             <if test="state!=null">
                 blog_state = #{state},
+            </if>
+            <if test="top!=null">
+                blog_top = #{top},
             </if>
 
         </set>
@@ -165,7 +202,7 @@
     </select>
 
     <select id="searchAllBlog" resultMap="Blog">
-        SELECT blog_id,blog_title,LEFT (blog_body,150) AS blog_body,blog_discussCount,blog_blogViews,blog_time,blog_state,b.user_id,u.user_name
+        SELECT blog_id,blog_title,LEFT (blog_body,150) AS blog_body,blog_discussCount,blog_favorCount,blog_blogViews,blog_time,blog_state,b.user_id,u.user_name
         FROM blog b LEFT JOIN user u on b.user_id = u.user_id
         WHERE blog_title LIKE '%${searchText}%'
         ORDER BY blog_state DESC,blog_time DESC

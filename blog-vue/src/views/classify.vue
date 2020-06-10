@@ -75,6 +75,7 @@ export default {
     return {
       firstTagName:'',
       curTagName: '',
+      lastTagName:'',
       selectBlogUid: "",
       reverse: false,
       activities: [],
@@ -113,6 +114,7 @@ export default {
       })
     },
     getBlogList(TagName) {
+      if(this.lastTagName!=TagName) this.currentPage = 1
       this.curTagName =TagName
       blog.userSearchBlogTag(TagName, this.currentPage,this.pageSize).then(res=>{//暂时...
         if(res.code==200){
@@ -124,6 +126,7 @@ export default {
           this.total = response.data;
         }
       })
+      this.lastTagName = TagName
     },
     currentChange(currentPage) { //页码更改事件处理
       this.currentPage = currentPage;

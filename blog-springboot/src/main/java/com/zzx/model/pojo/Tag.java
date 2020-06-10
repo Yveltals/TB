@@ -19,6 +19,7 @@ public class Tag implements Serializable {
     private static final long serialVersionUID = 37960L;
     private Integer id;//id
     private String name;//标签名
+    private Integer blogcnt; //对应博客数量
 
     public Integer getId() {
         return id;
@@ -35,4 +36,8 @@ public class Tag implements Serializable {
     public void setName(String name) {
         this.name = name;
     }
+
+    public Integer getBlogcnt() { return blogcnt; }
+
+    public void setBlogcnt(Integer blogcnt) { this.blogcnt = blogcnt; }
 }

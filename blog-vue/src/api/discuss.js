@@ -8,9 +8,9 @@ export default {
       method: 'get'
     })
   },
-  getDiscussByUserId() {
+  getDiscussByUserId(userId) {
     return request({
-      url: '/discuss/userNewDiscuss/',
+      url: '/discuss/userNewDiscuss/'+userId,
       method: 'get'
     })
   },

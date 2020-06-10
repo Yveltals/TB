@@ -1,4 +1,5 @@
 <template>
+<div  style="background-image: url('../../static/images/bg.png')">
 <article>
   <div class="picsbox">
       <!--banner end-->
@@ -8,7 +9,8 @@
         <li v-for="item in secondData" :key="item.id" @click="router(item.id)">
           <a href="javascript:void(0);">
             <i>
-              <img src="http://demopicture.moguit.cn//blog/admin/jpg/2020/4/15/1586946598174.jpg">
+              <img :src="coverUrl(item.tags[0].name)" alt
+                onerror="javascript:this.src='../../static/images/cover/css.jpg'">
             </i>
             <h2>{{item.title}}</h2>
             <span>{{item.tags[0].name}}</span>
@@ -31,7 +33,8 @@
 
           <span class="blogpic">
             <a href="javascript:void(0);" @click="router(item.id)" title>
-              <img src="http://demopicture.moguit.cn//blog/admin/jpg/2020/4/15/1586946588115.jpg" alt>
+              <img :src="coverUrl(item.tags[0].name)" alt
+                onerror="javascript:this.src='../../static/images/cover/css.jpg'">
             </a>
           </span>
 
@@ -40,11 +43,11 @@
             <ul>
               <li class="author">
                 <span class="iconfont">&#xe60f;</span>
-                <a href="javascript:void(0);" >{{item.user.name}}</a>
+                <a href="javascript:void(0);" @click="routerUser(item.user.name)">{{item.user.name}}</a>
               </li>
               <li class="lmname">
                 <span class="iconfont">&#xe603;</span>
-                <a href="javascript:void(0);">{{item.tags[0].name}}</a>
+                <a href="javascript:void(0);" @click="routerTag(item.tags[0].name)">{{item.tags[0].name}}</a>
               </li>
               <li class="view">
                 <span class="iconfont">&#xe8c7;</span>
@@ -52,7 +55,7 @@
               </li>
               <li class="like">
                 <span class="iconfont">&#xe663;</span>
-                {{item.discussCount}}
+                {{item.favorCount}}
               </li>
               <li class="createTime">
                 <span class="iconfont">&#xe606;</span>
@@ -76,22 +79,21 @@
           </el-pagination>
         </div>
     </div>
-
+    <!--侧栏-->
     <div class="sidebar">
       <!--分类板块-->
       <tagCloud></tagCloud>
       <!-- 特别推荐 -->
       <recommendSide></recommendSide>
-      <!--点击排行-->
+      <!--阅读排行-->
       <hotBlog></hotBlog>
       <!-- 相关链接-->
       <sideLink></sideLink>
     </div>
 
-    
   </div>
-      
 </article>
+</div>
 </template>
 <script>
 
@@ -115,10 +117,9 @@ export default {
       newBlogData: [],
       loading: false,
       loadingInstance: null, // loading对象
-      pageSize: 6,
+      pageSize: 7,
       total: 0,
       currentPage: 1
-      
     }
   },
   created(){
@@ -126,13 +127,21 @@ export default {
     this.newBlogList() 
   },
   methods :{
+    routerUser(username) {
+        scrollTo(0, 0);
+        this.$router.push({
+            path: '/userIndex/'+username
+          })
+      },
     sideBlogList() {
-      blog.getHotBlog().then(response => {
-      if(response.code == 200) {
-          // console.log(response.data)
-        this.secondData.push (response.data[0]);
-        this.secondData.push (response.data[1]);
+      blog.getTopBlog().then(response => {
+        if(response.code == 200) {
+          this.secondData.push (response.data[0]);
+          this.secondData.push (response.data[1]);
       }});
+    },
+    coverUrl(tag){
+      return "../../static/images/cover/"+tag+".jpg"
     },
     newBlogList() { //首页博文列表
       var that = this;
@@ -155,10 +164,14 @@ export default {
         path: '/blog/'+id
       })
     },
+    routerTag(tagName){
+      scrollTo(0, 0);
+      this.$router.push({ name:'classify',params:{tag:tagName}})
+    },
     currentChange(currentPage) { //页码更改事件处理
       this.currentPage = currentPage;
       this.newBlogList();
-      scrollTo(0, 0);
+      scrollTo(0, 500);
     },
     getTime(time) {//将时间戳转化为几分钟前，几小时前
       return date.timeago(time);

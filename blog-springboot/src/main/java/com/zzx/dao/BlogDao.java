@@ -43,6 +43,7 @@ public interface BlogDao {
      * @return
      */
     Blog findBlogById(Integer blogId);
+    Blog findBlogAllById(Integer blogId);
 
     /**
      * 根据用户id查询博文
@@ -76,6 +77,7 @@ public interface BlogDao {
      * @return
      */
     List<Blog> findHomeBlog(@Param("start") Integer start, @Param("showCount") Integer showCount);
+    List<Blog> findBlogOrderFavor(@Param("start") Integer start, @Param("showCount") Integer showCount);
 
     /**
      * 查询热门博文
@@ -84,7 +86,10 @@ public interface BlogDao {
      * @return
      */
     List<Blog> findHotBlog(Integer count);
-
+    /**
+     * 查询置顶博文
+     */
+    List<Blog> findTopBlog();
     /**
      * 搜索博文标题，内容
      *
@@ -181,4 +186,10 @@ public interface BlogDao {
     void updateBlog(Blog blog);
 
     Integer findBlogCountByTagName(String searchText);
+
+    void setFavorCount(Integer blogId,Integer favorCnt);
+
+    List<Integer> getBlogIdList();
+
+    void deleteBlog(Integer blogId);
 }

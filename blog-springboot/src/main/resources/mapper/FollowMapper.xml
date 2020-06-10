@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.zzx.dao.FollowDao">
+    <resultMap id="Follow" type="Follow">
+        <result property="time" column="follow_time"/>
+        <result property="followerId" column="follow_followerId"/>
+        <result property="followingId" column="follow_followingId"/>
+    </resultMap>
+
+    <select id="findAllFollowingByUserId" parameterType="Integer" resultType="Integer">
+        SELECT follow_followingId
+        FROM follow
+        WHERE follow_followerId = #{id}
+        ORDER by follow_time DESC
+    </select>
+
+    <select id="findAllFollowingAll" resultType="Integer">
+        SELECT follow_followingId FROM follow
+        ORDER by follow_time DESC
+    </select>
+
+    <select  id="findAllFollowerByUserId" parameterType="Integer" resultType="Integer">
+        SELECT follow_followerId
+        FROM follow
+        WHERE follow_followingId = #{value}
+        ORDER by follow_time DESC
+    </select>
+
+    <select id="findConnection" parameterType="Integer" resultType="Date">
+        SELECT follow_time FROM follow
+        WHERE follow_followerId = #{followerid} and follow_followingId = #{followingid}
+    </select>
+
+    <insert id="addConnection">
+        INSERT INTO follow  VALUES(#{time},#{followingid},#{followerid})
+    </insert>
+
+    <delete id="removeConnection">
+        DELETE from follow
+        where follow_followerId = #{followerid} and follow_followingId = #{followingid}
+    </delete>
+
+    <select id="getFollowingCountbyId" resultType="Long">
+        SELECT COUNT(1)
+        FROM follow
+        WHERE follow_followerId = #{followerid}
+    </select>
+
+    <select id="getFollowerCountbyId" resultType="Long">
+        SELECT COUNT(1)
+        FROM follow
+        WHERE follow_followingId = #{followingid}
+    </select>
+
+</mapper>

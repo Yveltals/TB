@@ -43,4 +43,10 @@ public class FavorService {
         }
         return favors;
     }
+    /**
+     * 删除点赞by博客id
+     */
+    public void deleteFavorByBlogId(Integer blogId){
+        favorDao.deleteFavorByBlogId(blogId);
+    }
 }

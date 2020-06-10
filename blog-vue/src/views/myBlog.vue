@@ -16,12 +16,11 @@
 </template>
 <script>
 import myBlogList from '@/components/myBlogList'
-import userNewDiscuss from '@/components/userNewDiscuss'
 import tagCloud from '@/components/tagCloud'
 
 export default {
   name: 'myBlog',
-  components: {myBlogList,userNewDiscuss,tagCloud}
+  components: {myBlogList,tagCloud}
 }
 </script>
 <style scoped>

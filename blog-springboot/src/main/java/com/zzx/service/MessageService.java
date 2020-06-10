@@ -1,7 +1,6 @@
 package com.zzx.service;
 
 
-import com.zzx.config.JwtConfig;
 import com.zzx.dao.MessageDao;
 import com.zzx.dao.UserDao;
 import com.zzx.model.pojo.Message;
@@ -31,9 +30,6 @@ public class MessageService {
     private RequestUtil requestUtil;
 
     @Autowired
-    private JwtConfig jwtConfig;
-
-    @Autowired
     private HttpServletRequest request;
 
     @Autowired
@@ -56,11 +52,6 @@ public class MessageService {
         } catch (NullPointerException e) { //token 校验失败 游客身份
             name = requestUtil.getIpAddress(request);
         }
-        //查询此ip/name 是否留言过
-//        if (messageDao.findMessageByName(name) != null) {
-//            throw new RuntimeException("你已留过言");
-//        }
-
         Message message = new Message();
         message.setName(name);
         message.setBody(messageBody);
@@ -89,6 +80,8 @@ public class MessageService {
     public List<Message> findMessage(Integer page, Integer showCount) {
         List<Message> messages = messageDao.findMessage((page - 1) * showCount, showCount);
         for (Message message : messages) {
+            String avatar = userDao.getAvatarByName(message.getName());
+            message.setAvatar(avatar);
             String ip = message.getName();
             if (formatUtil.checkIP(ip)) {//该name是ip
                 //保留ip 前16位 ( [127.0].0.1 ) [] 内为前16位

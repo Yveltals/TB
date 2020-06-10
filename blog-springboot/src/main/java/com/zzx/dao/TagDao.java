@@ -3,6 +3,7 @@ package com.zzx.dao;
 
 import com.zzx.model.pojo.Tag;
 import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -28,6 +29,7 @@ public interface TagDao {
      * @param id
      */
     void deleteTag(Integer id);
+    void deleteBlogTag(Integer tagId);
 
     /**
      * 根据id查询标签
@@ -35,13 +37,6 @@ public interface TagDao {
      * @return
      */
     Tag findTagById(Integer tagId);
-
-
-    /**
-     * 查询该user id下的所有标签
-     * @param userId
-     */
-    List<Tag> findTagByUserId(Integer userId);
 
     /**
      * 查询博文的所有标签
@@ -73,4 +68,29 @@ public interface TagDao {
      * @return
      */
     List<Tag> findTagAll();
+
+    /**
+     * 查询该tag下博客数量
+     * @param id
+     * @return
+     */
+    Integer findBlogCntByTag(Integer id);
+
+    /**
+     * 标签总数
+     * @return
+     */
+    Long getTagCnt();
+
+    /**分页查询标签
+     * @param start
+     * @param showCount
+     * @return
+     */
+    List<Tag> findTagAllByPage(@Param("start") Integer start, @Param("showCount") Integer showCount);
+
+    /**
+     * 为无标签博文指定默认标签 ‘资料’
+     */
+    void addDefaultTag(Integer blogId,Integer tagId);
 }

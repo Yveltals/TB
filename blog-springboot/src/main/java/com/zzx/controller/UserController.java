@@ -118,24 +118,18 @@ public class UserController {
     /**
      * 用户注册
      *
-     * @param user
-     * @param mailCode   邮箱验证码
-     * @param inviteCode 邀请码
      * @return
      */
     @ApiOperation(value = "用户注册", notes = "用户名+密码+邮箱+邮箱验证码+邀请码 name+password+mail+mailCode+inviteCode")
     @PostMapping("/register")
-    public Result register(User user, String mailCode, String inviteCode) {
+    public Result register(String name,String password,String mail, String mailCode) {
         if (!formatUtil.checkStringNull(
-                user.getName(),
-                mailCode,
-                user.getPassword(),
-                user.getMail()
+                name,password,mail,mailCode
                 )) {
             return Result.create(StatusCode.ERROR, "注册失败，字段不完整");
         }
         try {
-            userService.register(user, mailCode, inviteCode);
+            userService.register(name,password,mail,mailCode);
             return Result.create(StatusCode.OK, "注册成功");
         } catch (RuntimeException e) {
             return Result.create(StatusCode.ERROR, "注册失败，" + e.getMessage());
@@ -156,6 +150,18 @@ public class UserController {
     public Result getUserInfo(){
         User user = userService.getUserInfo();
         return Result.create(StatusCode.OK, "获取成功",user);
+    }
+    @GetMapping("/getUser/{userName}")
+    public Result getUserInfoByName(@PathVariable String userName){
+        User user = userService.getUserInfoByName(userName);
+        return Result.create(StatusCode.OK, "获取成功",user);
+    }
+
+
+    @RequestMapping("/getUserId")
+    public Result getUserIdByName(String userName){
+        Integer uid = userService.findUserByName(userName).getId();
+        return Result.create(StatusCode.OK,"成功",uid);
     }
 
     /**

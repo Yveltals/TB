@@ -49,6 +49,8 @@ public class User implements Serializable {
     private String job;
     @ApiModelProperty(value = "简介", dataType = "String")
     private String summary;
+    @ApiModelProperty(value = "头像", dataType = "String")
+    private String avatar;
 
     @ApiModelProperty(hidden = true)
     @JsonIgnore
@@ -94,6 +96,14 @@ public class User implements Serializable {
 
     public void setSummary(String summary) {
         this.summary = summary;
+    }
+
+    public String getAvatar() {
+        return avatar;
+    }
+
+    public void setAvatar(String avatar) {
+        this.avatar = avatar;
     }
 
     public Integer getId() {

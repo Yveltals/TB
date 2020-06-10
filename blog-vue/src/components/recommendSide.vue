@@ -4,7 +4,7 @@
     <ul>
       <li>
         <i>
-          <img  :src="imageUrl">
+          <img  src="../../static/images/recommendSide.png">
         </i>
         <p>{{item.title}} 
           <span><a href="javascript:void(0);" @click="router(item.id)">阅读</a></span>
@@ -23,7 +23,6 @@ export default {
     return {
       thirdData: [],
       item: {},
-      imageUrl: "http://demopicture.moguit.cn//blog/admin/jfif/2020/4/16/1587008142362.jfif"
     };
   },
   created() {

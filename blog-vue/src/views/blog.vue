@@ -1,4 +1,5 @@
 <template>
+<div  style="background-image: url('../../static/images/bg.png')">
   <article>
     <h1 class="t_nav">
       <a href="/" class="n1">网站首页</a>
@@ -14,7 +15,7 @@
           <ul>
             <li class="author">
               <span class="iconfont">&#xe60f;</span>
-              <a href="javascript:void(0);">{{userName}}</a>
+              <a href="javascript:void(0);" @click="router(userName)">{{userName}}</a>
             </li>
             <li class="lmname">
               <span class="iconfont">&#xe603;</span>
@@ -39,7 +40,7 @@
           </ul>
         </div>
         <div style="text-align: left" class="tags">
-          <a v-for="tag in catchTagName(tags)" :key="tag.id" href="javascript:void(0);" target="_blank">{{tag}}</a>
+          <a v-for="tag in catchTagName(tags)" :key="tag.id" href="javascript:void(0);" @click="routertag(tag)">{{tag}}</a>
         </div>
         <div style="text-align: left" class="news_about">
           <strong>版权</strong>
@@ -53,15 +54,23 @@
           <el-divider/>
           <div style="float:left; width:100px;clear:both">
             <el-avatar shape="square" :size="80" :src="avatarURL"></el-avatar>
+            <el-button v-if="state == 0" size="mini" style="margin-top:20px;width:80%" plain  @click="followUser(userName,state)">
+              关注
+            </el-button>
+            <el-button v-if="state == 1" size="mini" style="margin-top:20px;width:80%" plain  @click="followUser(userName,state)">
+              取关
+            </el-button>
           </div>
-          <div style="margin-left:10px; text-align:left;width:70%;float:left; ">
-              本文作者:  {{userName}}
+          <div style="margin-left:10px; text-align:left;width:70%;float:left;" @click="router(userName)">
+              <b>作者：</b>{{userName}}
               <br>
-              关注：0&nbsp;&nbsp;&nbsp;&nbsp;粉丝：0
+              <b>职业：</b>{{job}}
               <br>
-              简介：不要轻易放弃。学习成长的路上，我们长路漫漫，只因学无止境。
+              <b>关注：</b>{{followingNum}}&nbsp;&nbsp;&nbsp;&nbsp;粉丝：{{followerNum}}
               <br>
-              声援博主：如果您觉得文章对您有帮助，可以点赞一下。您的鼓励是博主的最大动力！
+              <b>简介：</b>{{summary}}
+              <br>
+              <b>声援博主：</b>如果您觉得文章对您有帮助，可以点赞一下。您的鼓励是博主的最大动力！
           </div>          
         </div>
         
@@ -139,10 +148,12 @@
       <sideLink></sideLink>
     </div>
   </article>
+</div>
 </template>
 
 <script>
   import blog from '@/api/blog'
+  import user from '@/api/user'
   import store from '@/store/store'
   import discuss from '@/api/discuss'
   import reply from '@/api/reply'
@@ -152,6 +163,7 @@
   import hotBlog from '@/components/hotBlog'
   import recommendSide from '@/components/recommendSide'
   import 'element-ui/lib/theme-chalk/display.css';
+  import { Loading } from 'element-ui';
 
   export default {
     name: 'blog',
@@ -166,7 +178,13 @@
         blogViews: 0,//浏览数
         time: 0, //发布事件
         userName: '',//博客用户名
+        userId: '',//博客id
+        followingNum:0, //粉丝数
+        followerNum:0,  //关注数
         avatarURL: '', //作者头像
+        job:'', //作者职业
+        summary:'',//作者简介
+        state: 0,//未关注0 关注1
         tags: [],  //博文标签
 
         total: 0,        //数据总数
@@ -176,7 +194,10 @@
 
         discussBody: '',//评论内容
         replyFlag: false,  // 是否显示回复按钮
-        replyBody: ''   //回复内容
+        replyBody: ''   ,//回复内容
+
+        loading: false,
+        loadingInstance: null, // loading对象
       }
     },
     watch: {
@@ -191,8 +212,31 @@
       }
     },
     methods: {
-      squareUrl(){
-        return "http://39.107.228.168/image/"+this.userName+".jpg" //头像静态地址
+      followUser (userName, state) { //关注动作 以state判断是否已关注
+        if(userName==this.getStoreName()){
+          this.$message({ message: '老兄，别玩自己啦', type: 'error' })
+          return
+        }
+        if(state==0){
+          user.newFollow(userName).then(res=>{
+            this.isfollow()
+            this.$message({message: '关注成功', type: 'success' })
+            this.getfollower()
+          })
+        }
+        else{
+          user.removeFollow(userName).then(res=>{
+            this.isfollow()
+            this.$message({message: '取关成功',type: 'success' })
+            this.getfollower()
+          })
+        }
+      },
+      router(username) {  //跳转用户动态
+        scrollTo(0, 0);
+        this.$router.push({
+            path: '/userIndex/'+username
+          })
       },
       thumbUp(){
         blog.thumbUp(this.blogId).then(res => {
@@ -201,6 +245,23 @@
             message: res.message
           });
           this.loadBlog();
+        })
+      },
+      isfollow(){ //检查是否关注当前用户
+        user.isfollow(this.userName).then(res=>{
+          // console.log(res.data)
+          if(res.data==true) this.state=1
+          else this.state=0
+        })
+      },
+      getfollowing(){ //获取关注数
+        blog.followingNum(this.userName).then(res=>{
+          this.followingNum = res.data
+        })
+      },
+      getfollower(){  //获取粉丝数
+        blog.followerNum(this.userName).then(res=>{
+          this.followerNum = res.data
         })
       },
       getTime(time) {//将时间戳转化为几分钟前，几小时前的格式
@@ -220,6 +281,11 @@
       loadBlog() { //加载数据
         var cookies = this.$cookies.get('history');
         var isClick = null;
+        this.loadingInstance = Loading.service({
+          lock: true,
+          text: '正在努力加载中……',
+          background: 'rgba(0, 0, 0, 0.7)'
+        })
         //存在此cookies key
         if (this.$cookies.isKey('history'))
           //此cookies key 对应的 value 中有此 博客id
@@ -236,10 +302,15 @@
             this.blogViews = res.data.blogViews;
             this.time = res.data.time;
             this.userName = res.data.user.name;
+            this.userId = res.data.user.id;
             this.tags = res.data.tags;
+            this.avatarURL = res.data.user.avatar;
+            this.job = res.data.user.job;
+            this.summary = res.data.user.summary;
 
-            this.avatarURL = "http://39.107.228.168/image/"+this.userName+".jpg"
-
+            this.isfollow()
+            this.getfollowing()
+            this.getfollower()
             //设置cookies
             // 是否存在history此key
             if (this.$cookies.isKey('history')) {
@@ -262,8 +333,9 @@
           this.total = responese.data.total;
           this.discussList = responese.data.rows;
         });
-
+        this.loadingInstance.close();
       },
+
       getStoreName() { //获取store中存储的name
         return this.$store.state.name;
       }
@@ -277,9 +349,11 @@
       }
       ,
       pLeave() {
-        this.replyFlag = false
-      }
-      ,
+        this.replyFlag = false  
+      },
+      routertag(tagName){
+        this.$router.push({ name:'classify',params:{tag:tagName}})
+      },
       sendReply(discussId, replyId) {  //发送回复
         this.$prompt('请输入回复内容', '提示', {
           confirmButtonText: '回复',

@@ -64,22 +64,22 @@
         <el-dropdown @command="handleCommand" class="userInfoAvatar">
           <span class="el-dropdown-link" >
             <img v-if="!this.$store.state.token" src="../../static/images/defaultAvatar.png">
-            <img v-if="this.$store.state.token" :src="circleUrl()" 
-                onerror="javascript:this.src='https://wpimg.wallstcn.com/f778738c-e4f8-4870-b634-56703b4acafe.gif'">
+            <img v-else-if="userInfo.avatar.length>0" :src="userInfo.avatar" >
+            <img v-else  src="../../static/images/defaultAvatar.png" >
           </span>
           <el-dropdown-menu slot="dropdown">
             <el-dropdown-item command="login" v-show="!this.$store.state.token">登录</el-dropdown-item>
             <el-dropdown-item command="register" v-show="!this.$store.state.token">注册</el-dropdown-item>
             <el-dropdown-item command="writeBlog" v-show="this.$store.state.token">写博客</el-dropdown-item>
             <el-dropdown-item command="goUserInfo" v-show="this.$store.state.token">个人中心</el-dropdown-item>
+            <el-dropdown-item command="goAdmin" v-show="this.$store.state.roles.indexOf('ADMIN') > -1">管理后台</el-dropdown-item>
             <el-dropdown-item command="logout" v-show="this.$store.state.token">退出登录</el-dropdown-item>
           </el-dropdown-menu>
         </el-dropdown>
         <!--侧栏抽屉-->
         <el-drawer  :visible.sync="drawer"  :show-close="true" :with-header="false" size="30%" :append-to-body="true"
-              style="height: 840px; ">
-          <el-tabs type="border-card" tab-position="left" v-model="activeName" @tab-click="handleClick">
-              <!--待完善 个人中心的信息与后端协调-->
+              style="height: 100%; ">
+          <el-tabs style="margin-top: 50px; height: 100%;" type="border-card" tab-position="left" v-model="activeName" @tab-click="handleClick">
               <el-tab-pane label="个人中心" name="0">
                 <span slot="label"><i class="el-icon-user-solid"></i> 个人中心</span>
                 
@@ -90,7 +90,8 @@
                       :show-file-list="false"
                       :on-change="fileChange"
                       :http-request="SubbmitFile" >
-                      <img v-if="circleUrl()" :src="circleUrl()" class="avatar">
+                      <img v-if="userInfo.avatar" :src="userInfo.avatar" class="avatar"
+                          onerror="javascript:this.src='../../static/images/defaultAvatar.png'">
                       <i v-else class="el-icon-plus avatar-uploader-icon"></i>
                     </el-upload>
                   </el-form-item>
@@ -178,11 +179,13 @@
                       <el-card>
                         <div class="commentList">
                         <span class="left p1">
-                          <img style="height:30px;width:30px" :src="circleUrl()" />
+                          <img style="height:30px;width:30px" :src="comment.user.avatar" 
+                              onerror="javascript:this.src='../../static/images/defaultAvatar.png'"/>
                         </span>
                           <span class="right p1">
                           <div class="rightTop">
                             <el-link class="userName" :underline="false">{{comment.user.name}}</el-link>
+                            <span> 评论了</span>
                             <el-tag style="cursor: pointer;"  @click.native="router(comment.blog.id)">{{comment.blog.title}}</el-tag>
                           </div>
                           <div class="rightCenter">{{comment.body}}</div>
@@ -216,14 +219,40 @@
                   </el-timeline>
                 </div>
               </el-tab-pane>
+              <el-tab-pane label="我的关注" name="7">
+                <span slot="label"><i class="el-icon-platform-eleme"></i> 我的关注</span>
+                <div style="width: 100%; height: 840px;overflow:auto">
+                    <li v-for="follow in followingList.rows" :key="follow.id" placement="top" >
+                      <el-card >
+                        <div class="commentList">
+                          <span class="left p1">
+                            <img style="height:40px;width:40px" :src="follow.avatar" 
+                                onerror="javascript:this.src='../../static/images/defaultAvatar.png'"/>
+                          </span>
+                          <el-button type="text" style="margin-left:5px;cursor: pointer;width:30%"  @click.native="routerUser(follow.name)">
+                            {{follow.name}}
+                          </el-button>
+                          <span style="width:10%" >
+                            {{follow.gender}}
+                          </span>
+                          <span style="margin-left:17px;width:30%" >
+                            {{follow.job}}
+                          </span>
+                        </div>
+                      </el-card>
+                    </li>
+                    <div v-if="followingList.length == 0" placement="top">
+                      <el-card>
+                        <span style="font-size: 16px">空空如也~</span>
+                      </el-card>
+                    </div>
+                </div>
+              </el-tab-pane>
               <el-tab-pane label="我的资源" name="3">
                 <span slot="label"><i class="el-icon-upload"></i> 我的资源</span>
               </el-tab-pane>
               <el-tab-pane label="我的博客" name="4">
                 <span slot="label"><i class="el-icon-s-unfold"></i> 我的博客</span>
-              </el-tab-pane>
-              <el-tab-pane label="管理后台" name="6">
-                <span slot="label"><i class="el-icon-menu"></i> 管理后台</span>
               </el-tab-pane>
           </el-tabs>
         </el-drawer>
@@ -280,6 +309,7 @@
 </template>
 
 <script>
+  import axios from 'axios'
   import date from '@/utils/date'
   import user from '@/api/user'
   import store from '@/store/store'
@@ -313,16 +343,19 @@
         commentList: [], //我的评论
         replyList: [], // 我的回复
         praiseList: [], // 我的点赞
+        followingList: [], // 我的关注
+        followerList: [], // 我的粉丝
         userInfo: {
+          name: '',
           gender: '',
           birth: '',
           email: '',
           qq: '',
           job:'',
-          summary:''
+          summary:'',
+          avatar: ''
         },
         //导航栏基础元素
-        avatarUrl: "",
         drawer: false,
         isLogin: false,
         isVisible: true,//导航栏
@@ -391,16 +424,35 @@
       this.getUserInfo()
     },
     methods: {
-      getUserInfo(){ //用户信息
-        user.getUserInfo().then(response=>{
-          var a = response.data
-          this.userInfo.gender = a.gender
-          this.userInfo.birth = a.birth
-          this.userInfo.email = a.mail
-          this.userInfo.qq = a.qq
-          this.userInfo.job = a.job
-          this.userInfo.summary = a.summary
+      router(id){//跳转博客界面
+        scrollTo(0, 0);
+        this.$router.push({ //路由跳转
+          path: '/blog/'+id
         })
+        this.drawer = false;
+      },
+      routerUser(username) {//跳转用户动态/主页
+        scrollTo(0, 0);
+        this.$router.push({
+          path: '/userIndex/'+username
+        })
+        this.drawer = false;
+      },
+      getUserInfo(){ //用户信息 
+        if(this.$store.state.token){
+          user.getUserInfo().then(response=>{
+            // console.info(response.data)
+            var a = response.data
+            this.userInfo.name = a.name
+            this.userInfo.gender = a.gender
+            this.userInfo.birth = a.birth
+            this.userInfo.email = a.mail
+            this.userInfo.qq = a.qq
+            this.userInfo.job = a.job
+            this.userInfo.summary = a.summary
+            this.userInfo.avatar = a.avatar
+          })
+        }
       },
       submitForm() { //修改用户信息
         var a = this.userInfo
@@ -419,36 +471,42 @@
           }
         });
       },
-      getCommentList(){
-        discuss.getDiscussByUserId().then(response=>{
+      getCommentList(){//评论列表
+        discuss.getDiscussByUserId(this.userInfo.name).then(response=>{
           this.commentList = response.data
         })
       },
-      getFavorList(){
+      getFavorList(){//点赞列表
         user.getFavor().then(response=>{
           this.praiseList = response.data
+        })
+      },
+      getFollowingList(){//关注列表
+        user.getFollowing().then(response=>{
+          this.followingList = response.data
+          console.info("following")
+          console.log(this.followingList)
+        })
+      },
+      getFollowerList(){//粉丝列表
+        user.getFollower().then(response=>{
+          this.followerList = response.data
+          console.info("follower")
+          console.log(this.followerList)
         })
       },
       getTime(time) {//将时间戳转化为几分钟前，几小时前
         return date.timeago(time);
       },  
-      getLoginState(msg){
-        this.isLogin = msg
-      },
-      // 选择博客/资源标签时直接跳转
-      handleClick(tab, event) {
+      handleClick(tab, event) {// 选择博客/资源标签时直接跳转
         if(tab.name==4) {
           this.$router.push({ path:'/myBlog'  }) 
           this.drawer = false;}
         else if(tab.name==3) {
           this.$router.push({ path:'/file'  })
           this.drawer = false;}
-        else if(tab.name==6) {
-        this.$router.push({ path:'/admins'  })
-        this.drawer = false;}
       },
-      // 点击头像触发的动作
-      handleCommand(command) {
+      handleCommand(command) {// 点击头像触发的动作
         switch (command) {
           case "writeBlog" : {
             this.$router.push({ path:'/newBlog'  }) 
@@ -470,14 +528,21 @@
             this.getCommentList();
             // 获取点赞列表
             this.getFavorList()
+            // 获取关注列表
+            this.getFollowingList()
+            // 获取粉丝列表
+            this.getFollowerList()
 
+          };break;
+          case "goAdmin" : {
+            this.$router.push({ path:'/admins'  })
           };break;
         }
       },
-      closeLoginBox: function () {
+      closeLoginBox() {
         this.showLogin = false;
       },
-      clickSearchIco: function () {
+      clickSearchIco() {
         if(this.searchTxt != "") {
           this.search();
         }
@@ -485,20 +550,17 @@
         //获取焦点
         this.$refs.searchInput.focus();
       },
-      openHead: function () {
+      openHead() {
         this.showHead = !this.showHead;
       },
-      returnTop: function () {//回到顶端
+      returnTop() {//回到顶端
         window.scrollTo(0, 0);
-      },
-      circleUrl(){
-        return "http://39.107.228.168/image/"+store.state.name+".jpg"
       },
       handleSelect(key, keyPath) {
         if (key != null && key !== '')
           this.activeIndex = key
       },
-      updatePwd() {
+      updatePwd() {//修改密码
         if (this.oldPassword.length <= 0) {
           this.$message({
             message: '原密码不能为空',
@@ -523,7 +585,7 @@
           this.$router.push({path: '/'})
         })
       },
-      updateMail() {
+      updateMail() {//修改邮箱
         var reg = new RegExp(/^([a-zA-Z0-9._-])+@([a-zA-Z0-9_-])+(\.[a-zA-Z0-9_-])+/);
         if (!reg.test(this.newMail)) {//检测字符串是否符合正则表达式
           this.$message({
@@ -573,6 +635,7 @@
       logout() {  //退出登录
         user.logout().then(res => {
           this.isLogin=false
+          this.userInfo={}
           this.$store.commit('logout')//清除token等信息
           this.$message({
             message: '退出成功',
@@ -647,18 +710,18 @@
         })
 
       },
-      searchSubmit() {
+      searchSubmit() {//搜索
         if (this.searchTxt.length <= 0)
           return;
-        this.$router.push({ //路由跳转
+        this.$router.push({ 
           path: '/searchBlog/' + this.searchTxt
         })
         this.searchTxt = '';//清空搜索框
       },
-      fileChange(e,list){
+      fileChange(e,list){//上传头像.子函数
           this.file=e;
       },
-      SubbmitFile(){
+      SubbmitFile(){//上传头像
           let param = new FormData(); 
           param.append("file", this.file.raw);
           let config = {
@@ -669,7 +732,6 @@
           axios.post("/api/file/uploadAvatar/", param, config,{timeout:900000})
           .then(response => {
             if (response) { 
-              this.load()
               this.$router.go(0)
               this.file={}
               console.log(response.data);
@@ -681,29 +743,23 @@
             console.log(err);
           });
       },
-      router(id){
-        scrollTo(0, 0);
-        this.$router.push({ //路由跳转
-          path: '/blog/'+id
-        })
-        this.drawer = false;
-      }
+      
     }
   }
 </script>
 
 <style>
  .userInfoAvatar {
-    width: 35px;
-    height: 35px;
+    width: 45px;
+    height: 45px;
     position: absolute;
     right: -77px;
-    top: 15px;
+    top: 10px;
   }
 
   .userInfoAvatar img {
-    width: 35px;
-    height: 35px;
+    width: 40px;
+    height: 40px;
     border-radius: 50%;
   }
   .searchbox {

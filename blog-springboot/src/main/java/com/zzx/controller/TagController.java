@@ -1,7 +1,9 @@
 package com.zzx.controller;
 
+import com.zzx.model.entity.PageResult;
 import com.zzx.model.entity.Result;
 import com.zzx.model.entity.StatusCode;
+import com.zzx.model.pojo.Tag;
 import com.zzx.service.TagService;
 import com.zzx.utils.FormatUtil;
 import io.swagger.annotations.Api;
@@ -59,6 +61,7 @@ public class TagController {
         }
         try {
             tagService.deleteTagById(tagId);
+            tagService.adjust();
             return Result.create(StatusCode.OK, "删除成功");
         } catch (RuntimeException e) {
             return Result.create(StatusCode.ERROR, e.getMessage());
@@ -74,7 +77,6 @@ public class TagController {
      * @return
      */
     @ApiOperation(value = "修改标签", notes = "标签id+新标签名")
-    @PreAuthorize("hasAuthority('USER')")
     @PutMapping
     public Result updateTag(Integer tagId, String tagName) {
         if (!formatUtil.checkObjectNull(tagId)) {
@@ -83,7 +85,6 @@ public class TagController {
         if (!formatUtil.checkStringNull(tagName)) {
             return Result.create(StatusCode.ERROR, "参数异常");
         }
-
         try {
             tagService.updateTag(tagId, tagName);
             return Result.create(StatusCode.OK, "修改成功");
@@ -94,19 +95,7 @@ public class TagController {
 
 
     /**
-     * 获取某用户下的所有标签
-     *
-     * @return
-     */
-    @ApiOperation(value = "获取用户标签", notes = "用户id")
-    @PreAuthorize("hasAuthority('USER')")
-    @GetMapping
-    public Result findTagByUserId() {
-        return Result.create(StatusCode.OK, "查询成功", tagService.findTagByUserId());
-    }
-
-    /**
-     * 所有标签
+     * 获得所有标签
      *
      * @return
      */
@@ -117,5 +106,11 @@ public class TagController {
         return Result.create(StatusCode.OK, "查询成功", tagService.findTagAll());
     }
 
-
+    @ApiOperation(value = "获取所有标签")
+    @GetMapping("/{page}/{showCount}")
+    public Result findTagAllByPage(@PathVariable Integer page, @PathVariable Integer showCount) {
+        PageResult<Tag> pageResult =
+                new PageResult<>(tagService.getTagCount(), tagService.findTagAllByPage(page, showCount));
+        return Result.create(StatusCode.OK, "查询成功", pageResult);
+    }
 }

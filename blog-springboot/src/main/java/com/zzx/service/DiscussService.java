@@ -160,8 +160,8 @@ public class DiscussService {
      *
      * @return
      */
-    public List<Discuss> findUserNewDiscuss() {
-        User user = userDao.findUserByName(jwtTokenUtil.getUsernameFromRequest(request));
+    public List<Discuss> findUserNewDiscuss(String userName) {
+        User user = userDao.findUserByName(userName);
         return discussDao.findUserNewDiscuss(user.getId(), 15);
     }
 

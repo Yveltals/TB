@@ -90,9 +90,14 @@ public interface UserDao {
     void updateUser(User user);
 
     /**
-     * 根据用户id获取点赞列表
-     * @param userId
-     * @return
+     * 根据id 保存头像地址
+     * @param userId,avatar
      */
-    String[] getFavor(Integer userId);
+    void updateAvatar(Integer userId, String avatar);
+
+    /**
+     * 根据用户名 获得头像地址
+     */
+    String getAvatarByName(String username);
+
 }

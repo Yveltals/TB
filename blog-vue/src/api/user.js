@@ -84,6 +84,25 @@ export default {
       method:'get'
     })
   },
+  getUserInfoByName(userName){
+    return request({
+      url:'user/getUser/'+userName,
+      method:'get'
+    })
+  },
+  // getUserAvatarByName(userName){
+  //   return request({
+  //     url:'user/getUserAvatar/'+userName,
+  //     method:'get ',
+  //   })
+  // },
+  getUserIdbyName(userName){
+    return request({
+      url:'user/getUserId',
+      method:'post ',
+      data: qs.stringify({'userName': userName})
+    })
+  },
   forgetPassword(userName, mailCode, newPassword) {
     return request({
       url: '/user/forgetPassword',
@@ -133,6 +152,37 @@ export default {
     return request({
       url: '/user/logout',
       method: 'get',
+    })
+  },
+
+  isfollow(userName){
+    return request({
+      url: '/follow/isfollow/'+userName,
+      method: 'get'
+    })
+  },
+  newFollow(userName){
+    return request({
+      url: '/follow/new/'+userName,
+      method: 'post'
+    })
+  },
+  removeFollow(userName){
+    return request({
+      url: '/follow/remove/'+userName,
+      method: 'delete'
+    })
+  },
+  getFollowing(){
+    return request({
+      url: '/follow/myfollowing',
+      method: 'get'
+    })
+  },
+  getFollower(){
+    return request({
+      url: '/follow/myfollower',
+      method: 'get'
     })
   }
 

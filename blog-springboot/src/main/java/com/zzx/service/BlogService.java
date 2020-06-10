@@ -5,10 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.zzx.config.ImgUploadConfig;
 import com.zzx.config.RabbitMQConfig;
 import com.zzx.config.RedisConfig;
-import com.zzx.dao.BlogDao;
-import com.zzx.dao.RoleDao;
-import com.zzx.dao.TagDao;
-import com.zzx.dao.UserDao;
+import com.zzx.dao.*;
 import com.zzx.model.pojo.Blog;
 import com.zzx.model.pojo.User;
 import com.zzx.schedule.BlogTask;
@@ -41,7 +38,10 @@ public class BlogService {
     private TagDao tagDao;
 
     @Autowired
-    private RoleDao roleDao;
+    private FavorDao favorDao;
+
+    @Autowired
+    private DiscussDao discussDao;
 
     @Autowired
     private FormatUtil formatUtil;
@@ -137,10 +137,14 @@ public class BlogService {
         blog.setBlogViews(0);
         //评论数
         blog.setDiscussCount(0);
+        //点赞数
+        blog.setFavorCount(0);
         //标题
         blog.setTitle(blogTitle);
         //内容
         blog.setBody(blogBody);
+        //置顶
+        blog.setTop(0);
         //1 正常状态
         blog.setState(1);
         //发布时间
@@ -229,10 +233,17 @@ public class BlogService {
      */
     public List<Blog> findBlogByUser(Integer page, Integer showCount) {
 
-
         User user = userDao.findUserByName(jwtTokenUtil.getUsernameFromRequest(request));
         List<Blog> blogs = blogDao.findBlogByUserId(user.getId(), (page - 1) * showCount, showCount);
+        for (Blog blog : blogs) {
+            blog.setTags(tagDao.findTagByBlogId(blog.getId()));
+        }
+        return blogs;
+    }
+    public List<Blog> findBlogByUserName(String userName, Integer page, Integer showCount) {
 
+        User user = userDao.findUserByName(userName);
+        List<Blog> blogs = blogDao.findBlogByUserId(user.getId(), (page - 1) * showCount, showCount);
         for (Blog blog : blogs) {
             blog.setTags(tagDao.findTagByBlogId(blog.getId()));
         }
@@ -249,6 +260,10 @@ public class BlogService {
         User user = userDao.findUserByName(jwtTokenUtil.getUsernameFromRequest(request));
         return blogDao.getBlogCountByUserId(user.getId());
     }
+    public Long getBlogCountByUserName(String userName) {
+        User user = userDao.findUserByName(userName);
+        return blogDao.getBlogCountByUserId(user.getId());
+    }
 
     /**
      * 点赞
@@ -256,12 +271,15 @@ public class BlogService {
      */
     public boolean thumbUpBlog(Integer blogId){
         User user = userDao.findUserByName(jwtTokenUtil.getUsernameFromRequest(request));
-
         if(blogDao.thumbUpBlogExist(user.getId(),blogId)==0) {
             blogDao.thumbUpBlogAdd(user.getId(), blogId);
+            Integer favorCnt = favorDao.getFavorCount(blogId);
+            blogDao.setFavorCount(blogId,favorCnt);
             return true;
         }
         blogDao.thumbUpBlogDelete(user.getId(),blogId);
+        Integer favorCnt = favorDao.getFavorCount(blogId);
+        blogDao.setFavorCount(blogId,favorCnt);
         return false;
     }
 
@@ -276,7 +294,7 @@ public class BlogService {
     }
 
     /**
-     * test主页博文查询
+     * 主页博文查询 时间排序
      * @param page
      * @param showCount
      * @return
@@ -292,6 +310,28 @@ public class BlogService {
         List<Blog> blogs = new LinkedList<>();
         // 开始位置大于缓存数量 即查询范围不在缓存内 查询mysql 且不设置缓存
         blogs.addAll(blogDao.findHomeBlog(start, showCount));
+        for (Blog blog : blogs) {
+            blog.setTags(tagDao.findTagByBlogId(blog.getId()));
+        }
+        return blogs;
+    }
+    /**
+     * 主页博文查询 点赞排序
+     * @param page
+     * @param showCount
+     * @return
+     * @throws IOException
+     */
+    public List<Blog> findBlogOrderByFavor(Integer page, Integer showCount) throws IOException {
+        // mysql 分页中的开始位置
+        int start = (page - 1) * showCount;
+        List<Blog> blogsFromMysql = blogDao.findBlogOrderFavor(start, RedisConfig.REDIS_NEW_BLOG_COUNT);
+        for (Blog blog : blogsFromMysql) {
+            blog.setTags(tagDao.findTagByBlogId(blog.getId()));
+        }
+        List<Blog> blogs = new LinkedList<>();
+        // 开始位置大于缓存数量 即查询范围不在缓存内 查询mysql 且不设置缓存
+        blogs.addAll(blogDao.findBlogOrderFavor(start, showCount));
         for (Blog blog : blogs) {
             blog.setTags(tagDao.findTagByBlogId(blog.getId()));
         }
@@ -400,6 +440,16 @@ public class BlogService {
 
 
     }
+    /**
+     * 查询置顶博文 (top=1)
+     */
+    public List<Blog> findTopBlog(){
+        List<Blog> blogs = blogDao.findTopBlog();
+        for (Blog blog : blogs) {
+            blog.setTags(tagDao.findTagByBlogId(blog.getId()));
+        }
+        return blogs;
+    }
 
     /**
      * 搜索博文
@@ -469,8 +519,6 @@ public class BlogService {
         if (!user.getId().equals(blog.getUser().getId())) {
             throw new RuntimeException("无权限修改");
         }
-
-
         blog.setTitle(blogTitle);
         blog.setBody(blogBody);
         blogDao.updateBlog(blog);
@@ -526,12 +574,10 @@ public class BlogService {
      */
     @Transactional(rollbackFor = Exception.class)
     public void adminDeleteBlog(Integer blogId) throws JsonProcessingException {
-
-        Blog blog = new Blog();
-        blog.setId(blogId);
-        blog.setState(0);
-        //更改博客状态
-        blogDao.updateBlog(blog);
+        //删除点赞、评论、博文
+        favorDao.deleteFavorByBlogId(blogId);
+        discussDao.deleteDiscussByBlogId(blogId);
+        blogDao.deleteBlog(blogId);
         //级联删除blog_tag
         tagDao.deleteTagByBlogId(blogId);
 
@@ -556,16 +602,30 @@ public class BlogService {
 
     }
 
-    //存在业务冲突，弃用此方法
-//    /**
-//     * 撤销删除博文
-//     *
-//     * @param blogId
-//     */
-//    public void undoDelete(Integer blogId) {
-//        blogDao.updateBlogState(blogId, 1);
-//    }
+    /**
+     * 管理员封禁博文
+     *
+     * @param blogId
+     */
+    @Transactional(rollbackFor = Exception.class)
+    public void adminBanBlog(Integer blogId, Integer state){
+        Blog blog = blogDao.findBlogAllById(blogId);
+        blog.setState(1-state);
+        blogDao.updateBlog(blog);
+    }
 
+    /**
+     * 管理员置顶博文
+     *
+     * @param blogId
+     */
+    @Transactional(rollbackFor = Exception.class)
+    public void adminTopBlog(Integer blogId, Integer state){
+        Blog blog = blogDao.findBlogAllById(blogId);
+//        System.out.println("state= " + state);
+        blog.setTop(1-state);
+        blogDao.updateBlog(blog);
+    }
 
     /**
      * 符合关键字的博文数量
@@ -623,4 +683,5 @@ public class BlogService {
     public Long getAllBlogCount() {
         return blogDao.getAllBlogCount();
     }
+
 }

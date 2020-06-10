@@ -15,6 +15,7 @@ public class Message {
     private String name;//游客显示为ip地址
     private String body;//留言内容
     private Date time;//留言时间
+    private String avatar;//头像
 
     public Integer getId() {
         return id;
@@ -46,5 +47,13 @@ public class Message {
 
     public void setTime(Date time) {
         this.time = time;
+    }
+
+    public String getAvatar() {
+        return avatar;
+    }
+
+    public void setAvatar(String avatar) {
+        this.avatar = avatar;
     }
 }

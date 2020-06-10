@@ -27,8 +27,8 @@
         <div v-for="message in messageList" :key="message.id">
           <div class="commentList">
             <span class="left p1">
-              <img :src="avatarUrl(message.name)"  style="width:50px; height:50px"
-                onerror="javascript:this.src='https://wpimg.wallstcn.com/f778738c-e4f8-4870-b634-56703b4acafe.gif'" />
+              <img :src="message.avatar"  style="width:50px; height:50px"
+                onerror="javascript:this.src='../../static/images/defaultAvatar.png'" />
             </span>
             <span class="right p1">
               <div class="rightTop" v-if="message.name">

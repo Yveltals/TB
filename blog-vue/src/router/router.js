@@ -19,7 +19,7 @@ import announcementManage from '@/views/announcementManage'
 import blogManage from '@/views/blogManage'
 import file from '@/views/file'
 import classify from '@/views/classify'
-
+import userIndex from '@/views/userIndex'
 Vue.use(Router)
 
 export default new Router({
@@ -104,6 +104,7 @@ export default new Router({
       name: 'blog',
       component: blog
     },
+    
     {
       path: '/myBlog',
       name: 'myBlog',
@@ -118,6 +119,11 @@ export default new Router({
       path: '*',
       name: 'notfound',
       component: notfound
+    },
+    {
+      path: '/userIndex/:userName',
+      name: 'userIndex',
+      component: userIndex
     }
   ]
 })

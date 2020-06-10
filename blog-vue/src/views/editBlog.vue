@@ -63,7 +63,7 @@
     watch: {
       blogId() {
         //加载数据
-        tag.getTag().then(res => {
+        tag.getTagAll().then(res => {
           this.tags = res.data;
         })
         blog.getBlogById(this.blogId,true).then(res => {
@@ -71,7 +71,6 @@
           this.body = res.data.body;
           this.checkboxGroup = res.data.tags.map(t => t.id) // 填充标签
         });
-
       }
     },
     methods: {

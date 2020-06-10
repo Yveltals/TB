@@ -15,6 +15,7 @@
         <result property="job" column="user_job"/>
         <result property="qq" column="user_qq"/>
         <result property="summary" column="user_summary"/>
+        <result property="avatar" column="user_avatar"/>
         <result property="state" column="user_state"/>
         <result property="login.ip" column="login_ip"/>
         <result property="login.time" column="login_time"/>
@@ -22,27 +23,28 @@
 
     <select id="findUserByName" parameterType="String" resultMap="User">
         SELECT user_id,user_name,user_password,user_mail,user_state,
-               user_gender,user_birth,user_qq,user_job,user_summary
+               user_gender,user_birth,user_qq,user_job,user_summary,user_avatar
         from user
         WHERE user_name = #{value}
     </select>
 
     <select id="findUserByMail" parameterType="String" resultMap="User">
         SELECT user_id ,user_name,user_password,user_mail,user_state,
-               user_gender,user_birth,user_qq,user_job,user_summary
+               user_gender,user_birth,user_qq,user_job,user_summary,user_avatar
         from user
         WHERE user_mail = #{value}
     </select>
 
     <!--主键自增，保存完后会自动返回主键id -->
     <insert id="saveUser" parameterType="User" useGeneratedKeys="true" keyProperty="id" keyColumn="user_id">
-        INSERT INTO user VALUES (null,#{name},#{password},#{mail},#{state})
+        INSERT INTO user(user_id,user_name,user_password,user_mail,user_state)
+            VALUES (null,#{name},#{password},#{mail},#{state})
     </insert>
 
 
     <select id="findUserById" parameterType="Integer" resultMap="User">
         SELECT user_id , user_name,user_password,user_mail,user_state,
-               user_gender,user_birth,user_qq,user_job,user_summary
+               user_gender,user_birth,user_qq,user_job,user_summary,user_avatar
         from user
         WHERE user_id = #{value}
     </select>
@@ -61,7 +63,7 @@
 
     <select id="searchUserByName" resultMap="User">
         SELECT u.user_id,user_name,user_mail,user_state,user_gender,
-               user_birth,user_qq,user_job,user_summary,l.login_ip,l.login_time
+               user_birth,user_qq,user_job,user_summary,user_avatar,l.login_ip,l.login_time
         FROM user u LEFT JOIN login l on u.user_id = l.user_id
         WHERE user_name LIKE '%${userName}%'
         LIMIT #{start},#{showCount}
@@ -71,6 +73,15 @@
         SELECT COUNT(1)
         FROM user
         WHERE user_name LIKE '%${value}%'
+    </select>
+
+    <update id="updateAvatar">
+        UPDATE user SET user_avatar = #{avatar}
+        WHERE user_id = #{userId}
+    </update>
+
+    <select id="getAvatarByName" parameterType="String" resultType="String">
+        SELECT user_avatar FROM user WHERE user_name = #{username}
     </select>
 
     <update id="updateUser" parameterType="User">

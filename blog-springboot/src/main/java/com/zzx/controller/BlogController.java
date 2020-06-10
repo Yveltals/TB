@@ -7,10 +7,8 @@ import com.zzx.model.entity.Result;
 import com.zzx.model.entity.StatusCode;
 import com.zzx.model.pojo.Blog;
 import com.zzx.service.BlogService;
-
 import com.zzx.utils.FormatUtil;
 import io.swagger.annotations.Api;
-
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -129,6 +127,16 @@ public class BlogController {
         return Result.create(StatusCode.OK, "查询成功", pageResult);
     }
 
+    @ApiOperation(value = "根据其他用户名分页查询博文", notes = "页数+显示数量")
+    @GetMapping("/userblog/{userName}/{page}/{showCount}")
+    public Result findBlogByUserName(@PathVariable String userName, @PathVariable Integer page, @PathVariable Integer showCount) {
+
+        PageResult<Blog> pageResult =
+                new PageResult<>(blogService.getBlogCountByUserName(userName), blogService.findBlogByUserName(userName,page,showCount));
+
+        return Result.create(StatusCode.OK, "查询成功", pageResult);
+    }
+
 
     /**
      * 首页分页查询
@@ -157,6 +165,29 @@ public class BlogController {
     }
 
     /**
+     * 首页recommendFirst
+     * 查询的范围在 最近10条博客 内
+     * @param page      页码
+     * @param showCount 显示条数
+     * @return
+     */
+    @ApiOperation(value = "首页分页查询博文", notes = "页数+显示数量")
+    @GetMapping("/recommendFirst/{page}/{showCount}")
+    public Result blogRecommendFirst(@PathVariable Integer page, @PathVariable Integer showCount) {
+        if (!formatUtil.checkPositive(page, showCount) || showCount > RedisConfig.REDIS_NEW_BLOG_COUNT) {
+            return Result.create(StatusCode.OK, "参数错误");
+        }
+        try {
+            PageResult<Blog> pageResult = new PageResult<>(blogService.getHomeBlogCount(), blogService.findBlogOrderByFavor(page, showCount));
+            return Result.create(StatusCode.OK, "查询成功", pageResult);
+        } catch (IOException e) {
+            e.printStackTrace();
+            return Result.create(StatusCode.SERVICEERROR, "服务异常");
+        }
+
+
+    }
+    /**
      * 热门博文
      * 正常状态
      *
@@ -168,6 +199,18 @@ public class BlogController {
         try {
             return Result.create(StatusCode.OK, "查询成功", blogService.findHotBlog());
         } catch (IOException e) {
+            return Result.create(StatusCode.SERVICEERROR, "服务异常");
+        }
+    }
+    /**
+     * 查询置顶博文
+     */
+    @ApiOperation(value = "首页置顶博文", notes = "首页置顶博文")
+    @GetMapping("/topBlog")
+    public Result topBlog() {
+        try {
+            return Result.create(StatusCode.OK, "查询成功", blogService.findTopBlog());
+        } catch (Exception e) {
             return Result.create(StatusCode.SERVICEERROR, "服务异常");
         }
     }
@@ -306,6 +349,30 @@ public class BlogController {
         return Result.create(StatusCode.OK, "删除成功");
     }
 
+    @ApiOperation(value = "管理员封禁博文", notes = "博文id")
+    @PreAuthorize("hasAuthority('ADMIN')")
+    @PostMapping("/ban/{blogId}/{state}")
+    public Result adminBanBlog(@PathVariable Integer blogId, @PathVariable Integer state) throws JsonProcessingException {
+        if (!formatUtil.checkPositive(blogId)) {
+            return Result.create(StatusCode.ERROR, "参数错误");
+        }
+        blogService.adminBanBlog(blogId,state);
+        return Result.create(StatusCode.OK, "成功");
+    }
+
+    @ApiOperation(value = "管理员置顶博文", notes = "博文id")
+    @PreAuthorize("hasAuthority('ADMIN')")
+    @PostMapping("/top/{blogId}/{state}")
+    public Result adminTopBlog(@PathVariable Integer blogId, @PathVariable Integer state) throws JsonProcessingException {
+        if (!formatUtil.checkPositive(blogId)) {
+            return Result.create(StatusCode.ERROR, "参数错误");
+        }
+        if(blogService.findTopBlog().size()<3 && state==1)
+            return Result.create(StatusCode.OK, "至少需置顶两篇博客");
+        blogService.adminTopBlog(blogId,state);
+        if(state==1) return Result.create(StatusCode.OK, "取消置顶");
+            else return Result.create(StatusCode.OK, "置顶成功");
+    }
 
     @ApiOperation(value = "管理员分页搜索博文", notes = "搜索内容+页码+显示条数")
     @PreAuthorize("hasAuthority('ADMIN')")

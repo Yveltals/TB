@@ -11,7 +11,7 @@
 
             <el-menu-item class="menuItem" index="2" route="/admins/codeManage">
               <i class="el-icon-menu"></i>
-              <span slot="title">邀请码管理</span>
+              <span slot="title">标签管理</span>
             </el-menu-item>
 
             <el-menu-item class="menuItem" index="3" route="/admins/announcementManage">

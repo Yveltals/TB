@@ -175,30 +175,6 @@ footer a { color: #a5a4a4 }
 .links ul { overflow: hidden }
 .links ul li { line-height: 24px; margin: 0 10px 10px 0; display: block; float: left }
 .links ul a:hover { text-decoration: underline; color: #000 }
-/*guanzhu*/
-.guanzhu ul li { font-size: 12px; margin-bottom: 10px; background: #fff; color: #525252; line-height: 40px; padding: 0 0 0 34px; border: 1px solid #DDD; border-radius: 2px; position: relative; text-overflow: ellipsis; white-space: nowrap; overflow: hidden; }
-.guanzhu .sina { border: #ec3d51 1px solid; background: url(../images/gzbg.jpg) no-repeat 0 10px }
-.guanzhu .tencent { border: #68a6d6 1px solid; background: url(../images/gzbg.jpg) no-repeat 0 -43px }
-.guanzhu .qq { border: #2ab39a 1px solid; background: url(../images/gzbg.jpg) no-repeat 0 -98px }
-.guanzhu .qqGroup { border: #EB6841 1px solid; background: url(../images/qqGroup.png) no-repeat; background-size:22px; background-position-y:47%;}
-.guanzhu .email { border: #12aae8 1px solid; background: url(../images/gzbg.jpg) no-repeat 0 -150px }
-.guanzhu .wxgzh { border: #199872 1px solid; background: url(../images/gzbg.jpg) no-repeat 0 -200px }
-.guanzhu .github { border: #000000 1px solid; background: url(../images/github.jpg) no-repeat; background-size:25px; background-position-y:47%; }
-.guanzhu .gitee { border: #E93B3C 1px solid; background: url(../images/gitee.jpg) no-repeat; background-size:25px; background-position-y:47%; }
-.guanzhu .wx { overflow: hidden; padding: 0 }
-.guanzhu .wx img { width: 100%; }
-.guanzhu ul li span { float: right; text-align: center; width: 85px; -moz-transition: all .5s ease; -webkit-transition: all .5s ease; -ms-transition: all .5s ease; -o-transition: all .5s ease; transition: all .5s ease; transition: all 0.5s; }
-.guanzhu .sina span { background: #ec3d51; }
-.guanzhu .tencent span { background: #68a6d6; }
-.guanzhu .qq span { background: #2ab39a; }
-.guanzhu .qqGroup span { background: #EB6841; }
-.guanzhu .email span { background: #12aae8; }
-.guanzhu .wxgzh span { background: #199872; }
-.guanzhu .github span { background: #000000; }
-.guanzhu .gitee span { background: #E93B3C; }
-
-.guanzhu a span { color: #FFF }
-.guanzhu ul li:hover span { width: 100px; }
 
 /* zhuanti */
 .zhuanti { overflow: hidden }
@@ -221,9 +197,10 @@ footer a { color: #a5a4a4 }
 
 h1.t_nav span { float: right; color: #000; }
 h1.t_nav { border-bottom: #bfbfbf 1px solid; font-size: 14px; font-weight: normal; line-height: 40px; width: 100%; overflow: hidden; margin-bottom: 20px }
-.n1, .n2 { width: 100px; display: block; text-align: center; float: left; color: #fff; }
+.n1, .n2,.n3 { width: 100px; display: block; text-align: center; float: left; color: #fff; }
 .n1 { background: #000; }
 .n2 { background: #3a6ab5; }
+.n3 { background: #3ab586; }
 .sidebar .about { background: #FFF url(../images/banner.png) no-repeat top center; overflow: hidden; }
 .avatar { margin: 40px auto 20px; width: 100px }
 .avatar img { width: 100px; border-radius: 50% }
@@ -233,16 +210,11 @@ h1.t_nav { border-bottom: #bfbfbf 1px solid; font-size: 14px; font-weight: norma
 .weixin img { width: 100% }
 /*pagebg*/
 .pagebg { margin-top: 0px; padding: 100px 0; text-align: center; width: 100%; }
-/*pagebg.pagebg p { font-size: 36px; color: #FFF; }*/
-.ab { background: url(../images/blank.jpg) no-repeat; background-size: cover; background-position: top center; }
+.ab { background: url(../images/page_clock.png) no-repeat; background-size: cover; background-position: top center; }
 .sh { background: url(../images/page_bg.jpg) no-repeat; background-size: cover; background-position: top center; }
-.by { background: url(../images/page_beiying.png) no-repeat; background-size: cover; background-position: top center; }
-.clock { background: url(../images/page_test.png) no-repeat; background-size: cover; background-position: top center; }
-.kun { background: url(../images/page_kun.png) no-repeat; background-size: cover; background-position: top center; }
+.land { background: url(../images/page_land.jpeg) no-repeat; background-size: cover; background-position: top center; }
 .sorts { background: url(../images/page_bg.jpg) no-repeat; background-size: cover; background-position: top center; }
 .classify { background: url(../images/page_classify.jpg) no-repeat; background-size: cover; background-position: top center; }
- .tagPage { background: url(../images/page_time.jpg) no-repeat; background-size: cover; background-position: top center; }
-.timer { background: url(../images/page_time.jpg) no-repeat; background-size: cover; background-position: top center; }
 /*share*/
 .share { overflow: hidden; padding-top: 10px }
 .shareli { margin: 0 15px; padding-bottom: 10px }
@@ -273,10 +245,6 @@ h1.t_nav { border-bottom: #bfbfbf 1px solid; font-size: 14px; font-weight: norma
 .news_title { font-size: 24px; font-weight: normal; padding: 30px 0 0 0; color: #333; }
 .news_author { width: 100%; color: #999; line-height: 18px; }
 .news_author span { margin-right: 10px; padding-left: 20px }
-.au01 { background: url(../images/author.png) no-repeat left center }
-.au02 { background: url(../images/date.png) no-repeat left center }
-.au03 b { color: #333; padding: 0 5px }
-.au04 { font-weight: normal; }
 .news_about { color: #888888; border: 1px solid #F3F3F3; padding: 10px; margin: 20px auto 15px auto; line-height: 23px; background: none repeat 0 0 #F6F6F6; }
 .news_about strong { color: #38485A; font-weight: 400 !important; font-size: 13px; padding-right: 8px; }
 .news_content { line-height: 24px; font-size: 14px; }
@@ -291,16 +259,7 @@ h1.t_nav { border-bottom: #bfbfbf 1px solid; font-size: 14px; font-weight: norma
 .nextinfo { line-height: 24px; width: 100%; background: #FFF; border-radius: 10px; overflow: hidden; margin: 20px 0 }
 .nextinfo p { padding: 4px 10px; border-radius: 5px; }
 .nextinfo a:hover { color: #000; text-decoration: underline }
-.diggit { float: left; width: 140px; margin: auto; background: #E2523A url(../images/dzbg.jpg) no-repeat center left 10px; color: #fff; box-shadow: 1px 2px 6px 0px rgba(0,0,0,.2); border-radius: 3px; line-height: 40px; text-align: center; padding-left: 20px; margin-left: 20%; }
-.diggit a { color: #fff; }
 #diggnum { margin: 5px; }
-.otherlink, .xzsm, .ffsm { width: 100%; background: #FFF; border-radius: 10px; overflow: hidden; margin: 20px 0 }
-.otherlink h2 { border-bottom: #000 2px solid; line-height: 40px; font-size: 14px; background: url(../images/5794.png) left 10px center no-repeat; padding-left: 40px; color: #000 }
-.otherlink ul { margin: 10px 0 }
-.otherlink li { line-height: 24px; height: 24px; display: block; width: 290px; float: left; overflow: hidden; margin-right: 30px; padding-left: 10px; }
-.otherlink li a:hover { text-decoration: underline; color: #000 }
-.news_pl { margin: 10px 0; width: 100%; background: #FFF; border-radius: 10px; overflow: hidden; margin: 20px 0 }
-.news_pl h2 { background: url(../images/newsbg03.png) no-repeat left 10px center; border-bottom: #000 2px solid; line-height: 40px; font-size: 14px; padding-left: 30px; color: #000 }
 .xzsm ul, .ffsm ul { padding: 20px; line-height: 24px; border-top: 6px solid #a6b5c5; }
 .bt-blue { display: block; line-height: 40px; height: 40px; background: #1e8ec5; width: 100px; text-align: center; }
 .bt-blue a { color: #fff }
@@ -318,23 +277,6 @@ h1.t_nav { border-bottom: #bfbfbf 1px solid; font-size: 14px; font-weight: norma
 .meandblog { padding: 20px; border-radius: 10px; overflow: hidden; margin: 0 0 20px 0; }
 .meandblog li { background: #f1f1f1; line-height: 30px; margin: 5px 0; padding: 0 0 0 10px; border-radius: 10px; border-top: 2px solid #e2e2e2; text-shadow: #eae7e7 0px 0px 1px; }
 .meandblog li a:hover { color: #000 }
-/*money*/
-.dasbox { width: 130px; float: left; margin-left: 40px; background: url(../images/dsbz.jpg) no-repeat left 20px center #E2523A; box-shadow: 1px 2px 6px 0px rgba(0,0,0,.2); border-radius: 3px; line-height: 40px; padding-left: 10px; text-align: center; }
-.hide_box { z-index: 999; filter: alpha(opacity=50); background: #666; opacity: 0.5; -moz-opacity: 0.5; left: 0; top: 0; height: 99%; width: 100%; position: fixed;}
-.shang_box { width: 430px; padding: 40px 10px; background: #fff url(../images/tbg.jpg) no-repeat left top 30px; ; border-radius: 10px; position: fixed; z-index: 1000; left: 50%; top: 50%; margin-left: -280px; margin-top: -280px; border: 1px dotted #dedede; }
-.shang_box img { border: none; border-width: 0; }
-.dasbox a { color: #fff; }
-.shang_close { float: right; display: inline-block; }
-.shang_tit { width: 100%; height: 70px; text-align: center; line-height: 70px; }
-.shang_tit p { color: #a3a3a3; text-align: center; font-size: 16px; }
-.shang_payimg { width: 140px; padding: 10px; border: 6px solid #EA5F00; margin: 0 auto; border-radius: 3px; height: 140px; }
-.shang_payimg img { display: block; text-align: center; width: 140px; height: 140px; }
-.pay_explain { text-align: center; margin: 10px auto; font-size: 12px; color: #545454; }
-.radiobox { width: 16px; height: 16px; background: url(../images/radio2.jpg); display: block; float: left; margin-top: 5px; margin-right: 14px; }
-.checked .radiobox { background: url(../images/radio1.jpg); }
-.shang_payselect { text-align: center; margin: 0 auto; margin-top: 40px; cursor: pointer; height: 60px; width: 280px; }
-.shang_payselect .pay_item { display: inline-block; margin-right: 10px; float: left; }
-.shang_payselect img { float: left }
 
 /*归档页面*/
 

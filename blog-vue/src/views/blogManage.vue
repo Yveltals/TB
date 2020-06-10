@@ -22,7 +22,7 @@
           </template>
         </el-table-column>
 
-        <el-table-column label="用户" width="250">
+        <el-table-column label="用户" width="200">
           <template slot-scope="scope">
             <i class="el-icon-user"></i>
             <span style="margin-left: 10px">{{ scope.row.user.name }}</span>
@@ -33,7 +33,7 @@
           <template slot-scope="scope">
             <i class="el-icon-wind-power"></i>
             <span style="margin-left: 10px" v-if="scope.row.state == 1">正常</span>
-            <span style="margin-left: 10px;color:#F56C6C " v-if="scope.row.state == 0">已删除</span>
+            <span style="margin-left: 10px;color:#F56C6C " v-if="scope.row.state == 0">封禁</span>
           </template>
         </el-table-column>
 
@@ -41,14 +41,30 @@
 
           <template slot-scope="scope">
             <el-button size="mini" v-if="scope.row.state == 1" type="warning" plain
+                       @click="banBlog(scope.row.id, scope.row.state)">
+              封禁
+            </el-button>
+            <el-button size="mini" v-if="scope.row.state == 0" type="warning" plain
+                       @click="banBlog(scope.row.id, scope.row.state)">
+              解封
+            </el-button>
+            <el-button size="mini" type="danger" plain
                        @click="deleteBlog(scope.row.id)">
               删除
             </el-button>
-            <el-tooltip placement="top" effect="light" v-if="scope.row.state == 0">
+            <el-button size="mini" v-if="scope.row.top == 0" type="success" plain
+                       @click="topBlog(scope.row.id, scope.row.top)">
+              置顶
+            </el-button>
+            <el-button size="mini" v-if="scope.row.top == 1" type="primary" plain
+                       @click="topBlog(scope.row.id, scope.row.top)">
+              取消
+            </el-button>
+            <!-- <el-tooltip placement="top" effect="light" v-if="scope.row.state == 0">
               <div slot="content">删除博客同时级联删除了标签<br/>博客此时为保留状态</div>
               <el-link :underline="false" style="margin-right: 68%;color: #E6A23C"><i class="el-icon-question"></i>
               </el-link>
-            </el-tooltip>
+            </el-tooltip> -->
 
           </template>
         </el-table-column>
@@ -144,6 +160,34 @@
         }).catch(() => {
         })
 
+      },
+      banBlog(id,state) {
+        blog.adminBanBlog(id,state).then(res=>{
+          if (state == 1) {
+            this.$message({
+              message: '封禁成功',
+              type: 'success'
+            })
+          } else {
+            this.$message({
+              message: '解封成功',
+              type: 'success'
+            })
+          }
+          this.load()
+        })
+      },
+      topBlog(id,top) {
+        blog.adminTopBlog(id,top).then(res=>{
+          var returnType = 'success'
+          if(res.message=='至少需置顶两篇博客')
+          returnType = 'error'
+          this.$message({
+              message: res.message,
+              type: returnType
+            });
+          this.load()
+        })
       }
     }
   }

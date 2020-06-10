@@ -54,4 +54,13 @@ public class UserFileService {
 
         userFileDAO.delete(id);
     }
+
+    /**
+     * 保存头像地址
+     * @return
+     */
+    public void saveAvatar(String avatar){
+        User user = userDao.findUserByName(jwtTokenUtil.getUsernameFromRequest(request));
+        userDao.updateAvatar(user.getId(),avatar);
+    }
 }

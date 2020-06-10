@@ -1,6 +1,6 @@
 <template>
 <div style="min-height: 870px;">
-  <div class="pagebg timer"></div>
+  <div class="pagebg land"></div>
     <div style="width: 80%" class="container">
     <h1 class="t_nav">
       <a href="/" class="n1">网站首页</a>
@@ -161,9 +161,7 @@
                 .catch(() => {
                     this.$message.error("删除失败，请联系管理员");
                 });
-            }).catch(()=>{
-                layer.msg('已取消删除',{icon:5,time:1000});
-            })
+            }).catch(()=>{})
         },
         DownloadFile(id,name,size) {
             // console.log("开始下载文件id："+ id)

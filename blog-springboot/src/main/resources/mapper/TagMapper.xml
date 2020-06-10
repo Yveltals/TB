@@ -25,22 +25,32 @@
         DELETE FROM tag
         WHERE tag_id = #{value}
     </delete>
+    <delete id="deleteBlogTag" parameterType="Integer">
+        DELETE FROM blog_tag
+        WHERE tag_id = #{value}
+    </delete>
+
+    <select id="findBlogCntByTag" parameterType="Integer" resultType="Integer">
+        SELECT count(*) FROM blog_tag WHERE tag_id = #{id}
+    </select>
 
     <select id="findTagAll" resultMap="Tag">
         SELECT tag_id,tag_name
         FROM tag
+    </select>
+    <select id="getTagCnt" resultType="Long">
+        SELECT count(*) FROM tag
+    </select>
+    <select id="findTagAllByPage" resultMap="Tag">
+        SELECT tag_id,tag_name
+        FROM tag
+        LIMIT #{start},#{showCount}
     </select>
 
     <select id="findTagById" parameterType="Integer" resultMap="Tag">
         SELECT tag_id,tag_name
         FROM tag
         WHERE tag_id = #{value}
-    </select>
-
-    <select id="findTagByUserId" parameterType="Integer" resultMap="Tag">
-        SELECT tag_id,tag_name
-        FROM tag
-        WHERE user_id = #{value}
     </select>
 
     <select id="findTagByBlogId" parameterType="Integer" resultMap="Tag">
@@ -66,4 +76,8 @@
         WHERE LOWER(tag_name) = LOWER(#{value})
     </select>
 
+    <insert id="addDefaultTag" parameterType="Integer">
+        INSERT INTO blog_tag
+        VALUES(#{blogId},#{tagId})
+    </insert>
 </mapper>

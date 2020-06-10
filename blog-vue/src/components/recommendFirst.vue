@@ -1,14 +1,14 @@
 <template>
   <div class="banner">
     <el-carousel class="bannerBox" indicator-position="outside" >
-      <el-carousel-item  v-for="(list,index) in slideList" :key="index">
+      <el-carousel-item  v-for="(item,index) in slideList" :key="index">
             <img
               style="width:100%; height:100%; display:block;cursor:pointer;"
-              :src="imageUrl"
-              :alt="list.title"
-              @click="router(list.id)">
-            <div class="carousel-title" @click="router(list.id)">
-              <span>{{list.title}}</span>
+              :src="coverUrl(index)"
+              :alt="item.title"
+              @click="router(item.id)">
+            <div class="carousel-title" @click="router(item.id)">
+              <span>{{item.title}}</span>
             </div>
       </el-carousel-item>
     </el-carousel>
@@ -25,10 +25,9 @@ export default {
       slideList: [],
       total: 0,        //数据总数
       blogList: [],   //当前页数据
-      pageSize: 5,    //每页显示数量
+      pageSize: 3,    //每页显示数量
       currentPage: 1,   //当前页数
-      loading: true,
-      imageUrl: "http://demopicture.moguit.cn//blog/admin/jpg/2020/4/15/1586946618443.jpg"
+      loading: true
     };
   },
   created() {
@@ -41,8 +40,13 @@ export default {
         path: '/blog/'+id
       })
     },
+    coverUrl(index){// 0 1 2 3
+      if(index==0) return "../../static/images/firstCover1.png" 
+      if(index==1) return "../../static/images/firstCover2.jpg" 
+      return "../../static/images/firstCover3.jpg"
+    },
     load(){
-      blog.getBlogHome(this.currentPage, this.pageSize).then(responese => {
+      blog.getRecommendFirst(this.currentPage, this.pageSize).then(responese => {
       this.total = responese.data.total;
       this.slideList = responese.data.rows;
     });

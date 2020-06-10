@@ -4,7 +4,6 @@ import com.zzx.dao.BlogDao;
 import com.zzx.dao.TagDao;
 import com.zzx.dao.UserDao;
 import com.zzx.model.pojo.Tag;
-import com.zzx.model.pojo.User;
 import com.zzx.utils.JwtTokenUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -41,7 +40,6 @@ public class TagService {
         {
             throw new RuntimeException("标签重复");
         }
-
         Tag tag = new Tag();
         tag.setName(tagName);
         tagDao.saveTag(tag);
@@ -54,14 +52,12 @@ public class TagService {
      */
     @Transactional(rollbackFor = Exception.class)
     public void deleteTagById(Integer tagId) {
-        String username = jwtTokenUtil.getUsernameFromRequest(request);
-
         //查询此标签下是否有博文
-        if (blogDao.findBlogCountByTagId(tagId) > 0) {
-            throw new RuntimeException("此标签关联了博客");
-        }
-
+//        if (blogDao.findBlogCountByTagId(tagId) > 0) {
+//            throw new RuntimeException("此标签关联了博客");
+//        }
         tagDao.deleteTag(tagId);
+        tagDao.deleteBlogTag(tagId);
     }
 
     /**
@@ -71,25 +67,45 @@ public class TagService {
      * @param tagName
      */
     public void updateTag(Integer tagId, String tagName) {
-        String username = jwtTokenUtil.getUsernameFromRequest(request);
-        User user = userDao.findUserByName(username);
         Tag tag = tagDao.findTagById(tagId);
         tag.setName(tagName);
         tagDao.updateTagName(tag);
     }
 
     /**
-     * 查询该user下的所有标签
-     */
-    public List<Tag> findTagByUserId() {
-        String username = jwtTokenUtil.getUsernameFromRequest(request);
-        User user = userDao.findUserByName(username);
-        return tagDao.findTagByUserId(user.getId());
-    }
-    /**
      * 查询所有标签
      */
     public List<Tag> findTagAll() {
-        return tagDao.findTagAll();
+        List<Tag> tags = tagDao.findTagAll();
+        return tags;
+    }
+    /**
+     * 分页查看所有标签
+     */
+    public List<Tag> findTagAllByPage(Integer page, Integer showCount) {
+        List<Tag> tags = tagDao.findTagAllByPage((page - 1) * showCount, showCount);
+        for(Tag tag: tags){
+            Integer blogcnt = tagDao.findBlogCntByTag(tag.getId());
+            tag.setBlogcnt(blogcnt);
+        }
+        return tags;
+    }
+    /**
+     * 标签总数
+     * @return
+     */
+    public Long getTagCount() {
+        return tagDao.getTagCnt();
+    }
+
+    /**
+     * 给无标签博文添加默认标签
+     */
+    public void adjust() {
+        List<Integer> blogIdList = blogDao.getBlogIdList();
+        for(Integer blogId : blogIdList){
+            List<Tag> list = tagDao.findTagByBlogId(blogId);
+            if(list.size()==0) tagDao.addDefaultTag(blogId,12);
+        }
     }
 }

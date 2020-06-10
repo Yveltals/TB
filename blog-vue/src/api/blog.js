@@ -14,15 +14,27 @@ export default {
       method: 'get'
     })
   },
+  getTopBlog() {
+    return request({
+      url: '/blog/topBlog',
+      method: 'get'
+    })
+  },
   getStatisticalBlogByMonth() {
     return request({
       url: '/blog/statisticalBlogByMonth',
       method: 'get'
     })
   },
-  getBlogHome(page, showCount) {
+  getBlogHome(page, showCount) {//主页最新博客
     return request({
       url: '/blog/home/' + page + '/' + showCount,
+      method: 'get'
+    })
+  },
+  getRecommendFirst(page, showCount) { //recommendFirst 点赞排序
+    return request({
+      url: '/blog/recommendFirst/' + page + '/' + showCount,
       method: 'get'
     })
   },
@@ -35,6 +47,12 @@ export default {
   getMyBlog(page, showCount) {
     return request({
       url: '/blog/myblog/' + page + '/' + showCount,
+      method: 'get'
+    })
+  },
+  getUserBlog(userName,page, showCount) {
+    return request({
+      url: '/blog/userblog/' +userName+ '/' + page + '/' + showCount,
       method: 'get'
     })
   },
@@ -65,6 +83,18 @@ export default {
     return request({
       url: '/blog/admin/' + blogId,
       method: 'delete'
+    })
+  },
+  adminBanBlog(blogId,state) { //管理员封禁博客
+    return request({
+      url: '/blog/ban/' + blogId+'/'+state,
+      method: 'post'
+    })
+  },
+  adminTopBlog(blogId,state) { //管理员置顶博客
+    return request({
+      url: '/blog/top/' + blogId+'/'+state,
+      method: 'post'
     })
   },
   userDeleteBlog(blogId) { //普通用户删除博客
@@ -103,5 +133,17 @@ export default {
       url: '/blog/searchBlogTag/'+searchTxt,
       method: 'get'
     })
-  }
+  },
+  followerNum(userName){
+    return request({
+      url: '/follow/followerNum/'+userName,
+      method: 'get'
+    })
+  },
+  followingNum(userName){
+    return request({
+      url: '/follow/followingNum/'+userName,
+      method: 'get'
+    })
+  },
 }

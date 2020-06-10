@@ -110,31 +110,33 @@ public class UserService implements UserDetailsService {
     /**
      * 注册
      *
-     * @param userToAdd
+     * @param
      */
     @Transactional(rollbackFor = Exception.class)
-    public void register(User userToAdd, String mailCode, String inviteCode) throws RuntimeException {
+    public void register(String name,String password,String mail, String mailCode) throws RuntimeException {
 
         //验证码无效 throw 异常
-        if (!checkMailCode(userToAdd.getMail(), mailCode)) {
+        if (!checkMailCode(mail, mailCode)) {
             throw new RuntimeException("验证码错误");
         }
         //有效 保存用户
-        final String username = userToAdd.getName();
+        final String username = name;
         if (userDao.findUserByName(username) != null) {
             throw new RuntimeException("用户名已存在");
         }
-        if (userDao.findUserByMail(userToAdd.getMail()) != null) {
+        if (userDao.findUserByMail(mail) != null) {
             throw new RuntimeException("邮箱已使用");
         }
-
+        User userToAdd = new User();
         List<Role> roles = new ArrayList<>(1);
         roles.add(roleService.findRoleByName("USER"));
         userToAdd.setRoles(roles);//新注册用户赋予USER权限
 
-        final String rawPassword = userToAdd.getPassword();
+        final String rawPassword = password;
         userToAdd.setPassword(encoder.encode(rawPassword));//加密密码
         userToAdd.setState(1);//正常状态
+        userToAdd.setMail(mail);
+        userToAdd.setName(name);
         userDao.saveUser(userToAdd);//保存角色
         //保存该用户的所有角色
         for (Role role : roles) {
@@ -251,6 +253,7 @@ public class UserService implements UserDetailsService {
         if(qq!=null) user.setQq(qq);
         if(job!=null) user.setJob(job);
         if(summary!=null) user.setSummary(summary);
+        System.out.println("user.toString() = " + user.toString());
         userDao.updateUser(user);
     }
     /**
@@ -258,6 +261,9 @@ public class UserService implements UserDetailsService {
      */
     public User getUserInfo(){
         return userDao.findUserByName(jwtTokenUtil.getUsernameFromRequest(request));
+    }
+    public User getUserInfoByName(String userName){
+        return userDao.findUserByName(userName);
     }
 
     /**
@@ -321,8 +327,6 @@ public class UserService implements UserDetailsService {
         if (user == null) {
             throw new RuntimeException("用户名不存在");
         }
-
-
         //与用户输入的邮箱验证码进行匹配
         if (!checkMailCode(user.getMail(), mailCode)) {
             throw new RuntimeException("无效验证码");
@@ -330,7 +334,6 @@ public class UserService implements UserDetailsService {
         user.setPassword(encoder.encode(newPassword));
         //更新密码
         userDao.updateUser(user);
-
     }
 
     /**
@@ -454,6 +457,23 @@ public class UserService implements UserDetailsService {
         redisTemplate.delete(JwtConfig.REDIS_TOKEN_KEY_PREFIX + username);
     }
 
+    /**
+     * 根据id获取头像
+     * @param userName
+     * @return
+     */
+    public String getUserAvatar(String userName) {
+        return userDao.getAvatarByName(userName);
+    }
+
+//    /**
+//     * 保存头像地址
+//     * @return
+//     */
+//    public void saveAvatar(String avatar){
+//        User user = userDao.findUserByName(jwtTokenUtil.getUsernameFromRequest(request));
+//        userDao.updateAvatar(user.getId(),avatar);
+//    }
 
     //**get  / set *//
     public UserDao getUserDao() {

@@ -1,8 +1,5 @@
 package com.zzx.controller;
 
-import java.io.*;
-import java.net.URLEncoder;
-
 import com.zzx.dao.UserDao;
 import com.zzx.model.entity.Result;
 import com.zzx.model.entity.StatusCode;
@@ -12,13 +9,14 @@ import com.zzx.service.UserFileService;
 import com.zzx.utils.FormatUtil;
 import com.zzx.utils.JwtTokenUtil;
 import io.swagger.annotations.ApiOperation;
-import org.apache.tomcat.util.http.fileupload.IOUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.io.*;
+import java.net.URLEncoder;
 
 
 @CrossOrigin
@@ -42,7 +40,7 @@ public class FileController {
     public Result uploadAvatar(@RequestParam("file") MultipartFile file) {
         try {
             User user = userDao.findUserByName(jwtTokenUtil.getUsernameFromRequest(request));
-            String path="/home/zero/image/";
+            String path="/home/zero/avatar/";
             String format = formatUtil.getFileFormat(file.getOriginalFilename());
             File file1 = new File(path + user.getName() + format);
             System.out.println();
@@ -52,6 +50,7 @@ public class FileController {
                 file1.getParentFile().mkdirs();
             }
             file.transferTo(file1);
+            userFileService.saveAvatar("http://39.107.228.168/avatar/"+user.getName()+format);
         }
         catch (IOException e) {
             e.printStackTrace();
@@ -79,6 +78,7 @@ public class FileController {
         try {
             //打印绝对路径
             //System.out.println(ResourceUtils.getURL("classpath:").getPath());
+            User user = userDao.findUserByName(jwtTokenUtil.getUsernameFromRequest(request));
             //获取文件信息
             String Name = file.getOriginalFilename();
             double siz = (double)file.getSize();
@@ -87,9 +87,8 @@ public class FileController {
             else size = String.format("%.1f",siz/1024)+" kb";
             String typ = file.getContentType();
             String type = typ.substring(typ.lastIndexOf("/")+1);
-            String path="/home/zero/file/";
+            String path="/home/zero/file/"+user.getName()+"/";
             //写入文件
-            InputStream inputStream = file.getInputStream();
             File file1 = new File(path + Name);
             if(!file1.getParentFile().exists()){
                 file1.getParentFile().mkdirs();

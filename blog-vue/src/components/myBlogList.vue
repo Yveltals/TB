@@ -3,7 +3,7 @@
     <div v-for="blog in blogList" :key="blog.id">
       <blogOverView :id="blog.id" :title="blog.title" :body="blog.body" :time="getTime(blog.time)"
                     :blogViews="blog.blogViews"
-                    :discussCount="blog.discussCount" :tags="catchTagName(blog.tags)"
+                    :discussCount="blog.favorCount" :tags="catchTagName(blog.tags)"
                     :name="blog.user.name"/>
     </div>
 

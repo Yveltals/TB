@@ -34,6 +34,7 @@ public interface DiscussDao {
      * @param discussId
      */
     void deleteDiscussById(Integer discussId);
+    void deleteDiscussByBlogId(Integer blogId);
 
     /**
      * 查询博文下的评论

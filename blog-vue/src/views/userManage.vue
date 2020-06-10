@@ -1,15 +1,11 @@
 <template>
   <div>
     <div style="text-align: right;margin-bottom: 5px">
-      <el-tooltip placement="top" effect="light" v-if="searchFlag == false">
-        <div slot="content">如果不慎封禁了管理员<br/>请去数据库修改管理员状态</div>
-        <el-link :underline="false" style="margin-right: 68%;color: #E6A23C"><i class="el-icon-question"></i></el-link>
-      </el-tooltip>
       <el-button style="width: 7%;text-align: center" v-if="searchFlag == true" @click="returnNormal()">返回</el-button>
-
       <el-input placeholder="使用用户名模糊查询用户" v-model="searchName" suffix-icon="el-icon-search"
                 style="width: 30%;" @keyup.enter.native="searchSubmit"/>
     </div>
+
     <div v-loading="loading">
       <el-table :data="userData" style="width: 100%" :border="true">
         <el-table-column label="用户名" width="180">
@@ -23,17 +19,6 @@
           <template slot-scope="scope">
             <i class="el-icon-message"></i>
             <span style="margin-left: 10px">{{ scope.row.mail }}</span>
-          </template>
-        </el-table-column>
-
-        <el-table-column label="赞赏码" width="150">
-          <template slot-scope="scope">
-            <i class="el-icon-trophy" v-if="scope.row.reward!=null">&nbsp;&nbsp;&nbsp;&nbsp;</i>
-            <a href="javascript:">
-              <img v-if="scope.row.reward!=null" width="30px" height="30px" @click="showImg(scope.row.reward)"
-                   :src="scope.row.reward" alt="赞赏码"/>
-            </a>
-            <p class="el-icon-trophy" v-if="scope.row.reward==null">&nbsp;&nbsp;&nbsp;&nbsp;暂无记录</p>
           </template>
         </el-table-column>
 
@@ -52,10 +37,8 @@
               <span style="margin-left: 10px" v-if="!(typeof(scope.row.login) == 'undefined') && scope.row.login!==null"
                     @click="showIPInfo(scope.row.login===null?'':scope.row.login.ip)">{{ scope.row.login.ip }}</span>
             </el-link>
-
             <span style="margin-left: 10px" v-if="(typeof(scope.row.login) == 'undefined') ||scope.row.login===null"
                   @click="showIPInfo(scope.row.login===null?'':scope.row.login.ip)">暂无记录</span>
-
           </template>
         </el-table-column>
 
@@ -68,14 +51,16 @@
         </el-table-column>
 
         <el-table-column label="操作">
-
           <template slot-scope="scope">
-            <el-button size="mini" v-if="scope.row.state == 1" type="warning" plain
+            <el-button size="mini" v-if="scope.row.name == 'admin'" type="warning" plain disabled
                        @click="banUser(scope.row.id,(scope.row.state+1)%2)">
               封禁
             </el-button>
-
-            <el-button size="mini" v-if="scope.row.state == 0" type="success" plain
+            <el-button size="mini" v-else-if="scope.row.state == 1" type="warning" plain
+                       @click="banUser(scope.row.id,(scope.row.state+1)%2)">
+              封禁
+            </el-button>
+            <el-button size="mini" v-else-if="scope.row.state == 0" type="success" plain
                        @click="banUser(scope.row.id,(scope.row.state+1)%2)">
               解封
             </el-button>
