@@ -8,5 +8,11 @@ export default {
       method: 'post',
       data: qs.stringify({'replyBody': replyBody, 'rootId': rootId})
     })
+  },
+  getReply(userId) {
+    return request({
+      url: '/reply/getReply/' + userId,
+      method: 'get',
+    })
   }
 }

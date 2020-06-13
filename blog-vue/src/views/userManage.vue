@@ -42,7 +42,7 @@
           </template>
         </el-table-column>
 
-        <el-table-column label="状态" width="130">
+        <el-table-column label="状态" width="160">
           <template slot-scope="scope">
             <i class="el-icon-wind-power"></i>
             <span style="margin-left: 10px" v-if="scope.row.state == 1">正常</span>
@@ -52,11 +52,11 @@
 
         <el-table-column label="操作">
           <template slot-scope="scope">
-            <el-button size="mini" v-if="scope.row.name == 'admin'" type="warning" plain disabled
+            <el-button size="mini" v-if="scope.row.name == 'admin'" type="warning"  disabled plain
                        @click="banUser(scope.row.id,(scope.row.state+1)%2)">
               封禁
             </el-button>
-            <el-button size="mini" v-else-if="scope.row.state == 1" type="warning" plain
+            <el-button size="mini" v-else-if="scope.row.state == 1" type="warning"  plain
                        @click="banUser(scope.row.id,(scope.row.state+1)%2)">
               封禁
             </el-button>
@@ -145,15 +145,9 @@ export default {
       user.banUser(id, state).then(res => {
         // eslint-disable-next-line eqeqeq
         if (state == 1) {
-          this.$message({
-            message: '解封成功',
-            type: 'success'
-          })
+          this.$notify({title: '提示',type: 'success',message: '解封成功',duration: 3000 });
         } else {
-          this.$message({
-            message: '封禁成功',
-            type: 'success'
-          })
+          this.$notify({title: '提示',type: 'success',message: '封禁成功',duration: 3000 });
         }
         this.load()
       })

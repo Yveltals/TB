@@ -202,6 +202,11 @@ public class BlogController {
             return Result.create(StatusCode.SERVICEERROR, "服务异常");
         }
     }
+    @ApiOperation(value = "首页特别推荐博文", notes = "首页特别推荐博文")
+    @GetMapping("/recommendBlog")
+    public Result recommendBlog() {
+        return Result.create(StatusCode.OK, "查询成功", blogService.findRecommendBlog());
+    }
     /**
      * 查询置顶博文
      */

@@ -14,6 +14,12 @@ export default {
       method: 'get'
     })
   },
+  getRecommendBlog(){
+    return request({
+      url: '/blog/recommendBlog',
+      method: 'get'
+    })
+  },
   getTopBlog() {
     return request({
       url: '/blog/topBlog',

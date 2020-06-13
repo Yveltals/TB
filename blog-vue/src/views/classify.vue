@@ -3,7 +3,6 @@
     <div class="pagebg classify"></div>
     <div class="container">
       <h1 class="t_nav">
-        <span>不要轻易放弃。学习成长的路上，我们长路漫漫，只因学无止境。</span>
         <a href="/" class="n1">网站首页</a>
         <a href="javascript:void(0);" class="n2">分类</a>
       </h1>
@@ -39,7 +38,7 @@
                   <div style="text-align: left">
                     <el-tag class="elTag" type="danger">原创</el-tag>
                     <el-tag class="elTag" v-if="item.user.name">{{item.user.name}}</el-tag>
-                    <el-tag class="elTag" v-for="tag in item.tags" :key="tag.id" type="success">{{tag.name}}</el-tag>
+                    <el-tag class="elTag" type="info" v-for="tag in item.tags" :key="tag.id">{{tag.name}}</el-tag>
                   </div>
                 </el-card>
               </el-timeline-item>

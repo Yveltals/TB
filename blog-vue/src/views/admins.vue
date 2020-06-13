@@ -3,9 +3,9 @@
     <el-container>
       <el-aside style="width: 20%; margin-bottom: -3%">
         <div id="aside">
-          <el-menu :router="true" :default-active="activeIndex" class="el-menu-vertical-demo" @select="handleSelect">
-            <el-menu-item class="menuItem" index="1" route="/admins/userManage">
-              <i class="el-icon-user-solid"></i>
+          <el-menu :router="true" :default-active="activeIndex" class="el-menu-vertical-demo" style="height:870px" background-color="#545c64" text-color="#fff" active-text-color="#ffd04b" @select="handleSelect">
+            <el-menu-item style="margin-top:70px" class="menuItem" index="1" route="/admins/userManage">
+              <i class="el-icon-user-solid" ></i>
               <span slot="title">用户管理</span>
             </el-menu-item>
 
@@ -61,7 +61,6 @@
     },
     methods: {
       handleSelect(key, keyPath) {
-//        console.log(key, keyPath);
         this.activeIndex = key
       }
     }
@@ -73,7 +72,7 @@
   }
 
   #aside {
-    margin: 10px 0px 10px 10px;
+    margin: 0px 60px 0px 0px;
     box-shadow: 0 2px 4px rgba(0, 0, 0, .12), 0 0 6px rgba(0, 0, 0, .04)
   }
 </style>

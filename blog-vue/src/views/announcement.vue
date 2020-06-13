@@ -1,10 +1,9 @@
 <template>
   <div style="min-height: 870px;">
-    <div class="pagebg ab"></div>
+    <div class="pagebg announce"></div>
 
     <div class="container">
       <h1 class="t_nav">
-        <span>每个人都有自己故事，只是演绎的方式不同。</span>
         <a href="/" class="n1">网站首页</a>
         <a href="/" class="n2">公告</a>
       </h1>
@@ -57,11 +56,6 @@
         pageSize: 5,    //每页显示数量
         currentPage: 1,   //当前页数
         loading: true, //是否加载中
-        hotTagData: [
-          {uid:1,content:"OS"},{uid:2,content:"Java"},
-          {uid:8,content:"多线程"},{uid:5,content:"汇编语言"},
-          {uid:9,content:"c++"},{uid:6,content:"数据库"},{uid:4,content:"数据结构"}
-        ] 
       }
     },
     created () {
@@ -82,7 +76,7 @@
           this.total = res.data.total;
           this.announcementList = res.data.rows;
           this.loading = false
-          console.log(res.dara);
+          // console.log(res.data);
         })
       },
       currentChange(currentPage) { //页码更改事件处理

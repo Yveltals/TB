@@ -7,7 +7,8 @@
               <el-card>
               <div class="commentList">
                 <span class="left p1">
-                  <img style="height:50px;width:50px" :src="comment.user.avatar" 
+                  <img v-if="!comment.user.avatar" src='../../static/images/defaultAvatar.png'>
+                  <img v-else style="height:50px;width:50px" :src="comment.user.avatar" 
                     onerror="javascript:this.src='../../static/images/defaultAvatar.png'"/>
                 </span>
                 <span class="right p1">
@@ -30,8 +31,10 @@
       </div>
       <div class="sidebar">
         <div class="about">
-          <p class="avatar" onerror="javascript:this.src='../../static/images/defaultAvatar.png'">
-            <img  :src="avatar" alt />
+          <p class="avatar">
+            <img  v-if="!avatar" src="../../static/images/defaultAvatar.png" alt />
+            <img  v-else-if="avatar.length<1" src="../../static/images/defaultAvatar.png" alt />
+            <img  v-else :src="avatar" alt />
           </p>
           <p class="abname">{{userName}}&nbsp;&nbsp;&nbsp;{{gender}}</p>
           <p class="abname">关注：{{followingNum}}&nbsp;&nbsp;&nbsp;粉丝：{{followerNum}}</p>

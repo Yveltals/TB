@@ -44,24 +44,6 @@
         </span>
         </li>
       </ul>
-      <!-- <p style="overflow: hidden;text-overflow:ellipsis; white-space: nowrap;">
-        <span class="el-icon-time hidden-xs-only" style="width: 20%" >&nbsp;{{time}}</span>
-
-        <span class="el-icon-view hidden-xs-only" style="width: 15%">&nbsp;{{blogViews}}</span>
-
-        <span class="el-icon-chat-line-square hidden-xs-only" style="width: 10%">&nbsp;{{discussCount}}</span>
-
-        <span class="author" >
-          &nbsp;{{name}}
-        </span>
-
-        <span>
-          <span v-for="tag in tags" :key="tag.id">
-            <el-tag size="small" type="success" style="margin-left: 5px">{{tag}}</el-tag>
-          </span>
-        </span>
-
-      </p> -->
     </div>
   </el-card>
 </template>
@@ -107,19 +89,13 @@
           if (this.$store.state.roles.indexOf('ADMIN') > -1) {
             //管理员
             blog.adminDeleteBlog(id).then(res => {
-              this.$message({
-                type: 'success',
-                message: '删除成功'
-              });
+              this.$notify({title: '提示',type: 'success',message: '删除成功',duration: 3000 });
               window.location.reload()
             })
           } else {
             //普通用户
             blog.userDeleteBlog(id).then(res => {
-              this.$message({
-                type: 'success',
-                message: '删除成功'
-              });
+              this.$notify({title: '提示',type: 'success',message: '删除成功',duration: 3000 });
               window.location.reload()
             })
           }

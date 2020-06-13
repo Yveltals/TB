@@ -15,7 +15,6 @@ import router from './router/router'
 
 //引入全局css
 import "@/assets/iconfont/iconfont.css";
-import '../static/css/ckeditor.css';
 import '../static/css/index.css';
 
 Vue.config.productionTip = false

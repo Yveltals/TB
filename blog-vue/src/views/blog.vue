@@ -53,7 +53,9 @@
         <div class="clearfix" >
           <el-divider/>
           <div style="float:left; width:100px;clear:both">
-            <el-avatar shape="square" :size="80" :src="avatarURL"></el-avatar>
+            <el-avatar shape="square" :size="80" :src="avatarURL" @error="true">
+              <img src="https://cube.elemecdn.com/e/fd/0fc7d20532fdaf769a25683617711png.png"/>
+            </el-avatar>
             <el-button v-if="state == 0" size="mini" style="margin-top:20px;width:80%" plain  @click="followUser(userName,state)">
               关注
             </el-button>
@@ -77,7 +79,7 @@
         <el-divider/>
         <div  class="commentBox">
           <!-- 评论部分 -->
-          <div style="text-align:left;width: 100%;padding-top: 2%" v-if="getStoreName()!=''">
+          <div style="text-align:left;width: 100%;padding-top: 2%" >
               <!-- <el-divider/> -->
               <el-input v-model="discussBody" placeholder="请输入评论内容" style="width: 50%" size="mini"></el-input>
               <el-button type="primary" style="margin-left:10px;width: 10%" size="mini" @click="sendDiscuss">评论</el-button>
@@ -213,21 +215,25 @@
     },
     methods: {
       followUser (userName, state) { //关注动作 以state判断是否已关注
+        if(!this.$store.state.name) {
+          this.$notify({title: '提示', message: '请先登录', type: 'error', duration: 4000 });
+          return
+        }
         if(userName==this.getStoreName()){
-          this.$message({ message: '老兄，别玩自己啦', type: 'error' })
+          this.$notify({title: '提示',type: 'error',message: '不能关注自己',duration: 3000 });
           return
         }
         if(state==0){
           user.newFollow(userName).then(res=>{
             this.isfollow()
-            this.$message({message: '关注成功', type: 'success' })
+            this.$notify({title: '提示',type: 'success',message: '关注成功',duration: 3000 });
             this.getfollower()
           })
         }
         else{
           user.removeFollow(userName).then(res=>{
             this.isfollow()
-            this.$message({message: '取关成功',type: 'success' })
+            this.$notify({title: '提示',type: 'info',message: '取消关注',duration: 3000 });
             this.getfollower()
           })
         }
@@ -239,15 +245,17 @@
           })
       },
       thumbUp(){
+        if(!this.$store.state.name) {
+          this.$notify({title: '提示', message: '请先登录', type: 'error', duration: 4000 });
+          return
+        }
         blog.thumbUp(this.blogId).then(res => {
-          this.$message({
-            type: 'success',
-            message: res.message
-          });
+          this.$notify({title: '提示',type: 'success',message: res.message, duration: 3000 });
           this.loadBlog();
         })
       },
       isfollow(){ //检查是否关注当前用户
+        if(!this.$store.state.name) return
         user.isfollow(this.userName).then(res=>{
           // console.log(res.data)
           if(res.data==true) this.state=1
@@ -305,8 +313,10 @@
             this.userId = res.data.user.id;
             this.tags = res.data.tags;
             this.avatarURL = res.data.user.avatar;
-            this.job = res.data.user.job;
-            this.summary = res.data.user.summary;
+            if(!res.data.user.job) this.job = '无'
+            else this.job = res.data.user.job;
+            if(!res.data.user.summary) this.summary = '无'
+            else this.summary = res.data.user.summary;
 
             this.isfollow()
             this.getfollowing()
@@ -355,22 +365,20 @@
         this.$router.push({ name:'classify',params:{tag:tagName}})
       },
       sendReply(discussId, replyId) {  //发送回复
+        if(!this.$store.state.name) {
+          this.$notify({title: '提示', message: '请先登录', type: 'error', duration: 4000 });
+          return
+        }
         this.$prompt('请输入回复内容', '提示', {
           confirmButtonText: '回复',
           cancelButtonText: '取消'
         }).then(({value}) => {
           if (value == null || value.length <= 0) {
-            this.$message({
-              type: 'error',
-              message: '字段不完整'
-            });
+            this.$notify({title: '提示',type: 'error',message: '字段不完整',duration: 4000 });
             return;
           }
           reply.sendReply(discussId, value, replyId).then(res => {
-            this.$message({
-              type: 'success',
-              message: '回复成功'
-            });
+            this.$notify({title: '提示',type: 'success',message: '回复成功',duration: 4000 });
             this.loadBlog();
           })
         }).catch(() => {
@@ -378,18 +386,16 @@
       }
       ,
       sendDiscuss() {  //发送评论
+        if(!this.$store.state.name) {
+          this.$notify({title: '提示', message: '请先登录', type: 'error', duration: 4000 });
+          return
+        }
         if (this.discussBody.length <= 0) {
-          this.$message({
-            type: 'error',
-            message: '字段不完整'
-          });
+          this.$notify({title: '提示',type: 'error',message: '字段不完整',duration: 3000 });
           return;
         }
         discuss.sendDiscuss(this.blogId, this.discussBody).then(res => {
-          this.$message({
-            type: 'success',
-            message: '评论成功'
-          });
+          this.$notify({title: '提示',type: 'success',message: '评论成功',duration: 3000 });
           this.discussBody = ''
           this.loadBlog();
         })
@@ -404,19 +410,13 @@
           if (this.$store.state.roles.indexOf('ADMIN') > -1) {
             //管理员
             discuss.adminDeleteDiscuss(discussId).then(res => {
-              this.$message({
-                type: 'success',
-                message: '删除成功'
-              });
+              this.$notify({title: '提示',type: 'success',message: '删除成功',duration: 3000 });
               this.loadBlog();
             })
           } else {
             //普通用户
             discuss.userDeleteDiscuss(discussId).then(res => {
-              this.$message({
-                type: 'success',
-                message: '删除成功'
-              });
+              this.$notify({title: '提示',type: 'success',message: '删除成功',duration: 3000 });
               this.loadBlog();
             })
           }
@@ -435,18 +435,12 @@
           if (this.$store.state.roles.indexOf('ADMIN') > -1) {
             //管理员
             discuss.adminDeleteReply(replyId).then(res => {
-              this.$message({
-                type: 'success',
-                message: '删除成功'
-              });
+              this.$notify({title: '提示',type: 'success',message: '删除成功',duration: 3000 });
             })
           } else {
             //普通用户
             discuss.userDeleteReply(replyId).then(res => {
-              this.$message({
-                type: 'success',
-                message: '删除成功'
-              });
+              this.$notify({title: '提示',type: 'success',message: '删除成功',duration: 3000 });
             })
           }
           this.loadBlog();

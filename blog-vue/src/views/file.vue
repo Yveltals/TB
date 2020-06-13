@@ -15,9 +15,7 @@
         </el-table-column>
         <el-table-column label="类型" width="120">
           <template slot-scope="scope">
-              <div slot="reference" class="name-wrapper">
-                  <el-tag size="medium">{{ scope.row.type }}</el-tag>
-              </div>
+                  <el-tag type="info" size="medium">{{ scope.row.type }}</el-tag>
           </template>
         </el-table-column>
         <el-table-column label="大小" width="120">
@@ -33,9 +31,9 @@
         </el-table-column>
         <el-table-column label="操作" width="160">
           <template slot-scope="scope">
-              <el-button size="mini" type="success" plain
+              <el-button size="mini" type="primary" 
                   @click="DownloadFile(scope.row.id,scope.row.name,scope.row.size)">下载</el-button>
-              <el-button size="mini" type="danger" plain
+              <el-button size="mini" type="danger" 
                   @click="DeleteFile(scope.row.id)">删除</el-button>
           </template>
         </el-table-column>
@@ -53,16 +51,10 @@
           <div class="el-upload__tip" slot="tip">上传文件不超过50Mb</div>
       </el-upload>
       <br>
-      <!-- <p>上传进度：</p> -->
-      <div v-if="upShow==true" class="progress-wrapper">
-        <div class="progress-progress" :style="uploadStyle"></div>
-        <div class="progress-rate">{{(uploadRate*100).toFixed(2)}}%</div>
-      </div>
-      <br><br>
-      <!-- <p>下载进度：</p> -->
-      <div v-if="downShow==true" class="progress-wrapper">
-        <div class="progress-progress" :style="downloadStyle"></div>
-        <div class="progress-rate">{{(downloadRate*100).toFixed(2)}}%</div>
+      <!-- 上传下载进度-->
+      <div style="width:80%;margin-left:10%">
+        <el-progress  v-if="upShow==true" :text-inside="true" :stroke-width="26" :percentage="(uploadRate*100).toFixed(2)"></el-progress>
+        <el-progress v-if="downShow==true" status="success" :text-inside="true" :stroke-width="26" :percentage="(downloadRate*100).toFixed(2)"></el-progress>
       </div>
     </div>
   </div>
@@ -159,7 +151,7 @@
                     console.log("Deleted.")
                 })
                 .catch(() => {
-                    this.$message.error("删除失败，请联系管理员");
+                    this.$notify({title: '提示',type: 'error',message: '删除失败，请联系管理员',duration: 3000 });
                 });
             }).catch(()=>{})
         },
@@ -195,7 +187,7 @@
                 }
             })
             .catch(() => {
-                this.$message.error("下载失败，请联系管理员");
+                this.$notify({title: '提示',type: 'error',message: '下载失败，请联系管理员',duration: 3000 });
             });
         },
     },

@@ -2,6 +2,7 @@ package com.zzx.controller;
 
 import com.zzx.model.entity.Result;
 import com.zzx.model.entity.StatusCode;
+import com.zzx.model.pojo.Reply;
 import com.zzx.service.ReplyService;
 import com.zzx.utils.FormatUtil;
 import io.swagger.annotations.Api;
@@ -9,6 +10,8 @@ import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @Api(tags = "回复api", description = "回复api", basePath = "/reply")
 @RestController
@@ -73,4 +76,12 @@ public class ReplyController {
         }
 
     }
+
+    @GetMapping("/getReply/{userId}")
+    public Result getReply(@PathVariable Integer userId){
+        List<Reply> replys = replyService.getReplyByUserId(userId);
+        return Result.create(StatusCode.OK, "获取成功",replys);
+    }
+
+
 }

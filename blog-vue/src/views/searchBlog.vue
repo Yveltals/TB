@@ -3,7 +3,6 @@
      <div class="pagebg sh"></div>
      <div class="container">
       <h1 class="t_nav">
-        <span>慢生活，不是懒惰，放慢速度不是拖延时间，而是让我们在生活中寻找到平衡。</span>
         <a href="/" class="n1">网站首页</a>
         <a class="n2">搜索</a>
       </h1>
@@ -95,12 +94,22 @@ export default {
   },
   methods: {
     loadBlog() { //加载数据
-      blog.userSearchBlog(this.searchTxt, this.currentPage, this.pageSize).then(responese => {
-        this.total = responese.data.total;
-        this.blogData = responese.data.rows;
-        this.loading = false;
-      },
-      );
+      var strs= new Array()
+      strs=this.searchTxt.split("_"); 
+      if(strs[0]=='TAG'){
+        blog.userSearchBlogTag(strs[1], this.currentPage, this.pageSize).then(responese => {
+          this.total = responese.data.total;
+          this.blogData = responese.data.rows;
+          this.loading = false;
+        });
+      }
+      else{
+        blog.userSearchBlog(this.searchTxt, this.currentPage, this.pageSize).then(responese => {
+          this.total = responese.data.total;
+          this.blogData = responese.data.rows;
+          this.loading = false;
+        })
+      }
     },
     coverUrl(tag){
       return "../../static/images/cover/"+tag+".jpg"

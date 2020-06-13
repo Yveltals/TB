@@ -20,7 +20,7 @@ public class Tag implements Serializable {
     private Integer id;//id
     private String name;//标签名
     private Integer blogcnt; //对应博客数量
-
+    private Integer cnt = 0; //推荐算法计数
     public Integer getId() {
         return id;
     }

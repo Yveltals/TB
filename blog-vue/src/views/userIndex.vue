@@ -59,19 +59,13 @@ export default {
       if(state==0){
         user.newFollow(userName).then(res=>{
           this.isfollow()
-          this.$message({
-              message: '关注成功',
-              type: 'success'
-            })
+          this.$notify({title: '提示',type: 'success',message: '关注成功',duration: 3000 });
         })
       }
       else{
         user.removeFollow(userName).then(res=>{
           this.isfollow()
-          this.$message({
-              message: '取关成功',
-              type: 'success'
-            })
+          this.$notify({title: '提示',type: 'success',message: '取消关注',duration: 3000 });
         })
       }
       this.$router.go(0);

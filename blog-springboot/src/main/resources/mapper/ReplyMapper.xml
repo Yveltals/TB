@@ -11,7 +11,10 @@
         <result property="time" column="reply_time"/>
         <result property="user.id" column="user_id"/>
         <result property="user.name" column="user_name"/>
+        <result property="user.avatar" column="user_avatar"/>
         <result property="discuss.id" column="discuss_id"/>
+        <result property="discuss.body" column="discuss_body"/>
+        <result property="discuss.blog.id" column="blog_id"/>
         <result property="reply.id" column="reply_rootid"/>
     </resultMap>
 
@@ -35,6 +38,14 @@
         SELECT reply_id,reply_body,reply_time,u.user_id,u.user_name,r.discuss_id,r.reply_rootid
         FROM reply r LEFT JOIN user u on r.user_id = u.user_id LEFT JOIN discuss d on r.discuss_id = d.discuss_id
         WHERE r.discuss_id = #{value}
+        ORDER BY r.reply_time
+    </select>
+
+    <select id="getReplyByUserId" parameterType="Integer" resultMap="Reply">
+        SELECT reply_id,reply_body,reply_time,u2.user_id,u2.user_name,u2.user_avatar,r.discuss_id,d.discuss_body,d.blog_id,r.reply_rootid
+        FROM user u1 left join discuss d on u1.user_id = d.user_id left join reply r on d.discuss_id = r.discuss_id
+            left join user u2 on u2.user_id = r.user_id
+        WHERE u1.user_id != u2.user_id and u1.user_id = #{value}
         ORDER BY r.reply_time
     </select>
 

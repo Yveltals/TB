@@ -2,6 +2,7 @@ package com.zzx.dao;
 
 
 import com.zzx.model.pojo.Blog;
+import com.zzx.model.pojo.Tag;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 import org.springframework.stereotype.Repository;
@@ -192,4 +193,6 @@ public interface BlogDao {
     List<Integer> getBlogIdList();
 
     void deleteBlog(Integer blogId);
+
+
 }

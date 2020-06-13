@@ -202,7 +202,7 @@
     </select>
 
     <select id="searchAllBlog" resultMap="Blog">
-        SELECT blog_id,blog_title,LEFT (blog_body,150) AS blog_body,blog_discussCount,blog_favorCount,blog_blogViews,blog_time,blog_state,b.user_id,u.user_name
+        SELECT blog_id,blog_title,LEFT (blog_body,150) AS blog_body,blog_discussCount,blog_favorCount,blog_blogViews,blog_time,blog_top,blog_state,b.user_id,u.user_name
         FROM blog b LEFT JOIN user u on b.user_id = u.user_id
         WHERE blog_title LIKE '%${searchText}%'
         ORDER BY blog_state DESC,blog_time DESC

@@ -6,8 +6,7 @@ import com.zzx.config.ImgUploadConfig;
 import com.zzx.config.RabbitMQConfig;
 import com.zzx.config.RedisConfig;
 import com.zzx.dao.*;
-import com.zzx.model.pojo.Blog;
-import com.zzx.model.pojo.User;
+import com.zzx.model.pojo.*;
 import com.zzx.schedule.BlogTask;
 import com.zzx.utils.*;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
@@ -452,6 +451,47 @@ public class BlogService {
     }
 
     /**
+     * 根据用户发表、点赞、评论的博文统计，返回推荐博文
+     * TODO
+     * @return
+     */
+    public Blog findRecommendBlog() {
+        User user = userDao.findUserByName(jwtTokenUtil.getUsernameFromRequest(request));
+        List<Blog> writeBlog = blogDao.findBlogByUserId(user.getId(),0,99);
+        List<Tag> tagList = tagDao.findTagAll();
+        for(Blog blog: writeBlog){
+            List<Tag> tags = tagDao.findTagByBlogId(blog.getId());
+            for(Tag tag: tags) count(tagList,tag);
+        }
+        List<Integer> favorList = favorDao.getFavor(user.getId());
+        for(Integer blogId: favorList){
+            Blog blog = blogDao.findBlogAllById(blogId);
+            List<Tag> tags = tagDao.findTagByBlogId(blog.getId());
+            for(Tag tag: tags) count(tagList,tag);
+        }
+        List<Discuss> discussList = discussDao.findUserNewDiscuss(user.getId(),99);
+        for(Discuss discuss: discussList){
+            Blog blog = blogDao.findBlogAllById(discuss.getBlog().getId());
+            List<Tag> tags = tagDao.findTagByBlogId(blog.getId());
+            for(Tag tag: tags) count(tagList,tag);
+        }
+        Tag tagBest = new Tag();
+        for(Tag tag: tagList){
+            if(tag.getCnt()>tagBest.getCnt()) tagBest = tag;
+        }
+        List<Blog> RecommenfBlogList = blogDao.searchBlogTag(tagBest.getName(),0,99);
+        int i = (int)(Math.random()*RecommenfBlogList.size());
+        if(i == RecommenfBlogList.size()) i--;
+        return RecommenfBlogList.get(i);
+    }
+    public static void count(List<Tag> tagList,Tag tag0){
+        for(Tag tag: tagList){
+            if(tag.getId().equals(tag0.getId())) tag.setCnt(1+tag.getCnt());
+        }
+    }
+
+
+    /**
      * 搜索博文
      * 正常状态
      *
@@ -683,5 +723,6 @@ public class BlogService {
     public Long getAllBlogCount() {
         return blogDao.getAllBlogCount();
     }
+
 
 }

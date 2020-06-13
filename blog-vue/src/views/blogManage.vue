@@ -6,8 +6,8 @@
       <el-input placeholder="模糊查询标题" v-model="searchName" suffix-icon="el-icon-search"
                 style="width: 30%;" @keyup.enter.native="searchSubmit"/>
     </div>
-    <div v-loading="loading">
-      <el-table :data="blogData" style="width: 100%" :border="true">
+    <div v-loading="loading" style="height:600px">
+      <el-table :data="blogData" style="width: 100%" :border="true" >
         <el-table-column label="标题" width="400">
           <template slot-scope="scope">
             <i class="el-icon-tickets"></i>
@@ -22,14 +22,14 @@
           </template>
         </el-table-column>
 
-        <el-table-column label="用户" width="200">
+        <el-table-column label="用户" width="160">
           <template slot-scope="scope">
             <i class="el-icon-user"></i>
             <span style="margin-left: 10px">{{ scope.row.user.name }}</span>
           </template>
         </el-table-column>
 
-        <el-table-column label="状态" width="180">
+        <el-table-column label="状态" width="160">
           <template slot-scope="scope">
             <i class="el-icon-wind-power"></i>
             <span style="margin-left: 10px" v-if="scope.row.state == 1">正常</span>
@@ -37,34 +37,30 @@
           </template>
         </el-table-column>
 
-        <el-table-column label="操作">
+        <el-table-column label="操作" width="228">
 
           <template slot-scope="scope">
-            <el-button size="mini" v-if="scope.row.state == 1" type="warning" plain
-                       @click="banBlog(scope.row.id, scope.row.state)">
+                       
+            <el-button size="mini" v-if="scope.row.top == 0"
+                       @click="topBlog(scope.row.id, scope.row.top)">
+              置顶
+            </el-button>
+            <el-button size="mini" v-if="scope.row.top == 1" type="warning"  plain
+                       @click="topBlog(scope.row.id, scope.row.top)">
+              取消
+            </el-button>
+            <el-button size="mini" v-if="scope.row.state == 1" type="warning" 
+                       @click="banBlog(scope.row.id, scope.row.state,scope.row.top)">
               封禁
             </el-button>
             <el-button size="mini" v-if="scope.row.state == 0" type="warning" plain
                        @click="banBlog(scope.row.id, scope.row.state)">
               解封
             </el-button>
-            <el-button size="mini" type="danger" plain
+            <el-button size="mini" type="danger" 
                        @click="deleteBlog(scope.row.id)">
               删除
             </el-button>
-            <el-button size="mini" v-if="scope.row.top == 0" type="success" plain
-                       @click="topBlog(scope.row.id, scope.row.top)">
-              置顶
-            </el-button>
-            <el-button size="mini" v-if="scope.row.top == 1" type="primary" plain
-                       @click="topBlog(scope.row.id, scope.row.top)">
-              取消
-            </el-button>
-            <!-- <el-tooltip placement="top" effect="light" v-if="scope.row.state == 0">
-              <div slot="content">删除博客同时级联删除了标签<br/>博客此时为保留状态</div>
-              <el-link :underline="false" style="margin-right: 68%;color: #E6A23C"><i class="el-icon-question"></i>
-              </el-link>
-            </el-tooltip> -->
 
           </template>
         </el-table-column>
@@ -151,28 +147,23 @@
           type: 'warning'
         }).then(() => {
           blog.adminDeleteBlog(id).then(res => {
-            this.$message({
-              message: '删除成功',
-              type: 'success'
-            });
+            this.$notify({title: '提示',type: 'success',message: '删除成功',duration: 3000 });
             this.load();
           });
         }).catch(() => {
         })
 
       },
-      banBlog(id,state) {
+      banBlog(id,state,top) {
+        if(top==1) {
+          this.$notify({title: '提示',type: 'error',message: '请先取消置顶',duration: 3000 });
+          return 
+        }
         blog.adminBanBlog(id,state).then(res=>{
           if (state == 1) {
-            this.$message({
-              message: '封禁成功',
-              type: 'success'
-            })
+            this.$notify({title: '提示',type: 'success',message: '封禁成功',duration: 3000 });
           } else {
-            this.$message({
-              message: '解封成功',
-              type: 'success'
-            })
+            this.$notify({title: '提示',type: 'success',message: '解封成功',duration: 3000 });
           }
           this.load()
         })
@@ -182,10 +173,7 @@
           var returnType = 'success'
           if(res.message=='至少需置顶两篇博客')
           returnType = 'error'
-          this.$message({
-              message: res.message,
-              type: returnType
-            });
+          this.$notify({title: '提示',type: returnType,message: res.message,duration: 3000 });
           this.load()
         })
       }

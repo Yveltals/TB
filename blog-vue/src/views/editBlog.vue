@@ -76,10 +76,7 @@
     methods: {
       editBlog() { //更改博客
         if (this.checkboxGroup.length <= 0 || this.title.length <= 0 || this.body.length <= 0) {
-          this.$message({
-            type: 'error',
-            message: '字段不完整'
-          });
+          this.$notify({title: '提示',type: 'error',message: '字段不完整',duration: 3000 });
           return;
         }
 

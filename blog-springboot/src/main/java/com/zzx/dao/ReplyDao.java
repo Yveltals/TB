@@ -41,4 +41,11 @@ public interface ReplyDao {
      * @return 受影响行数
      */
     Integer deleteReplyByDiscussId(Integer discussId);
+
+    /**
+     * 根据用户id获取被回复消息
+     * @param userId
+     * @return
+     */
+    List<Reply> getReplyByUserId(Integer userId);
 }

@@ -16,21 +16,27 @@
 
 <script>
 import blog from '@/api/blog'
+  import store from '@/store/store'
 import router from '../router/router'
 export default {
   name: "recommendSide",
   data() {
     return {
-      thirdData: [],
       item: {},
     };
   },
   created() {
-    blog.getHotBlog().then(responese => {
-        this.thirdData = responese.data;
-        this.item = responese.data[0];
-        // console.log(this.thirdData[0].title)
-    });
+    if(!this.$store.state.token){
+      blog.getHotBlog().then(res => {
+          this.item = res.data[0];
+      });
+    }
+    else{
+      blog.getRecommendBlog().then(res=>{
+        // console.log(res.data)
+          this.item = res.data
+      })
+    }
   },
   methods: {
     router(id) {

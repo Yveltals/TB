@@ -44,7 +44,7 @@
 
         <el-table-column label="操作">
           <template slot-scope="scope">
-            <el-button size="mini" type="success" plain v-if="scope.row.top==1"
+            <el-button size="mini" plain v-if="scope.row.top==1"
                        @click="top(scope.row.id,(scope.row.top+1)%2)">置顶公告
             </el-button>
 
@@ -52,7 +52,7 @@
                        @click="top(scope.row.id,(scope.row.top+1)%2)">取消置顶
             </el-button>
 
-            <el-button size="mini" type="danger" plain
+            <el-button size="mini" type="danger" 
                        @click="deleteAnnouncement(scope.row.id)">删除
             </el-button>
 
@@ -111,18 +111,12 @@
       },
       sendAnnouncement() {
         if (this.announcementTitle.length <= 0 || this.announcementBody.length <= 0) {
-          this.$message({
-            message: '字段不完整',
-            type: 'error'
-          });
+          this.$notify({title: '提示',type: 'error',message: '字段不完整',duration: 3000 });
           return;
         }
 
         announcement.sendAnnouncement(this.announcementTitle, this.announcementBody).then(res => {
-          this.$message({
-            message: '发布成功',
-            type: 'success'
-          });
+          this.$notify({title: '提示',type: 'success',message: '发布成功',duration: 3000 });
           this.announcementTitle = '';
           this.announcementBody = '';
           this.load();
@@ -132,15 +126,9 @@
       top(id, state) {
         announcement.top(id, state).then(res => {
           if (state == 1) {
-            this.$message({
-              message: '取消成功',
-              type: 'success'
-            });
+            this.$notify({title: '提示',type: 'success',message: '取消成功',duration: 3000 });
           } else {
-            this.$message({
-              message: '置顶成功',
-              type: 'success'
-            });
+            this.$notify({title: '提示',type: 'success',message: '置顶成功',duration: 3000 });
           }
           this.load();
         })
@@ -152,10 +140,7 @@
           type: 'warning'
         }).then(() => {
           announcement.deleteAnnouncement(id).then(res => {
-            this.$message({
-              message: '删除成功',
-              type: 'success'
-            });
+            this.$notify({title: '提示',type: 'success',message: '删除成功',duration: 3000 });
             this.load();
           })
         }).catch(() => {

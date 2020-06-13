@@ -15,6 +15,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.servlet.http.HttpServletRequest;
+import java.util.List;
 
 @Service
 public class ReplyService {
@@ -117,5 +118,15 @@ public class ReplyService {
         Blog blog = blogDao.findBlogById(discuss.getBlog().getId());
         blog.setDiscussCount(blog.getDiscussCount() - 1);
         blogDao.updateBlog(blog);
+    }
+
+    /**
+     * 获取用户被回复内容
+     * @param userId
+     * @return
+     */
+    public List<Reply> getReplyByUserId(Integer userId) {
+        List<Reply> replys = replyDao.getReplyByUserId(userId);
+        return replys;
     }
 }

@@ -93,4 +93,5 @@ public interface TagDao {
      * 为无标签博文指定默认标签 ‘资料’
      */
     void addDefaultTag(Integer blogId,Integer tagId);
+
 }

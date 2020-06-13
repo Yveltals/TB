@@ -1,19 +1,19 @@
 <template>
   <div id="userBlogList">
     <div class="news_infos">
-      <div v-for="blog in blogList" :key="blog.id">
-        <blogOverView :id="blog.id" :title="blog.title" :body="blog.body" :time="getTime(blog.time)"
-                      :blogViews="blog.blogViews"
-                      :discussCount="blog.discussCount" :tags="catchTagName(blog.tags)"
-                      :name="blog.user.name"/>
-      </div>
-
-      <el-card class="box-card" style="margin: 20% " v-if="blogList.length <= 0">
-        <div>
-          还没发布过博客
+     <div style="min-height:470px">
+        <div v-for="blog in blogList" :key="blog.id">
+          <blogOverView :id="blog.id" :title="blog.title" :body="blog.body" :time="getTime(blog.time)"
+                        :blogViews="blog.blogViews"
+                        :discussCount="blog.discussCount" :tags="catchTagName(blog.tags)"
+                        :name="blog.user.name"/>
         </div>
-      </el-card>
-
+        <el-card class="box-card" style="margin: 20% " v-if="blogList.length <= 0">
+          <div>
+            还没发布过博客
+          </div>
+        </el-card>
+     </div>
       <div>
         <el-pagination
           :pager-count="5"
@@ -31,7 +31,9 @@
     <div class="sidebar">
         <div class="about">
           <p class="avatar">
-            <img :src="avatar" alt />
+            <img  v-if="!avatar" src="../../static/images/defaultAvatar.png" alt />
+            <img  v-else-if="avatar.length<1" src="../../static/images/defaultAvatar.png" alt />
+            <img  v-else :src="avatar" alt />
           </p>
           <p class="abname">{{userName}}&nbsp;&nbsp;&nbsp;{{gender}}</p>
           <p class="abname">关注：{{followingNum}}&nbsp;&nbsp;&nbsp;粉丝：{{followerNum}}</p>

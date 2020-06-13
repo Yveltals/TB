@@ -17,7 +17,7 @@
       <el-button style="width: 12%;text-align: center" @click="flag = true">添加新标签</el-button>
     </div>
 
-    <div v-loading="loading">
+    <div v-loading="loading" style="height:620px">
       <el-table :data="tagList" style="width: 100%" :border="true">
         <el-table-column label="标签" width="300">
           <template slot-scope="scope">
@@ -25,7 +25,7 @@
             <span style="margin-left: 10px">{{ scope.row.name}}</span>
           </template>
         </el-table-column>
-        <el-table-column label="文章数" width="300">
+        <el-table-column label="文章数" width="650">
           <template slot-scope="scope">
             <i class="el-icon-wind-power"></i>
             <span style="margin-left: 10px">{{ scope.row.blogcnt }}</span>
@@ -44,7 +44,7 @@
         </el-table-column>
       </el-table>
     </div>
-    <div style="padding-bottom: 4%">
+    <div id="page">
       <el-pagination
         :page-size="pageSize"
         background
@@ -95,27 +95,18 @@
       },
       sendTag() { //修改/添加标签
         if (this.newTag.length <= 0) {
-          this.$message({
-            message: '字段不完整',
-            type: 'error'
-          });
+          this.$notify({title: '提示',type: 'error',message: '字段不完整',duration: 3000 });
           return;
         }
         if(this.curTagId==0){
           tag.sendTag(this.newTag).then(res => {
-            this.$message({
-              message: '添加成功',
-              type: 'success'
-            })
+            this.$notify({title: '提示',type: 'success',message: '添加成功',duration: 3000 });
             this.clear()
           })
         }
         if(this.curTagId!=0){
           tag.updateTag(this.curTagId,this.newTag).then(res=>{
-            this.$message({
-              message:'修改成功',
-              type:'success'
-            })
+            this.$notify({title: '提示',type: 'success',message: '修改成功',duration: 3000 });
             this.clear()
           })
         }
@@ -127,10 +118,7 @@
             type: 'warning'
         }).then(()=>{
           tag.deleteTag(id).then(res=>{
-          this.$message({
-            message:'删除成功',
-            type:'success'
-          })
+          this.$notify({title: '提示',type: 'success',message: '删除成功',duration: 3000 });
           this.load();
         })
         }).catch(()=>{})
@@ -145,3 +133,10 @@
     }
   }
 </script>
+<style scoped>
+  #page{
+    margin-top: 10px;
+    padding-bottom:4% ;
+    
+  }
+</style>

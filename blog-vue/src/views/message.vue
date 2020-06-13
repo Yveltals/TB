@@ -1,10 +1,9 @@
 <template>
   <div style="min-height: 870px;" class="page">
-    <div class="pagebg clock"></div>
+    <div class="pagebg moon"></div>
     
     <div class="container">
       <h1 class="t_nav">
-        <span>每个人都有自己故事，只是演绎的方式不同。</span>
         <a href="/" class="n1">网站首页</a>
         <a href="/" class="n2">留言</a>
       </h1>
@@ -23,11 +22,12 @@
           <span class="allow p2">还能输入{{count}}个字符</span>
         </div>
       <!--评论列表-->
-      <div class="message_infos">
+      <div class="message_infos" style="min-height:800px">
         <div v-for="message in messageList" :key="message.id">
           <div class="commentList">
             <span class="left p1">
-              <img :src="message.avatar"  style="width:50px; height:50px"
+              <img v-if="!message.avatar" src="../../static/images/defaultAvatar.png">
+              <img v-else :src="message.avatar"  style="width:50px; height:50px"
                 onerror="javascript:this.src='../../static/images/defaultAvatar.png'" />
             </span>
             <span class="right p1">
@@ -46,7 +46,22 @@
           </div>
         </div>
         <div class="noComment" v-if="messageList.length ==0">还没有评论，快来抢沙发吧！</div>
+
       </div>
+
+      <div style="padding-bottom: 4%">
+          <el-pagination
+            :page-size="pageSize"
+            background
+            layout="prev, pager, next"
+            :total="total"
+            @current-change="currentChange"
+            :current-page="currentPage"
+            @prev-click="currentPage=currentPage-1"
+            @next-click="currentPage=currentPage+1"
+            :hide-on-single-page="true">
+          </el-pagination>
+        </div>
     </div>
   </div>
 </template>
@@ -73,9 +88,6 @@ export default {
     this.loadMessage();
   },
   methods: {
-    avatarUrl(name){
-      return  'http://39.107.228.168/image/'+name+'.jpg'
-    },
     vaildCount: function() {
       var count = 1024 - this.messageBody.length;
       if(count <= 0) {
@@ -92,6 +104,7 @@ export default {
       message.getMessage(this.currentPage, this.pageSize).then(res => {
         this.total = res.data.total
         this.messageList = res.data.rows
+        console.log(this.messageList)
         this.loading = false
       })
     },
@@ -101,17 +114,11 @@ export default {
     },
     sendMessage () {
       if (this.messageBody.length <= 0) {
-        this.$message({
-          type: 'error',
-          message: '字段不完整'
-        });
+        this.$notify({title: '提示',type: 'error',message: '字段不完整',duration: 3000 });
         return;
       }
       message.sendMessage(this.messageBody).then(res => {
-        this.$message({
-          type: 'success',
-          message: '留言成功'
-        })
+        this.$notify({title: '提示',type: 'success',message: '留言成功',duration: 3000 });
         this.messageBody = ''
         this.loadMessage()
       })
@@ -123,10 +130,7 @@ export default {
         type: 'warning'
       }).then(() => {
         message.deleteMessage(id).then(res => {
-          this.$message({
-            type: 'success',
-            message: '删除成功'
-          });
+          this.$notify({title: '提示',type: 'success',message: '删除成功',duration: 3000 });
           this.loadMessage();
         })
       }).catch(() => {

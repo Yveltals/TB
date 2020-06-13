@@ -35,11 +35,6 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
         return super.authenticationManagerBean();
     }
 
-//    @Override
-//    protected void configure(AuthenticationManagerBuilder auth) throws Exception {
-//        auth.userDetailsService(userService).passwordEncoder(new BCryptPasswordEncoder());
-//    }
-
     @Override
     protected void configure(HttpSecurity httpSecurity) throws Exception {
 
