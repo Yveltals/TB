@@ -756,7 +756,6 @@
           return;
         }
         var reg = new RegExp(/^([a-zA-Z0-9._-])+@([a-zA-Z0-9_-])+(\.[a-zA-Z0-9_-])+/);
-
         if (!reg.test(this.form.registerMail)) {//检测字符串是否符合正则表达式
           this.$notify({title: '提示',type: 'warning',message: '邮箱格式不正确',duration: 3000 });
           return;

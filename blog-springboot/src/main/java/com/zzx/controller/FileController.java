@@ -86,7 +86,8 @@ public class FileController {
             if((siz/1048576) >= 1) size = String.format("%.2f", siz/1048576)+" Mb";
             else size = String.format("%.1f",siz/1024)+" kb";
             String typ = file.getContentType();
-            String type = typ.substring(typ.lastIndexOf("/")+1);
+//            String type = typ.substring(typ.lastIndexOf("/")+1);
+            String type = Name.substring(Name.lastIndexOf(".")+1);
             String path="/home/zero/file/"+user.getName()+"/";
             //写入文件
             File file1 = new File(path + Name);

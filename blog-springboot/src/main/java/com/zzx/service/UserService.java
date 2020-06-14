@@ -466,15 +466,6 @@ public class UserService implements UserDetailsService {
         return userDao.getAvatarByName(userName);
     }
 
-//    /**
-//     * 保存头像地址
-//     * @return
-//     */
-//    public void saveAvatar(String avatar){
-//        User user = userDao.findUserByName(jwtTokenUtil.getUsernameFromRequest(request));
-//        userDao.updateAvatar(user.getId(),avatar);
-//    }
-
     //**get  / set *//
     public UserDao getUserDao() {
         return userDao;

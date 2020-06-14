@@ -4,7 +4,7 @@
     <p style="display: none">{{userName=this.$route.params.userName}}</p>
     <div class="container">
       <h1 class="t_nav">
-        <span v-if="userName!=this.$store.state.name">
+        <span v-if="userName!=this.$store.state.name && this.$store.state.name">
           <el-button size="mini" v-if="state == 0" type="warning" plain
                        @click="followUser(userName,state)">
               关注
@@ -31,6 +31,7 @@ import userBlogList from '@/components/userBlogList'
 import userDiscussList from '@/components/userDiscussList'
 import tagCloud from '@/components/tagCloud'
 import user from '@/api/user'
+  import store from '@/store/store'
 
 export default {
   name: 'myBlog',
@@ -49,6 +50,7 @@ export default {
   },
   methods: {
     isfollow(){
+      if(!this.$store.state.name) return
       user.isfollow(this.userName).then(res=>{
         // console.log(res.data)
         if(res.data==true) this.state=1

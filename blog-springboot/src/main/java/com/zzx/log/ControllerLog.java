@@ -46,7 +46,6 @@ public class ControllerLog {
         Object obj = pjp.proceed();
         long end = System.currentTimeMillis();
 
-
         StringBuilder builder = new StringBuilder();
         builder.append("{URL:[").append(request.getRequestURI()).append("],")
                 .append("RequestMethod:[").append(request.getMethod()).append("],")
